@@ -10,7 +10,7 @@ interface AuthContextType {
   user: User | null;
   role: UserRole | null;
   currentMember: Member | null;
-  login: (identifier: string, role?: UserRole) => boolean;
+  login: (identifier: string, role?: UserRole) => User | null;
   logout: () => void;
   switchRole: (role: UserRole) => void;
   isLoading: boolean;
@@ -20,7 +20,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   role: null,
   currentMember: null,
-  login: () => false,
+  login: () => null,
   logout: () => {},
   switchRole: () => {},
   isLoading: true,
@@ -34,6 +34,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const storedUserId = localStorage.getItem('dalail_v2_auth_id');
       if (storedUserId) {
+        if (storedUserId === 'logged_out') {
+          setUser(null);
+          setIsLoading(false);
+          return;
+        }
         const found = db.getUserById(storedUserId);
         if (found) {
           setUser(found);
@@ -54,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const login = (identifier: string, targetRole?: UserRole): boolean => {
+  const login = (identifier: string, targetRole?: UserRole): User | null => {
     const users = db.getUsers();
     let found = users.find(
       (u) =>
@@ -64,14 +69,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         u.id === identifier
     );
 
-    // If not in users list, check if identifier is a member's student username
+    // If not in users list, check if identifier is a member's student username, memberId, mobile, or name
     if (!found) {
       const members = db.getMembers();
       const member = members.find(
         (m) =>
           m.studentUsername?.toLowerCase() === identifier.toLowerCase() ||
           m.name.toLowerCase() === identifier.toLowerCase() ||
-          m.memberId.toLowerCase() === identifier.toLowerCase()
+          m.memberId.toLowerCase() === identifier.toLowerCase() ||
+          (m.phone && m.phone === identifier)
       );
 
       if (member) {
@@ -80,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: member.name,
           username: member.studentUsername || member.name.toLowerCase().replace(/\s+/g, ''),
           email: `${member.name.toLowerCase().replace(/\s+/g, '')}@dalail.org`,
-          phone: '+91 9633915864',
+          phone: member.phone || '+91 9633915864',
           role: 'student',
           campusId: member.campusId,
           campusName: member.campusName,
@@ -90,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         setUser(studentUser);
         localStorage.setItem('dalail_v2_auth_id', studentUser.id);
-        return true;
+        return studentUser;
       }
     }
 
@@ -101,9 +107,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (found) {
       setUser(found);
       localStorage.setItem('dalail_v2_auth_id', found.id);
-      return true;
+      return found;
     }
-    return false;
+    return null;
   };
 
   const switchRole = (newRole: UserRole) => {
@@ -117,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('dalail_v2_auth_id');
+    localStorage.setItem('dalail_v2_auth_id', 'logged_out');
     try {
       signOut(auth).catch(() => {});
     } catch {

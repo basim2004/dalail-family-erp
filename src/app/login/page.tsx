@@ -34,7 +34,7 @@ export default function LoginPage() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<UserRole>('main_admin');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('campus_admin');
   const [error, setError] = useState<string | null>(null);
   const [showSplash, setShowSplash] = useState(false);
 
@@ -179,17 +179,17 @@ export default function LoginPage() {
       return;
     }
 
-    const success = login(identifier.trim(), selectedRole);
-    if (success) {
-      if (selectedRole === 'main_admin') {
+    const loggedInUser = login(identifier.trim(), selectedRole);
+    if (loggedInUser) {
+      if (loggedInUser.role === 'main_admin') {
         router.push('/admin');
-      } else if (selectedRole === 'campus_admin') {
+      } else if (loggedInUser.role === 'campus_admin') {
         router.push('/campus-admin');
       } else {
         router.push('/student');
       }
     } else {
-      setError('Invalid username or password.');
+      setError('Invalid username, ID, or password. Please check your credentials.');
     }
   };
 
@@ -298,49 +298,36 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Role Switcher Tabs */}
+            {/* Role Selection Tabs - Campus Admin and Student Only (No Main Admin button) */}
             <div className="mb-6 space-y-1.5">
               <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
-                Select Portal Role
+                Select Portal Access
               </label>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleRoleSelect('main_admin')}
-                  className={`p-2.5 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
-                    selectedRole === 'main_admin'
-                      ? 'border-[#164A9B] bg-[#EAF3FF] text-[#164A9B] shadow-xs ring-2 ring-[#164A9B]/10 font-bold'
-                      : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white font-medium'
-                  }`}
-                >
-                  <ShieldCheck className="w-5 h-5 text-[#164A9B]" />
-                  <span className="text-[11px] leading-tight">Main Admin</span>
-                </button>
-
+              <div className="grid grid-cols-2 gap-2.5">
                 <button
                   type="button"
                   onClick={() => handleRoleSelect('campus_admin')}
-                  className={`p-2.5 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
+                  className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
                     selectedRole === 'campus_admin'
                       ? 'border-[#164A9B] bg-[#EAF3FF] text-[#164A9B] shadow-xs ring-2 ring-[#164A9B]/10 font-bold'
                       : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white font-medium'
                   }`}
                 >
                   <Building2 className="w-5 h-5 text-[#164A9B]" />
-                  <span className="text-[11px] leading-tight">Campus Admin</span>
+                  <span className="text-xs leading-tight font-bold">Campus Admin</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleRoleSelect('student')}
-                  className={`p-2.5 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
+                  className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
                     selectedRole === 'student'
                       ? 'border-[#164A9B] bg-[#EAF3FF] text-[#164A9B] shadow-xs ring-2 ring-[#164A9B]/10 font-bold'
                       : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white font-medium'
                   }`}
                 >
                   <GraduationCap className="w-5 h-5 text-[#164A9B]" />
-                  <span className="text-[11px] leading-tight">Student</span>
+                  <span className="text-xs leading-tight font-bold">Student</span>
                 </button>
               </div>
             </div>
@@ -367,10 +354,8 @@ export default function LoginPage() {
                     onChange={(e) => setIdentifier(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-[#F1F4F9] border-0 rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-[#164A9B] outline-hidden transition-all"
                     placeholder={
-                      selectedRole === 'main_admin'
-                        ? 'Enter admin username or email'
-                        : selectedRole === 'campus_admin'
-                        ? 'Enter campus admin username'
+                      selectedRole === 'campus_admin'
+                        ? 'Enter username, email, or mobile'
                         : 'Enter student username or ID'
                     }
                     autoComplete="off"

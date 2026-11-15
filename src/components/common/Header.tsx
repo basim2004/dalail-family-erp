@@ -131,7 +131,8 @@ export const Header: React.FC = () => {
   const homeHref = role === 'main_admin' ? '/admin' : role === 'campus_admin' ? '/campus-admin' : '/student';
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-dalail-border shadow-subtle">
+    <>
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-dalail-border shadow-subtle">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Left: Mobile Menu Toggle & Brand Logo */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
@@ -186,64 +187,63 @@ export const Header: React.FC = () => {
                 <div className="absolute right-0 mt-2 w-64 max-w-[90vw] bg-white rounded-2xl shadow-float border border-slate-200 py-2 z-50 animate-scale-in">
                   <div className="px-4 py-2 border-b border-slate-100">
                     <p className="text-xs font-bold text-slate-800">{user?.name}</p>
-                    <p className="text-[11px] text-slate-500 font-mono">{user?.email}</p>
+                    <p className="text-[11px] text-slate-500 font-mono">{user?.email || user?.phone}</p>
                     {user?.campusName && (
-                      <p className="text-[10px] text-dalail-primary font-semibold mt-0.5">
-                        📍 {user.campusName}
+                      <p className={`text-[10px] font-bold mt-1 px-2 py-0.5 rounded-md border inline-block ${
+                        role === 'campus_admin'
+                          ? 'text-emerald-800 bg-emerald-50 border-emerald-200'
+                          : role === 'student'
+                          ? 'text-amber-800 bg-amber-50 border-amber-200'
+                          : 'text-blue-800 bg-blue-50 border-blue-200'
+                      }`}>
+                        🏛️ {user.campusName}
                       </p>
                     )}
                   </div>
 
-                <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Switch Active Role (Demo)
-                </div>
-
-                <div className="space-y-1 px-1">
-                  <button
-                    onClick={() => handleRoleChange('main_admin')}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-left transition-colors ${
-                      role === 'main_admin'
-                        ? 'bg-dalail-light text-dalail-primary font-bold'
-                        : 'text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    <ShieldCheck className="w-4 h-4 text-indigo-600" />
-                    <div>
-                      <div className="text-xs">Main Admin</div>
-                      <div className="text-[10px] text-slate-400">Full System Access</div>
+                {/* Only Main Admin has permission to switch roles */}
+                {role === 'main_admin' && (
+                  <>
+                    <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Switch Active Role (Central Admin)
                     </div>
-                  </button>
 
-                  <button
-                    onClick={() => handleRoleChange('campus_admin')}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-left transition-colors ${
-                      role === 'campus_admin'
-                        ? 'bg-dalail-light text-dalail-primary font-bold'
-                        : 'text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    <Building2 className="w-4 h-4 text-emerald-600" />
-                    <div>
-                      <div className="text-xs">Campus Admin</div>
-                      <div className="text-[10px] text-slate-400">Kakkidippuram Campus Only</div>
-                    </div>
-                  </button>
+                    <div className="space-y-1 px-1">
+                      <button
+                        onClick={() => handleRoleChange('main_admin')}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-left transition-colors bg-dalail-light text-dalail-primary font-bold"
+                      >
+                        <ShieldCheck className="w-4 h-4 text-indigo-600" />
+                        <div>
+                          <div className="text-xs">Main Admin</div>
+                          <div className="text-[10px] text-slate-400">Full System Access (Active)</div>
+                        </div>
+                      </button>
 
-                  <button
-                    onClick={() => handleRoleChange('student')}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-left transition-colors ${
-                      role === 'student'
-                        ? 'bg-dalail-light text-dalail-primary font-bold'
-                        : 'text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    <GraduationCap className="w-4 h-4 text-amber-600" />
-                    <div>
-                      <div className="text-xs">Student Panel</div>
-                      <div className="text-[10px] text-slate-400">Field Work Collector (ATHNAN)</div>
+                      <button
+                        onClick={() => handleRoleChange('campus_admin')}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-left transition-colors text-slate-600 hover:bg-slate-50"
+                      >
+                        <Building2 className="w-4 h-4 text-emerald-600" />
+                        <div>
+                          <div className="text-xs">Campus Admin</div>
+                          <div className="text-[10px] text-slate-400">Kakkidippuram Campus Only</div>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => handleRoleChange('student')}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-left transition-colors text-slate-600 hover:bg-slate-50"
+                      >
+                        <GraduationCap className="w-4 h-4 text-amber-600" />
+                        <div>
+                          <div className="text-xs">Student Panel</div>
+                          <div className="text-[10px] text-slate-400">Field Work Collector (ATHNAN)</div>
+                        </div>
+                      </button>
                     </div>
-                  </button>
-                </div>
+                  </>
+                )}
 
                 <div className="border-t border-slate-100 mt-2 pt-1 px-1">
                   <button
@@ -288,6 +288,7 @@ export const Header: React.FC = () => {
         </div>
       </div>
       </div>
+      </header>
 
       {/* Change Password Modal */}
       {showPasswordModal && (
@@ -459,6 +460,6 @@ export const Header: React.FC = () => {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 };
