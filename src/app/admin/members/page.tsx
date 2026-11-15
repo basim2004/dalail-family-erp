@@ -413,7 +413,7 @@ export default function MembersAdminPage() {
                           type="button"
                           onClick={() => handleOpenQuickPassword(m)}
                           className="p-1 text-slate-400 hover:text-amber-600 rounded transition-colors"
-                          title="പാസ്‌വേഡ് മാറ്റുക (Change Password)"
+                          title="Change Password"
                         >
                           <Key className="w-3.5 h-3.5" />
                         </button>
@@ -421,7 +421,7 @@ export default function MembersAdminPage() {
                           type="button"
                           onClick={() => sendCredentialsWhatsApp(m)}
                           className="p-1 text-slate-400 hover:text-emerald-600 rounded transition-colors"
-                          title="വാട്സ്ആപ്പ് വഴി അയക്കുക (Send Password via WhatsApp)"
+                          title="Send Password via WhatsApp (+91 70341 49149)"
                         >
                           {whatsappSentMemberId === m.id ? (
                             <Check className="w-3.5 h-3.5 text-emerald-600" />
@@ -901,7 +901,7 @@ export default function MembersAdminPage() {
                               type="button"
                               onClick={() => handleOpenQuickPassword(m)}
                               className="p-1 text-slate-400 hover:text-amber-600 rounded"
-                              title="പാസ്‌വേഡ് മാറ്റുക (Change Password)"
+                              title="Change Password"
                             >
                               <Key className="w-3.5 h-3.5" />
                             </button>
@@ -909,7 +909,7 @@ export default function MembersAdminPage() {
                               type="button"
                               onClick={() => sendCredentialsWhatsApp(m)}
                               className="p-1 text-slate-400 hover:text-emerald-600 rounded"
-                              title="വാട്സ്ആപ്പ് വഴി അയക്കുക (Send Password via WhatsApp)"
+                              title="Send Password via WhatsApp (+91 70341 49149)"
                             >
                               {whatsappSentMemberId === m.id ? (
                                 <Check className="w-3.5 h-3.5 text-emerald-600" />
@@ -949,7 +949,7 @@ export default function MembersAdminPage() {
                 </div>
                 <div>
                   <h3 className="font-black text-slate-900 text-sm">Change Member Password</h3>
-                  <p className="text-[10px] text-slate-400">പാസ്‌വേഡ് മാറ്റുക</p>
+                  <p className="text-[10px] text-slate-400">Update receiver portal access credentials</p>
                 </div>
               </div>
               <button
@@ -973,7 +973,7 @@ export default function MembersAdminPage() {
 
               <div>
                 <label className="block font-bold text-slate-700 mb-1">
-                  New Password (പുതിയ പാസ്‌വേഡ്) *
+                  New Password *
                 </label>
                 <input
                   type="text"

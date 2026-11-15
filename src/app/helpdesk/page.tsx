@@ -195,7 +195,7 @@ export default function HelpDeskPage() {
           <div className="relative z-10 mt-6 pt-5 border-t border-white/15 flex flex-wrap items-center gap-4 text-xs font-semibold text-white/90">
             <div className="flex items-center gap-2 bg-white/10 px-3.5 py-2 rounded-xl backdrop-blur-xs">
               <Phone className="w-3.5 h-3.5 text-[#F7D9A0]" />
-              <span>Founder Helpline: +91 9645655555</span>
+              <span>Official Helpline: +91 70341 49149</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 px-3.5 py-2 rounded-xl backdrop-blur-xs">
               <Clock className="w-3.5 h-3.5 text-blue-300" />
@@ -399,13 +399,13 @@ export default function HelpDeskPage() {
                   Instant Support Hotline
                 </h3>
                 <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-100 space-y-2">
-                  <span className="text-xs font-bold text-[#164A9B] uppercase block">Direct Line</span>
-                  <div className="text-lg font-black text-slate-900">+91 9645655555</div>
+                  <span className="text-xs font-bold text-[#164A9B] uppercase block">Official Support Line</span>
+                  <div className="text-lg font-black text-slate-900">+91 70341 49149</div>
                   <p className="text-xs text-slate-600 font-medium">
-                    Office of Usthad Abdul Salam Sa’adi (Patron & Founder). Available for urgent credential verification.
+                    Central Office & Official WhatsApp desk of Dalailul Khairath Islamic Foundation. Available for instant support.
                   </p>
                   <a
-                    href="tel:+919645655555"
+                    href="tel:+917034149149"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-[#164A9B] hover:underline pt-1"
                   >
                     <Phone className="w-3.5 h-3.5" />
@@ -433,18 +433,18 @@ export default function HelpDeskPage() {
               <div className="bg-emerald-700 text-white rounded-3xl p-6 shadow-card space-y-3">
                 <h4 className="text-sm font-black flex items-center gap-2">
                   <MessageSquare className="w-4 h-4" />
-                  <span>WhatsApp Help Line</span>
+                  <span>Official WhatsApp Line</span>
                 </h4>
                 <p className="text-xs text-emerald-100 leading-relaxed font-medium">
-                  Prefer chatting? Send a direct WhatsApp message to our reception desk for speedy verification.
+                  Prefer chatting? Send a direct message to our official WhatsApp number for swift verification and assistance.
                 </p>
                 <a
-                  href="https://wa.me/919645655555?text=Assalamu%20Alaikum%2C%20I%20need%20assistance%20regarding%20Dalailul%20Khairath%20Islamic%20Foundation"
+                  href="https://wa.me/917034149149?text=Assalamu%20Alaikum%2C%20I%20need%20assistance%20regarding%20Dalailul%20Khairath%20Islamic%20Foundation"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-2.5 px-4 rounded-xl bg-white text-emerald-900 hover:bg-emerald-50 text-xs font-black flex items-center justify-center gap-2 transition-colors shadow-xs"
                 >
-                  <span>Chat on WhatsApp →</span>
+                  <span>Chat on WhatsApp (+91 70341 49149) →</span>
                 </a>
               </div>
             </div>
@@ -465,13 +465,13 @@ export default function HelpDeskPage() {
                 </p>
                 <div className="space-y-2 pt-2">
                   <div>
-                    <span className="text-[11px] font-bold text-slate-400 uppercase block">Founder Hotline</span>
-                    <a href="tel:+919645655555" className="text-sm font-bold text-[#164A9B] hover:underline">
-                      +91 9645655555
+                    <span className="text-[11px] font-bold text-slate-400 uppercase block">Official Helpline</span>
+                    <a href="tel:+917034149149" className="text-sm font-bold text-[#164A9B] hover:underline">
+                      +91 70341 49149
                     </a>
                   </div>
                   <div>
-                    <span className="text-[11px] font-bold text-slate-400 uppercase block">Central Office</span>
+                    <span className="text-[11px] font-bold text-slate-400 uppercase block">Central Office Desk</span>
                     <a href="tel:+919633915864" className="text-sm font-bold text-slate-800 hover:underline">
                       +91 9633915864
                     </a>
@@ -479,7 +479,7 @@ export default function HelpDeskPage() {
                 </div>
               </div>
               <a
-                href="tel:+919645655555"
+                href="tel:+917034149149"
                 className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-[#164A9B] text-white text-xs font-bold text-center transition-colors"
               >
                 Call Hotline

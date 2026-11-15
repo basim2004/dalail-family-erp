@@ -21,17 +21,55 @@ import {
   EyeOff,
   CheckCircle2,
   X,
+  Menu,
+  LayoutDashboard,
+  Layers,
+  Calendar,
+  History,
+  CreditCard,
+  Calculator,
+  FileSpreadsheet,
+  Users,
+  FolderOpen,
+  BookOpen,
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const { user, role, switchRole, logout } = useAuth();
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPasswordText, setShowPasswordText] = useState(false);
   const [passwordStatus, setPasswordStatus] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const router = useRouter();
+
+  const mainAdminNav = [
+    { label: 'Overview', href: '/admin', icon: LayoutDashboard },
+    { label: 'Collection Groups', href: '/admin/groups', icon: Layers },
+    { label: 'Field Dispatches', href: '/admin/dispatches', icon: Calendar },
+    { label: 'Historical Collection Import', href: '/admin/historical-import', icon: History },
+    { label: 'Expense Management', href: '/admin/expenses', icon: CreditCard },
+    { label: '2K26 Volunteer Settlement', href: '/admin/settlement', icon: Calculator },
+    { label: 'Financial Reports (14)', href: '/admin/reports', icon: FileSpreadsheet },
+    { label: 'Campuses', href: '/admin/campuses', icon: Building2 },
+    { label: 'Members & ID Cards', href: '/admin/members', icon: Users },
+    { label: 'Campus Admins', href: '/admin/campus-admins', icon: UserCheck },
+    { label: 'Field Work Materials', href: '/admin/fieldwork', icon: FolderOpen },
+    { label: 'Brochures', href: '/admin/brochures', icon: BookOpen },
+  ];
+
+  const campusAdminNav = [
+    { label: 'Campus Overview', href: '/campus-admin', icon: Building2 },
+    { label: 'Campus Dispatches', href: '/campus-admin/dispatches', icon: Calendar },
+    { label: 'Campus Groups', href: '/campus-admin/groups', icon: Layers },
+    { label: 'Campus Members', href: '/campus-admin/members', icon: Users },
+    { label: 'Field Work Materials', href: '/campus-admin/fieldwork', icon: FolderOpen },
+    { label: 'Brochures', href: '/campus-admin/brochures', icon: BookOpen },
+  ];
+
+  const navItems = role === 'campus_admin' ? campusAdminNav : mainAdminNav;
 
   const handleSavePassword = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,10 +120,22 @@ export const Header: React.FC = () => {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-dalail-border shadow-subtle">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Logo and Brand */}
-        <Link href={homeHref}>
-          <Logo size="sm" />
-        </Link>
+        {/* Left: Mobile Menu Toggle & Brand Logo */}
+        <div className="flex items-center gap-2">
+          {role !== 'student' && (
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-2 -ml-2 text-slate-700 hover:bg-slate-100 rounded-xl transition-colors lg:hidden"
+              aria-label="Open Navigation Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
+          <Link href={homeHref}>
+            <Logo size="sm" />
+          </Link>
+        </div>
 
         {/* Right Role Switcher & Account Profile */}
         <div className="flex items-center gap-3">
@@ -173,7 +223,7 @@ export const Header: React.FC = () => {
                     }}
                     className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-[#164A9B] transition-colors text-left"
                   >
-                    <Key className="w-3.5 h-3.5 text-[#164A9B]" /> Change Password (പാസ്‌വേഡ് മാറ്റുക)
+                    <Key className="w-3.5 h-3.5 text-[#164A9B]" /> Change Password
                   </button>
                   <Link
                     href="/login"
@@ -297,6 +347,55 @@ export const Header: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Mobile Navigation Drawer for Admin and Campus Admin */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex lg:hidden animate-fade-in">
+          <div className="bg-white w-72 max-w-[85vw] h-full shadow-2xl flex flex-col justify-between p-5 overflow-y-auto">
+            <div className="space-y-5">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2.5">
+                  <Logo size="sm" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl"
+                  aria-label="Close Navigation"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2 px-1">
+                  {role === 'campus_admin' ? 'Campus Administration' : 'Central ERP Financials'}
+                </span>
+
+                <nav className="space-y-1">
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#164A9B] transition-colors"
+                      >
+                        <Icon className="w-4 h-4 text-slate-400" />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 text-[10px] text-slate-400 font-medium text-center">
+              DALAIL FAMILY ERP • Mobile View
+            </div>
           </div>
         </div>
       )}

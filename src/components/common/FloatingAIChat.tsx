@@ -64,7 +64,7 @@ export function FloatingAIChat() {
 
       if (q.includes('founder') || q.includes('salam') || q.includes('usthad')) {
         reply =
-          "The Founder & General Secretary of Dalailul Khairath Islamic Foundation (Regd.) is USTHAD ABDUL SALAM SA'ADI. Under his leadership, the Kakkidippuram campus shelters and educates hundreds of deserving scholars and orphans. Official contact: +91 9645655555.";
+          "The Founder & General Secretary of Dalailul Khairath Islamic Foundation (Regd.) is USTHAD ABDUL SALAM SA'ADI. Under his leadership, the Kakkidippuram campus shelters and educates hundreds of deserving scholars and orphans. Official contact: +91 70341 49149.";
       } else if (q.includes('receipt') || q.includes('verify') || q.includes('df-')) {
         const match = query.match(/DF-\d+-\d+/i);
         if (match) {
@@ -89,7 +89,7 @@ export function FloatingAIChat() {
           'You can explore the live collection leaderboard on our dedicated Leaderboard page (/leaderboard), featuring Individual Students, 5-Member Groups, and Campus-wise rankings with daily, weekly, and monthly filters.';
       } else if (q.includes('help') || q.includes('contact') || q.includes('support')) {
         reply =
-          'For support or queries, you can visit our Help Desk page (/helpdesk) to submit a ticket, contact the foundation helpline at +91 9645655555, or email kakkidippuramdkif@gmail.com.';
+          'For support or queries, you can visit our Help Desk page (/helpdesk) to submit a ticket, contact the foundation helpline at +91 70341 49149, or email kakkidippuramdkif@gmail.com.';
       } else {
         reply =
           "Thank you for contacting Dalail Family ERP. I can answer institutional queries, verify donation receipts, explain field collection protocols, or guide you through our campuses. What would you like to know?";

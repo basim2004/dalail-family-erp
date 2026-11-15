@@ -396,7 +396,7 @@ export default function LoginPage() {
                     }}
                     className="text-[11px] font-bold text-[#164A9B] hover:underline"
                   >
-                    Forgot Password? (പാസ്‌വേഡ് മാറ്റുക / അയക്കുക)
+                    Forgot Password? (Reset & WhatsApp Delivery)
                   </button>
                 </div>
                 <div className="relative">
@@ -461,7 +461,7 @@ export default function LoginPage() {
                     Reset & Send Password
                   </h3>
                   <p className="text-xs text-slate-500">
-                    പാസ്‌വേഡ് മാറ്റുക അല്ലെങ്കിൽ WhatsApp വഴി അയക്കുക
+                    Find your account, set a new password, or send credentials via WhatsApp
                   </p>
                 </div>
               </div>
@@ -543,7 +543,7 @@ export default function LoginPage() {
                     {/* Reset Password Form */}
                     <form onSubmit={handleApplyNewPassword} className="space-y-2">
                       <label className="block text-[11px] font-bold text-slate-800">
-                        1. Set New Password (പുതിയ പാസ്‌വേഡ് മാറ്റുക):
+                        1. Set New Password:
                       </label>
                       <div className="flex items-center gap-2">
                         <input
@@ -565,7 +565,7 @@ export default function LoginPage() {
                     {/* WhatsApp Sender */}
                     <div className="pt-2">
                       <label className="block text-[11px] font-bold text-slate-800 mb-1.5">
-                        2. Official WhatsApp Dispatch (പാസ്‌വേഡ് വാട്സ്ആപ്പിലേക്ക് അയക്കുക):
+                        2. Send Credentials via Official WhatsApp:
                       </label>
                       <button
                         type="button"

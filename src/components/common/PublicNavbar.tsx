@@ -95,12 +95,12 @@ export function PublicNavbar({ activeTab }: PublicNavbarProps) {
             {/* Right: Hotline & Login Button */}
             <div className="flex items-center gap-3">
               <a
-                href="tel:+919645655555"
+                href="tel:+917034149149"
                 className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
-                title="Foundation Hotline"
+                title="Foundation Official Contact"
               >
                 <Phone className="w-3.5 h-3.5 text-[#164A9B]" />
-                <span className="font-mono text-[11px]">+91 9645655555</span>
+                <span className="font-mono text-[11px]">+91 70341 49149</span>
               </a>
 
               <Link

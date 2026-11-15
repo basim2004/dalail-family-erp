@@ -53,9 +53,9 @@ export function PublicFooter() {
 
         {/* Contacts */}
         <div className="flex items-center gap-4 text-[11px] font-mono font-medium text-slate-600">
-          <a href="tel:+919645655555" className="hover:text-[#164A9B] flex items-center gap-1">
+          <a href="tel:+917034149149" className="hover:text-[#164A9B] flex items-center gap-1">
             <Phone className="w-3 h-3 text-[#164A9B]" />
-            <span>+91 9645655555</span>
+            <span>+91 70341 49149</span>
           </a>
           <span>•</span>
           <a href="mailto:kakkidippuramdkif@gmail.com" className="hover:text-[#164A9B] flex items-center gap-1">
