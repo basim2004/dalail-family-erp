@@ -170,7 +170,7 @@ export default function HelpDeskPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] flex flex-col font-sans text-slate-800 antialiased">
+    <div className="min-h-screen bg-[#F5F8FC] flex flex-col font-sans text-slate-800 antialiased overflow-x-hidden">
       {/* Global Navigation */}
       <PublicNavbar />
 

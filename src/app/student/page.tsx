@@ -280,7 +280,7 @@ export default function StudentFieldCollectionPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-[#F5F8FC] pb-24 font-sans">
+    <div className="w-full min-h-screen bg-[#F5F8FC] pb-24 font-sans overflow-x-hidden">
       {/* Top Header Banner - Mockup S1 & S2 Curved Gradient Design */}
       <header className="relative bg-gradient-to-r from-[#0C2F66] via-[#164A9B] to-[#2876C8] text-white rounded-b-[28px] sm:rounded-b-[36px] shadow-lg overflow-hidden">
         <div className="absolute inset-0 bg-islamic-pattern opacity-15 pointer-events-none" />
@@ -387,7 +387,7 @@ export default function StudentFieldCollectionPage() {
       {/* Main Container */}
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6">
         {/* Main Tabs (Today's vs History vs Team & Settlement) */}
-        <div className="flex gap-2 max-w-lg mx-auto sm:max-w-none overflow-x-auto pb-1">
+        <div className="flex gap-2 max-w-lg mx-auto sm:max-w-none overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => setActiveTab('today')}
             className={`flex-1 min-w-[120px] py-3 px-3 rounded-xl transition-all text-center text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 ${

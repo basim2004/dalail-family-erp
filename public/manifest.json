@@ -6,8 +6,8 @@
   "scope": "/",
   "id": "/",
   "display": "standalone",
-  "display_override": ["standalone", "window-controls-overlay"],
-  "orientation": "any",
+  "display_override": ["standalone", "fullscreen", "window-controls-overlay"],
+  "orientation": "portrait-primary",
   "background_color": "#0C2F66",
   "theme_color": "#164A9B",
   "categories": ["education", "finance", "productivity"],
@@ -31,9 +31,9 @@
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-maskable.jpg",
+      "src": "/icons/icon-maskable.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ],

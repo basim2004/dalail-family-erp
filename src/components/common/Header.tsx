@@ -144,11 +144,12 @@ export const Header: React.FC = () => {
           <button
             type="button"
             onClick={() => triggerPwaInstall()}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#164A9B] text-xs font-bold border border-blue-200 transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#164A9B] text-xs font-bold border border-blue-200 transition-colors shadow-2xs"
             title="Install DALAIL FAMILY ERP on your device (Standalone Native App)"
           >
             <Download className="w-3.5 h-3.5 text-[#164A9B]" />
-            <span>Install App</span>
+            <span className="hidden sm:inline">Install App</span>
+            <span className="sm:hidden text-[10px]">App</span>
           </button>
 
           <div className="relative">

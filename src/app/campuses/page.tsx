@@ -52,7 +52,7 @@ export default function CampusesPage() {
   const totalStudents = registeredCampuses.reduce((acc, c) => acc + c.studentCount, 0);
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] flex flex-col font-sans text-slate-800 antialiased">
+    <div className="min-h-screen bg-[#F5F8FC] flex flex-col font-sans text-slate-800 antialiased overflow-x-hidden">
       {/* 1. Global Navigation */}
       <PublicNavbar />
 

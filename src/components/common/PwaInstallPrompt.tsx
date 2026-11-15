@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { Download, X, Smartphone, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Download, X, Smartphone, ShieldCheck, HelpCircle, Check } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -14,14 +13,16 @@ export function PwaInstallPrompt() {
   const [isStandalone, setIsStandalone] = useState(false);
   const [showPromptBanner, setShowPromptBanner] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
-  const [installedSuccess, setInstalledSuccess] = useState(false);
+  const [showGuideModal, setShowGuideModal] = useState(false);
 
   useEffect(() => {
     // 1. Check if running in standalone mode (no Chrome browser address bar)
     const checkStandalone = () => {
       const isStandaloneMode =
         window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+        window.matchMedia('(display-mode: fullscreen)').matches ||
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
+        document.referrer.includes('android-app://');
       setIsStandalone(isStandaloneMode);
     };
 
@@ -43,7 +44,6 @@ export function PwaInstallPrompt() {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      // Auto-show banner after a brief 2-second delay if not dismissed before
       const dismissed = sessionStorage.getItem('dalail_pwa_dismissed');
       if (!dismissed) {
         setShowPromptBanner(true);
@@ -52,7 +52,6 @@ export function PwaInstallPrompt() {
 
     // 4. Listen for app installed event
     const handleAppInstalled = () => {
-      setInstalledSuccess(true);
       setShowPromptBanner(false);
       setDeferredPrompt(null);
       setIsStandalone(true);
@@ -65,15 +64,12 @@ export function PwaInstallPrompt() {
         deferredPrompt.userChoice.then((choiceResult) => {
           if (choiceResult.outcome === 'accepted') {
             setShowPromptBanner(false);
-            setInstalledSuccess(true);
           }
           setDeferredPrompt(null);
         });
       } else {
-        // If browser prompt is not supported yet or already installed
-        alert(
-          'To install DALAIL FAMILY ERP:\n\n• On Chrome / Android: Tap the 3 dots (⋮) menu and select "Install app" or "Add to Home screen".\n• On iPhone (Safari): Tap the Share button (⎋) and select "Add to Home Screen".'
-        );
+        // Show detailed installation guide for Phone & Desktop
+        setShowGuideModal(true);
       }
     };
 
@@ -90,9 +86,7 @@ export function PwaInstallPrompt() {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
-      alert(
-        'To install DALAIL FAMILY ERP:\n\n• On Chrome / Android: Tap the 3 dots (⋮) menu and select "Install app" or "Add to Home screen".\n• On iPhone (Safari): Tap the Share button (⎋) and select "Add to Home Screen".'
-      );
+      setShowGuideModal(true);
       return;
     }
 
@@ -100,7 +94,6 @@ export function PwaInstallPrompt() {
     const choiceResult = await deferredPrompt.userChoice;
     if (choiceResult.outcome === 'accepted') {
       setShowPromptBanner(false);
-      setInstalledSuccess(true);
     }
     setDeferredPrompt(null);
   };
@@ -184,13 +177,69 @@ export function PwaInstallPrompt() {
         </div>
       )}
 
-      {/* Success Notification after App Installation */}
-      {installedSuccess && (
-        <div className="fixed top-4 right-4 z-50 p-4 rounded-2xl bg-emerald-600 text-white shadow-xl flex items-center gap-3 animate-fade-in">
-          <CheckCircle2 className="w-5 h-5 text-white shrink-0" />
-          <div className="text-xs">
-            <strong className="block">App Installed Successfully!</strong>
-            <span>DALAIL FAMILY ERP is now installed on your device as a standalone app.</span>
+      {/* Mobile & Desktop App Installation Step Guide Modal */}
+      {showGuideModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 sm:p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 relative animate-slide-up">
+            <button
+              type="button"
+              onClick={() => setShowGuideModal(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-2xl overflow-hidden border border-slate-200 bg-[#0C2F66] shadow-sm flex items-center justify-center p-1 shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/icons/app-icon.png" alt="Icon" className="w-full h-full object-contain rounded-xl" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-slate-900 leading-tight">
+                  Install DALAIL FAMILY ERP
+                </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Open without Chrome browser view / address bar
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3.5 text-xs text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <div className="space-y-1">
+                <span className="font-bold text-[#164A9B] flex items-center gap-1.5 text-xs">
+                  <Smartphone className="w-4 h-4 text-[#164A9B]" />
+                  <span>On Android Phone (Google Chrome):</span>
+                </span>
+                <ol className="list-decimal list-inside pl-1 space-y-1 text-slate-600 text-[11px] leading-relaxed">
+                  <li>Tap the <strong>3 dots (⋮)</strong> menu in Chrome&apos;s top-right.</li>
+                  <li>Select <strong>&quot;Install app&quot;</strong> (or <em>&quot;Add to Home screen&quot;</em>).</li>
+                  <li>Tap <strong>&quot;Install&quot;</strong>.</li>
+                  <li className="text-emerald-700 font-bold">The app will launch from your home screen as a full-screen app with NO address bar.</li>
+                </ol>
+              </div>
+
+              <div className="pt-2 border-t border-slate-200/80 space-y-1">
+                <span className="font-bold text-slate-800 flex items-center gap-1.5 text-xs">
+                  <Smartphone className="w-4 h-4 text-slate-600" />
+                  <span>On iPhone / iPad (Safari):</span>
+                </span>
+                <ol className="list-decimal list-inside pl-1 space-y-1 text-slate-600 text-[11px] leading-relaxed">
+                  <li>Tap the <strong>Share</strong> button (box with upward arrow) at the bottom.</li>
+                  <li>Scroll and tap <strong>&quot;Add to Home Screen&quot;</strong>.</li>
+                  <li>Tap <strong>&quot;Add&quot;</strong> in the top-right.</li>
+                </ol>
+              </div>
+            </div>
+
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowGuideModal(false)}
+                className="w-full py-2.5 rounded-xl bg-[#164A9B] hover:bg-[#0C2F66] text-white font-bold text-xs transition-colors"
+              >
+                Got It
+              </button>
+            </div>
           </div>
         </div>
       )}

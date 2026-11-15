@@ -200,7 +200,7 @@ export default function LoginPage() {
 
       <div className="min-h-screen bg-[#0C2F66] flex flex-col lg:flex-row overflow-hidden">
         {/* ===================== LAPTOP HERO LEFT PANEL (From Mockup 1_Login) ===================== */}
-        <div className="relative flex-[1.2] lg:min-h-screen p-8 sm:p-12 lg:p-16 flex flex-col justify-between overflow-hidden text-white bg-slate-900">
+        <div className="relative flex-[1.2] lg:min-h-screen p-6 sm:p-10 lg:p-16 flex flex-col justify-between overflow-hidden text-white bg-slate-900">
           {/* Background campus photo with authentic gradient overlay */}
           <div
             className="absolute inset-0 bg-cover bg-center"
@@ -211,7 +211,7 @@ export default function LoginPage() {
 
           {/* Top Brand Header */}
           <div className="relative z-10 flex items-center gap-4">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white p-1.5 shadow-xl flex items-center justify-center">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white p-1.5 shadow-xl flex items-center justify-center shrink-0">
               <Image
                 src="/assets/official-logo.jpg"
                 alt="Dalailul Khairath Official Logo"
@@ -232,24 +232,23 @@ export default function LoginPage() {
           </div>
 
           {/* Center Brand Title & Mission */}
-          <div className="relative z-10 py-10 lg:py-0 max-w-lg">
-            <div className="w-14 h-1 bg-[#E99A24] rounded-full mb-5" />
-            <h1 className="font-playfair text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-white drop-shadow-md">
-              Dalail <br />
-              Family ERP
+          <div className="relative z-10 py-5 lg:py-0 max-w-lg">
+            <div className="w-12 h-1 bg-[#E99A24] rounded-full mb-3 lg:mb-5" />
+            <h1 className="font-playfair text-2xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-white drop-shadow-md">
+              Dalail Family ERP
             </h1>
-            <p className="mt-4 text-sm sm:text-base text-blue-100/90 leading-relaxed max-w-md">
+            <p className="mt-2 sm:mt-4 text-xs sm:text-base text-blue-100/90 leading-relaxed max-w-md">
               Centralized Enterprise Platform for Multi-Campus Operations, Authentic Student ID Cards, Dispatches, and Real-Time Field Collections.
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-2 text-xs font-semibold text-blue-100">
-              <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-xs border border-white/15">
+            <div className="mt-4 flex flex-wrap gap-2 text-[11px] sm:text-xs font-semibold text-blue-100">
+              <span className="px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-xs border border-white/15">
                 ✓ Head Office & Multi-Campus
               </span>
-              <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-xs border border-white/15">
+              <span className="px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-xs border border-white/15">
                 ✓ Verified Receipt Generation
               </span>
-              <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-xs border border-white/15">
+              <span className="px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-xs border border-white/15">
                 ✓ Student Field Work Portal
               </span>
             </div>

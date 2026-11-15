@@ -58,7 +58,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] flex flex-col font-sans text-slate-800 antialiased">
+    <div className="min-h-screen bg-[#F5F8FC] flex flex-col font-sans text-slate-800 antialiased overflow-x-hidden">
       {/* 1. Global Public Navigation Bar */}
       <PublicNavbar />
 
@@ -79,7 +79,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/45 to-transparent" />
 
             {/* Welcome & Institutional Title */}
-            <div className="relative z-20 p-6 sm:p-10 md:p-14 w-full max-w-4xl space-y-4">
+            <div className="relative z-20 p-5 sm:p-10 md:p-14 w-full max-w-4xl space-y-4">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-[#F7D9A0] bg-black/50 px-3.5 py-1 rounded-full border border-amber-400/50 backdrop-blur-md">
                   DALAILUL KHAIRATH ISLAMIC FOUNDATION (REGD.)
@@ -97,22 +97,22 @@ export default function HomePage() {
                 Welcome to Dalailul Khairath Islamic Foundation (Regd.) at Kakkidippuram, P.O. Alamkode, Malappuram Dt., Kerala. Integrating traditional Islamic scholarship with dignified orphan sponsorship and humanitarian care.
               </p>
 
-              <div className="pt-4 flex flex-wrap items-center gap-3">
+              <div className="pt-2 sm:pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
                 <a
                   href="#highlights"
-                  className="px-5 py-2.5 rounded-full bg-[#164A9B] hover:bg-[#0C2F66] text-white font-bold text-xs border border-white/20 transition-all shadow-sm"
+                  className="w-full sm:w-auto text-center justify-center px-5 py-2.5 rounded-full bg-[#164A9B] hover:bg-[#0C2F66] text-white font-bold text-xs border border-white/20 transition-all shadow-sm"
                 >
                   Campus Highlights
                 </a>
                 <Link
                   href="/campuses"
-                  className="px-5 py-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold text-xs border border-white/40 backdrop-blur-md transition-all shadow-sm"
+                  className="w-full sm:w-auto text-center justify-center px-5 py-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold text-xs border border-white/40 backdrop-blur-md transition-all shadow-sm"
                 >
                   Explore Campuses &rarr;
                 </Link>
                 <Link
                   href="/helpdesk"
-                  className="px-5 py-2.5 rounded-full bg-[#F5B82E] hover:bg-[#e0a420] text-slate-950 font-black text-xs transition-all shadow-sm"
+                  className="w-full sm:w-auto text-center justify-center px-5 py-2.5 rounded-full bg-[#F5B82E] hover:bg-[#e0a420] text-slate-950 font-black text-xs transition-all shadow-sm"
                 >
                   Help Desk & Support
                 </Link>
@@ -163,12 +163,12 @@ export default function HomePage() {
 
             {/* High Quality Official Signature & Seal Block */}
             <div className="mt-5 pt-4 border-t border-slate-200/90 w-full flex flex-col items-center space-y-2">
-              <div className="w-full bg-white rounded-2xl p-3.5 border border-slate-200 shadow-subtle flex items-center justify-between gap-4">
-                <div className="flex-1 flex flex-col items-start text-left min-w-0">
+              <div className="w-full bg-white rounded-2xl p-3.5 border border-slate-200 shadow-subtle flex flex-col sm:flex-row items-center sm:items-start justify-between gap-3 text-center sm:text-left">
+                <div className="flex-1 flex flex-col items-center sm:items-start text-center sm:text-left min-w-0">
                   <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
                     Authorized Signatory
                   </span>
-                  <div className="h-12 w-full flex items-center my-0.5">
+                  <div className="h-12 w-full flex items-center justify-center sm:justify-start my-0.5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/assets/office-signature.png"
@@ -183,7 +183,7 @@ export default function HomePage() {
                   <span className="text-[9px] text-slate-400 font-medium">Founder & General Secretary</span>
                 </div>
 
-                <div className="w-16 h-16 relative shrink-0 border-l border-slate-100 pl-3 flex items-center justify-center">
+                <div className="w-16 h-16 relative shrink-0 border-t sm:border-t-0 sm:border-l border-slate-100 pt-2 sm:pt-0 sm:pl-3 flex items-center justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/assets/office-seal.png"
@@ -192,8 +192,8 @@ export default function HomePage() {
                   />
                 </div>
               </div>
-              <div className="inline-flex items-center gap-1.5 text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+              <div className="inline-flex items-center gap-1.5 text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60 text-center">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
                 <span>Verified Executive Authority Endorsement</span>
               </div>
             </div>
