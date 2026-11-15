@@ -94,38 +94,38 @@ export function FeaturedVideoSection({ customSettings }: FeaturedVideoSectionPro
               />
             ) : (
               <div
-                className="relative w-full h-full cursor-pointer overflow-hidden flex items-center justify-center"
+                className="relative w-full h-full cursor-pointer overflow-hidden group select-none"
                 onClick={() => setIsPlaying(true)}
                 title="Click to play documentary"
               >
-                {/* Poster / Thumbnail Image */}
+                {/* Poster / Thumbnail Image - Absolute fill */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={thumbnailUrl}
                   alt={settings.youtubeTitle}
                   onError={() => setImgError(true)}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-95"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-95"
                 />
 
                 {/* Gradient Dim Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-slate-950/40 group-hover:bg-slate-950/30 transition-colors" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-slate-950/40 group-hover:bg-slate-950/30 transition-colors pointer-events-none" />
 
-                {/* Animated Play Button */}
-                <div className="relative z-10 flex flex-col items-center gap-3">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-600 group-hover:bg-red-700 text-white flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-all duration-300 ring-8 ring-white/25">
-                    <Play className="w-7 h-7 sm:w-9 sm:h-9 fill-white ml-1" />
+                {/* Centered Play Button Container - Perfectly Centered on Mobile & Desktop */}
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 sm:gap-3 pointer-events-none">
+                  <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-red-600 group-hover:bg-red-700 text-white flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-all duration-300 ring-4 sm:ring-8 ring-white/25">
+                    <Play className="w-6 h-6 sm:w-9 sm:h-9 fill-white ml-0.5 sm:ml-1" />
                   </div>
-                  <span className="text-white text-xs sm:text-sm font-black tracking-wide uppercase px-3 py-1 rounded-full bg-black/60 backdrop-blur-xs border border-white/20">
+                  <span className="text-white text-[11px] sm:text-xs font-black tracking-wider uppercase px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-black/60 backdrop-blur-xs border border-white/20 shadow-md">
                     Play Video
                   </span>
                 </div>
 
                 {/* Bottom Overlay Label */}
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white/90 text-xs">
-                  <span className="truncate max-w-[80%] font-semibold drop-shadow-sm">
+                <div className="absolute bottom-2.5 sm:bottom-3 left-3 right-3 z-20 flex items-center justify-between text-white/90 text-xs pointer-events-none">
+                  <span className="truncate max-w-[80%] font-semibold drop-shadow-sm text-[11px] sm:text-xs">
                     {settings.youtubeTitle}
                   </span>
-                  <span className="text-[10px] bg-red-600/90 font-mono font-bold px-2 py-0.5 rounded-md">
+                  <span className="text-[9px] sm:text-[10px] bg-red-600 font-mono font-bold px-1.5 sm:px-2 py-0.5 rounded shadow-sm">
                     HD
                   </span>
                 </div>
