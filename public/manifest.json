@@ -6,8 +6,8 @@
   "scope": "/",
   "id": "/",
   "display": "standalone",
-  "display_override": ["standalone", "fullscreen", "window-controls-overlay"],
-  "orientation": "portrait-primary",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
   "background_color": "#0C2F66",
   "theme_color": "#164A9B",
   "categories": ["education", "finance", "productivity"],
@@ -21,12 +21,6 @@
     {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/app-icon.png",
-      "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
     },

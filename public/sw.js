@@ -1,10 +1,11 @@
 // DALAIL FAMILY ERP - Progressive Web App Service Worker
-const CACHE_NAME = 'dalail-family-erp-v1';
+const CACHE_NAME = 'dalail-family-erp-v2';
 const PRECACHE_ASSETS = [
   '/',
   '/manifest.json',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
+  '/icons/icon-maskable.png',
   '/icons/app-icon.png',
   '/assets/official-logo.jpg'
 ];
