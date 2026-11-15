@@ -8,6 +8,7 @@ import { UserRole } from '@/lib/types';
 import { SplashLogoAnimation } from '@/components/common/SplashLogoAnimation';
 import { FloatingAIChat } from '@/components/common/FloatingAIChat';
 import Link from 'next/link';
+import { db } from '@/lib/db/dbService';
 import {
   User as UserIcon,
   Lock,
@@ -20,6 +21,11 @@ import {
   Play,
   CheckCircle2,
   ChevronLeft,
+  Key,
+  Send,
+  X,
+  Smartphone,
+  Check,
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -31,6 +37,132 @@ export default function LoginPage() {
   const [selectedRole, setSelectedRole] = useState<UserRole>('main_admin');
   const [error, setError] = useState<string | null>(null);
   const [showSplash, setShowSplash] = useState(false);
+
+  // Forgot / Reset Password Modal State
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotLookupQuery, setForgotLookupQuery] = useState('');
+  const [foundAccount, setFoundAccount] = useState<{
+    id: string;
+    name: string;
+    username: string;
+    roleName: string;
+    campusName: string;
+    phone: string;
+    currentPassword?: string;
+    type: 'user' | 'member';
+  } | null>(null);
+  const [forgotError, setForgotError] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [resetSuccess, setResetSuccess] = useState<string | null>(null);
+  const [whatsappSent, setWhatsappSent] = useState(false);
+
+  const handleLookupAccount = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setForgotError(null);
+    setResetSuccess(null);
+    setWhatsappSent(false);
+
+    const q = forgotLookupQuery.trim().toLowerCase();
+    if (!q) {
+      setForgotError('Please enter a username, ID, or registered mobile number.');
+      return;
+    }
+
+    // Search in users
+    const users = db.getUsers();
+    const matchedUser = users.find(
+      (u) =>
+        u.username.toLowerCase() === q ||
+        u.phone.replace(/[^0-9]/g, '').includes(q.replace(/[^0-9]/g, '')) ||
+        u.email.toLowerCase() === q
+    );
+
+    if (matchedUser) {
+      setFoundAccount({
+        id: matchedUser.id,
+        name: matchedUser.name,
+        username: matchedUser.username,
+        roleName:
+          matchedUser.role === 'main_admin'
+            ? 'Main Admin'
+            : matchedUser.role === 'campus_admin'
+            ? 'Campus Admin'
+            : 'Student / Receiver',
+        campusName: matchedUser.campusName || 'Kakkidippuram Main Campus',
+        phone: matchedUser.phone || '+91 70341 49149',
+        currentPassword: matchedUser.password || 'password123',
+        type: 'user',
+      });
+      return;
+    }
+
+    // Search in members
+    const members = db.getMembers();
+    const matchedMember = members.find(
+      (m) =>
+        (m.studentUsername && m.studentUsername.toLowerCase() === q) ||
+        m.memberId.toLowerCase() === q ||
+        m.name.toLowerCase().includes(q)
+    );
+
+    if (matchedMember) {
+      setFoundAccount({
+        id: matchedMember.id,
+        name: matchedMember.name,
+        username:
+          matchedMember.studentUsername ||
+          matchedMember.name.toLowerCase().replace(/[^a-z0-9]/g, ''),
+        roleName: 'Official Receiver / Student',
+        campusName: matchedMember.campusName,
+        phone: matchedMember.phone || '+91 70341 49149',
+        currentPassword: matchedMember.studentPassword || 'password123',
+        type: 'member',
+      });
+      return;
+    }
+
+    setForgotError(
+      'No matching account found. Please check your username or contact Admin at +91 70341 49149.'
+    );
+  };
+
+  const handleApplyNewPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!foundAccount || !newPassword.trim()) return;
+
+    if (newPassword.trim().length < 4) {
+      setForgotError('Password must be at least 4 characters long.');
+      return;
+    }
+
+    if (foundAccount.type === 'user') {
+      db.updateUserPassword(foundAccount.id, newPassword.trim());
+    } else {
+      db.updateMemberPassword(foundAccount.id, newPassword.trim());
+    }
+
+    setFoundAccount((prev) =>
+      prev ? { ...prev, currentPassword: newPassword.trim() } : null
+    );
+    setResetSuccess('Password updated successfully! You can now sign in with your new password.');
+  };
+
+  const handleSendViaWhatsApp = () => {
+    if (!foundAccount) return;
+    const pwd = foundAccount.currentPassword || newPassword || 'password123';
+    const text = `*DALAILUL KHAIRATH ISLAMIC FOUNDATION (REGD.)*\n_Official Portal Access Credentials_\n\nAssalamu Alaikum,\nHere are your login credentials for Dalail Family ERP:\n\n👤 *Name:* ${foundAccount.name}\n🔑 *Username:* ${foundAccount.username}\n🔒 *Password:* ${pwd}\n🏛️ *Campus:* ${foundAccount.campusName}\n🌐 *Portal Login:* ${
+      typeof window !== 'undefined' ? window.location.origin : ''
+    }/login\n\nOfficial Foundation Support: +91 70341 49149\nEmail: kakkidippuramdkif@gmail.com`;
+
+    const cleanPhone = foundAccount.phone.replace(/[^0-9]/g, '');
+    const waUrl =
+      cleanPhone.length >= 10
+        ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+
+    window.open(waUrl, '_blank');
+    setWhatsappSent(true);
+  };
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
@@ -256,9 +388,16 @@ export default function LoginPage() {
                   <label className="text-xs font-semibold text-slate-700 block">
                     Password
                   </label>
-                  <span className="text-[11px] text-[#164A9B] hover:underline cursor-pointer">
-                    Forgot?
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForgotModal(true);
+                      if (identifier) setForgotLookupQuery(identifier);
+                    }}
+                    className="text-[11px] font-bold text-[#164A9B] hover:underline"
+                  >
+                    Forgot Password? (പാസ്‌വേഡ് മാറ്റുക / അയക്കുക)
+                  </button>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -306,6 +445,156 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password / WhatsApp Credentials Modal */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6 border border-slate-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-dalail-primary flex items-center justify-center">
+                  <Key className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-slate-900 text-base">
+                    Reset & Send Password
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    പാസ്‌വേഡ് മാറ്റുക അല്ലെങ്കിൽ WhatsApp വഴി അയക്കുക
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowForgotModal(false);
+                  setFoundAccount(null);
+                  setResetSuccess(null);
+                  setForgotError(null);
+                }}
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="mt-4 space-y-4">
+              {/* Lookup Form */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Enter Username, Member ID, or Registered Mobile:
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={forgotLookupQuery}
+                    onChange={(e) => setForgotLookupQuery(e.target.value)}
+                    placeholder="e.g. admin, kakkidippuram, athnan, basim"
+                    className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-dalail-primary outline-hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleLookupAccount()}
+                    className="px-4 py-2.5 bg-dalail-primary hover:bg-dalail-dark text-white rounded-xl text-xs font-bold transition-all shadow-sm shrink-0"
+                  >
+                    Find Account
+                  </button>
+                </div>
+              </div>
+
+              {/* Error Message */}
+              {forgotError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs font-medium">
+                  {forgotError}
+                </div>
+              )}
+
+              {/* Success Message */}
+              {resetSuccess && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{resetSuccess}</span>
+                </div>
+              )}
+
+              {/* Found Account Card */}
+              {foundAccount && (
+                <div className="p-4 bg-blue-50/70 border border-blue-100 rounded-2xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-dalail-primary">
+                        {foundAccount.roleName}
+                      </span>
+                      <h4 className="font-black text-slate-900 text-sm">{foundAccount.name}</h4>
+                    </div>
+                    <span className="text-xs font-mono font-bold bg-white px-2.5 py-1 rounded-lg border text-slate-700">
+                      @{foundAccount.username}
+                    </span>
+                  </div>
+
+                  <div className="text-[11px] text-slate-600 space-y-1 pt-1 border-t border-blue-200/50">
+                    <p>🏛️ <strong>Campus:</strong> {foundAccount.campusName}</p>
+                    <p>📱 <strong>Registered Phone:</strong> {foundAccount.phone}</p>
+                  </div>
+
+                  {/* Actions: Reset Password & Send to WhatsApp */}
+                  <div className="pt-2 border-t border-blue-200/60 space-y-3">
+                    {/* Reset Password Form */}
+                    <form onSubmit={handleApplyNewPassword} className="space-y-2">
+                      <label className="block text-[11px] font-bold text-slate-800">
+                        1. Set New Password (പുതിയ പാസ്‌വേഡ് മാറ്റുക):
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="Enter new password (e.g. Dalail@2026)"
+                          className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold focus:ring-2 focus:ring-dalail-primary outline-hidden"
+                        />
+                        <button
+                          type="submit"
+                          className="px-3.5 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs transition-colors shrink-0"
+                        >
+                          Update Password
+                        </button>
+                      </div>
+                    </form>
+
+                    {/* WhatsApp Sender */}
+                    <div className="pt-2">
+                      <label className="block text-[11px] font-bold text-slate-800 mb-1.5">
+                        2. Official WhatsApp Dispatch (പാസ്‌വേഡ് വാട്സ്ആപ്പിലേക്ക് അയക്കുക):
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleSendViaWhatsApp}
+                        className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all"
+                      >
+                        <Smartphone className="w-4 h-4" />
+                        <span>Send via Official WhatsApp (+91 70341 49149)</span>
+                        <Send className="w-3.5 h-3.5" />
+                      </button>
+                      {whatsappSent && (
+                        <p className="text-[10px] text-emerald-700 font-bold mt-1 text-center">
+                          ✓ WhatsApp opened with official credentials message!
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Foundation Support Footer Note */}
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                <span>Official Sender: <strong>+91 70341 49149</strong></span>
+                <span>Head Office: Kakkidippuram</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Floating AI Chat Assistant */}
       <FloatingAIChat />

@@ -244,6 +244,23 @@ class DatabaseService {
     return this.users[index];
   }
 
+  updateUserPassword(id: string, newPassword: string): boolean {
+    const user = this.users.find((u) => u.id === id);
+    if (!user) return false;
+    user.password = newPassword.trim();
+    this.save('users', this.users);
+
+    // If user is a student linked to a Member, also sync member.studentPassword
+    if (user.memberId) {
+      const member = this.members.find((m) => m.id === user.memberId);
+      if (member) {
+        member.studentPassword = newPassword.trim();
+        this.save('members', this.members);
+      }
+    }
+    return true;
+  }
+
   deleteCampusAdmin(userId: string): boolean {
     const user = this.users.find((u) => u.id === userId);
     if (!user) return false;
@@ -332,6 +349,23 @@ class DatabaseService {
     this.members[index] = { ...this.members[index], ...updates };
     this.save('members', this.members);
     return this.members[index];
+  }
+
+  updateMemberPassword(id: string, newPassword: string): boolean {
+    const member = this.members.find((m) => m.id === id || m.memberId === id);
+    if (!member) return false;
+    member.studentPassword = newPassword.trim();
+    this.save('members', this.members);
+
+    // Also sync corresponding user if present
+    const user = this.users.find(
+      (u) => u.memberId === member.id || (member.studentUsername && u.username.toLowerCase() === member.studentUsername.toLowerCase())
+    );
+    if (user) {
+      user.password = newPassword.trim();
+      this.save('users', this.users);
+    }
+    return true;
   }
 
   deleteMember(id: string): boolean {

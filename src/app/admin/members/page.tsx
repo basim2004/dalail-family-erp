@@ -24,6 +24,8 @@ import {
   Copy,
   Check,
   Lock,
+  Send,
+  Smartphone,
 } from 'lucide-react';
 
 export default function MembersAdminPage() {
@@ -37,6 +39,48 @@ export default function MembersAdminPage() {
   const [revealAllPasswords, setRevealAllPasswords] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showAuditModal, setShowAuditModal] = useState(false);
+
+  // Quick Password Change & WhatsApp State
+  const [quickPasswordMember, setQuickPasswordMember] = useState<Member | null>(null);
+  const [quickNewPassword, setQuickNewPassword] = useState('');
+  const [quickPasswordSuccess, setQuickPasswordSuccess] = useState<string | null>(null);
+  const [whatsappSentMemberId, setWhatsappSentMemberId] = useState<string | null>(null);
+
+  const handleOpenQuickPassword = (m: Member) => {
+    setQuickPasswordMember(m);
+    setQuickNewPassword(m.studentPassword || 'password123');
+    setQuickPasswordSuccess(null);
+  };
+
+  const handleSaveQuickPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickPasswordMember || !quickNewPassword.trim()) return;
+
+    db.updateMemberPassword(quickPasswordMember.id, quickNewPassword.trim());
+    setMembers(db.getMembers());
+    setQuickPasswordSuccess(`Password updated to "${quickNewPassword.trim()}"!`);
+    setTimeout(() => {
+      setQuickPasswordMember(null);
+      setQuickPasswordSuccess(null);
+    }, 1500);
+  };
+
+  const sendCredentialsWhatsApp = (m: Member) => {
+    const u = m.studentUsername || m.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const p = m.studentPassword || 'password123';
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const text = `*DALAILUL KHAIRATH ISLAMIC FOUNDATION (REGD.)*\n_Official Member Portal Credentials_\n\nAssalamu Alaikum,\nHere are your login credentials for Dalail Family ERP:\n\n👤 *Member Name:* ${m.name}\n🆔 *Member ID:* ${m.memberId}\n🏛️ *Campus:* ${m.campusName}\n🌐 *Portal Login:* ${origin}/login\n\n🔑 *Username:* ${u}\n🔒 *Password:* ${p}\n\nPlease keep your credentials confidential.\nOfficial Sender: +91 70341 49149\nEmail: kakkidippuramdkif@gmail.com`;
+
+    const phoneDigits = (m.phone || '').replace(/[^0-9]/g, '');
+    const waUrl =
+      phoneDigits.length >= 10
+        ? `https://api.whatsapp.com/send?phone=${phoneDigits}&text=${encodeURIComponent(text)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+
+    window.open(waUrl, '_blank');
+    setWhatsappSentMemberId(m.id);
+    setTimeout(() => setWhatsappSentMemberId(null), 3000);
+  };
 
   // Modals
   const [selectedMemberForCard, setSelectedMemberForCard] = useState<Member | null>(null);
@@ -363,6 +407,26 @@ export default function MembersAdminPage() {
                             <Check className="w-3.5 h-3.5 text-emerald-600" />
                           ) : (
                             <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenQuickPassword(m)}
+                          className="p-1 text-slate-400 hover:text-amber-600 rounded transition-colors"
+                          title="പാസ്‌വേഡ് മാറ്റുക (Change Password)"
+                        >
+                          <Key className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => sendCredentialsWhatsApp(m)}
+                          className="p-1 text-slate-400 hover:text-emerald-600 rounded transition-colors"
+                          title="വാട്സ്ആപ്പ് വഴി അയക്കുക (Send Password via WhatsApp)"
+                        >
+                          {whatsappSentMemberId === m.id ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          ) : (
+                            <Smartphone className="w-3.5 h-3.5" />
                           )}
                         </button>
                       </div>
@@ -833,6 +897,26 @@ export default function MembersAdminPage() {
                                 <Copy className="w-3.5 h-3.5" />
                               )}
                             </button>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenQuickPassword(m)}
+                              className="p-1 text-slate-400 hover:text-amber-600 rounded"
+                              title="പാസ്‌വേഡ് മാറ്റുക (Change Password)"
+                            >
+                              <Key className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => sendCredentialsWhatsApp(m)}
+                              className="p-1 text-slate-400 hover:text-emerald-600 rounded"
+                              title="വാട്സ്ആപ്പ് വഴി അയക്കുക (Send Password via WhatsApp)"
+                            >
+                              {whatsappSentMemberId === m.id ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              ) : (
+                                <Smartphone className="w-3.5 h-3.5" />
+                              )}
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -850,6 +934,79 @@ export default function MembersAdminPage() {
                 Close Audit
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Change Password Modal */}
+      {quickPasswordMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl p-5 border border-slate-200">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+                  <Key className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-black text-slate-900 text-sm">Change Member Password</h3>
+                  <p className="text-[10px] text-slate-400">പാസ്‌വേഡ് മാറ്റുക</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setQuickPasswordMember(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveQuickPassword} className="space-y-3 pt-3 text-xs">
+              <div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase block mb-0.5">
+                  Member Details:
+                </span>
+                <p className="font-bold text-slate-900">{quickPasswordMember.name}</p>
+                <p className="text-[11px] font-mono text-slate-500">
+                  ID: {quickPasswordMember.memberId} | @{quickPasswordMember.studentUsername || quickPasswordMember.name.toLowerCase().replace(/[^a-z0-9]/g, '')}
+                </p>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  New Password (പുതിയ പാസ്‌വേഡ്) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={quickNewPassword}
+                  onChange={(e) => setQuickNewPassword(e.target.value)}
+                  placeholder="Enter new password"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono font-bold text-xs focus:ring-2 focus:ring-dalail-primary"
+                />
+              </div>
+
+              {quickPasswordSuccess && (
+                <div className="p-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-[11px] font-bold">
+                  {quickPasswordSuccess}
+                </div>
+              )}
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setQuickPasswordMember(null)}
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-dalail-primary hover:bg-dalail-dark text-white font-bold rounded-xl text-xs transition-colors shadow-xs"
+                >
+                  Save Password
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

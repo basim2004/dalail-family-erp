@@ -6,6 +6,7 @@ export interface User {
   username: string;
   email: string;
   phone: string;
+  password?: string;
   role: UserRole;
   campusId?: string;
   campusName?: string;
@@ -48,6 +49,7 @@ export interface Member {
   campusName: string;
   status: 'Active' | 'Inactive';
   fieldWorkEnabled: boolean;
+  phone?: string;
   studentUsername?: string;
   studentPassword?: string;
   createdAt: string;
