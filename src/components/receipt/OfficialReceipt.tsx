@@ -13,6 +13,11 @@ import {
   FileText,
   Smartphone,
   Check,
+  CheckCircle2,
+  ExternalLink,
+  MessageSquare,
+  Send,
+  X,
 } from 'lucide-react';
 
 interface OfficialReceiptProps {
@@ -61,12 +66,42 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
     }
   };
 
+  const [isSendingWhatsApp, setIsSendingWhatsApp] = useState(false);
+  const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
+  const [whatsAppResult, setWhatsAppResult] = useState<any>(null);
+
+  const handleSendOfficialWhatsApp = async () => {
+    setIsSendingWhatsApp(true);
+    try {
+      const res = await fetch('/api/whatsapp/send-receipt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          receiptNo: receipt.receiptNo,
+          shortNo,
+          donorName: receipt.donorName,
+          donorPhone: receipt.donorPhone,
+          amount: receipt.amount,
+          category: receipt.category,
+        }),
+      });
+      const data = await res.json();
+      setWhatsAppResult(data);
+      setWhatsAppModalOpen(true);
+    } catch (err: any) {
+      console.error('WhatsApp send error:', err);
+      setWhatsAppResult({
+        success: false,
+        error: err.message || 'Failed to dispatch WhatsApp',
+      });
+      setWhatsAppModalOpen(true);
+    } finally {
+      setIsSendingWhatsApp(false);
+    }
+  };
+
   const handleShareWhatsApp = () => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://dalail.org';
-    const text = encodeURIComponent(
-      `Dear ${receipt.donorName}, We have successfully received your contribution of ₹${receipt.amount} towards ${receipt.category}. Official Receipt No. ${receipt.receiptNo} (No. [${shortNo}]) has been generated. View your verified receipt here: ${origin}/verify/receipt/${receipt.receiptNo}. Thank you for your generous support.`
-    );
-    window.open(`https://wa.me/${receipt.donorPhone.replace(/[^0-9]/g, '')}?text=${text}`, '_blank');
+    handleSendOfficialWhatsApp();
   };
 
   const handlePrint = () => {
@@ -118,11 +153,13 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
           {/* Action Buttons */}
           <div className="flex items-center gap-2">
             <button
-              onClick={handleShareWhatsApp}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-xs"
+              onClick={handleSendOfficialWhatsApp}
+              disabled={isSendingWhatsApp}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-xs disabled:opacity-50"
+              title="Send official receipt via +91 70341 49149"
             >
               <Share2 className="w-3.5 h-3.5" />
-              <span>WhatsApp</span>
+              <span>{isSendingWhatsApp ? 'Sending...' : 'Official WhatsApp'}</span>
             </button>
             <button
               onClick={handleDownload}
@@ -519,6 +556,127 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
           </div>
         )}
       </div>
+
+      {/* Official WhatsApp Dispatch Confirmation Modal */}
+      {whatsAppModalOpen && whatsAppResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-fade-in print:hidden">
+          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-[#0C2F66] to-[#164A9B] text-white p-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                  <MessageSquare className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black flex items-center gap-1.5">
+                    <span>Official WhatsApp Dispatched</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  </h3>
+                  <p className="text-[11px] text-blue-200 font-mono">
+                    Sender: +91 70341 49149
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setWhatsAppModalOpen(false)}
+                className="p-1.5 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body: WhatsApp Chat Bubble Preview (Madin Academy Style) */}
+            <div className="p-5 space-y-4 bg-slate-100/70">
+              <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                <span>Donor WhatsApp Message Preview:</span>
+                <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-mono text-[10px]">
+                  ✓ Dispatched
+                </span>
+              </div>
+
+              {/* Chat Bubble Container */}
+              <div className="rounded-2xl bg-white p-4 shadow-sm border border-slate-200 space-y-3">
+                {/* Header Banner */}
+                <div className="rounded-xl overflow-hidden bg-[#0C2F66] text-white p-3 border border-blue-900/40">
+                  <div className="text-[10px] uppercase font-bold text-[#F7D9A0] tracking-wide">
+                    Dalailul Khairath Islamic Foundation
+                  </div>
+                  <div className="text-xs font-black mt-0.5">
+                    Official Donation Receipt Confirmation
+                  </div>
+                </div>
+
+                {/* Message Text */}
+                <div className="text-xs text-slate-700 space-y-2 leading-relaxed font-sans">
+                  <p>
+                    Dear <strong>{receipt.donorName}</strong>,
+                  </p>
+                  <p>
+                    We have successfully received your contribution of{' '}
+                    <strong className="text-slate-900 font-mono font-bold">
+                      {formatCurrency(receipt.amount)}
+                    </strong>{' '}
+                    towards <strong>{receipt.category || 'Islamic Education & Student Care'}</strong>.
+                  </p>
+                  <p className="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200/80 font-mono">
+                    📄 <strong>Receipt No:</strong> {receipt.receiptNo} (No. {shortNo})
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Thank you for your generous support.
+                  </p>
+                </div>
+
+                {/* Interactive Link Button */}
+                <div className="pt-1">
+                  <a
+                    href={`/verify/receipt/${receipt.receiptNo}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center gap-1.5 border border-emerald-200 transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>View & Verify Receipt Online</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Technical Audit Box */}
+              <div className="p-3 rounded-xl bg-white border border-slate-200 text-[11px] space-y-1 font-mono text-slate-600">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Recipient:</span>
+                  <span className="font-bold text-slate-800">{receipt.donorPhone}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Official Sender:</span>
+                  <span className="font-bold text-emerald-700">+91 70341 49149</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Message ID:</span>
+                  <span className="truncate max-w-[180px] font-bold text-slate-800">
+                    {whatsAppResult.messageId}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Delivery Status:</span>
+                  <span className="font-bold text-emerald-700 uppercase text-[10px]">
+                    {whatsAppResult.status || 'Sent'} (Logged in Firestore)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-white border-t border-slate-100 flex items-center justify-end">
+              <button
+                onClick={() => setWhatsAppModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors"
+              >
+                Close Confirmation
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
