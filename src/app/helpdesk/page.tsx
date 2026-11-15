@@ -549,23 +549,24 @@ export default function HelpDeskPage() {
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#164A9B] text-xs font-bold border border-blue-200/60 mb-2">
                   <Sparkles className="w-3.5 h-3.5 text-[#E99A24]" />
-                  <span>Official 2026 Institutional Publication</span>
+                  <span>Official 2026 Visual Documentation</span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                   <HelpCircle className="w-6 h-6 text-[#164A9B]" />
-                  <span>Institutional Profile & Comprehensive User Guide</span>
+                  <span>DALAIL FAMILY ERP – VISUAL USER GUIDE 2026</span>
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-                  Complete official documentation covering heritage, public portal, field work collection, campus administration, and support.
+                  Explore the complete visual guide for Campus Admin and Student users.
                 </p>
               </div>
 
               <div className="flex items-center gap-2 self-start sm:self-auto">
                 <a
-                  href="/documents/helpdesk/Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
+                  href="/documents/helpdesk/Dalail_Family_ERP_Visual_User_Guide_2026.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#164A9B] hover:bg-[#0C2F66] text-white font-bold text-xs transition-colors shadow-sm"
+                  title="Open official PDF in browser"
                 >
                   <FileText className="w-4 h-4 text-[#F7D9A0]" />
                   <span>View Full PDF</span>
@@ -573,90 +574,100 @@ export default function HelpDeskPage() {
                 </a>
 
                 <a
-                  href="/documents/helpdesk/Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
-                  download="Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
+                  href="/documents/helpdesk/Dalail_Family_ERP_Visual_User_Guide_2026.pdf"
+                  download="Dalail_Family_ERP_Visual_User_Guide_2026.pdf"
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-colors border border-slate-200 shadow-2xs"
+                  title="Download PDF to your device"
                 >
                   <span>Download</span>
-                  <span className="text-[10px] bg-slate-200/80 px-1.5 py-0.5 rounded font-mono">5.1 MB</span>
+                  <span className="text-[10px] bg-slate-200/80 px-1.5 py-0.5 rounded font-mono">20.6 MB</span>
                 </a>
               </div>
             </div>
 
-            {/* Premium Institutional Publication Feature Card with Cover Thumbnail Preview */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#071938] via-[#0C2F66] to-[#164A9B] text-white shadow-xl border border-blue-900/50 overflow-hidden relative">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                {/* Book Cover Thumbnail Preview */}
-                <div className="md:col-span-4 flex justify-center">
+            {/* Premium Official 3D Booklet Mockup Showcase Card */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#071938] via-[#0C2F66] to-[#164A9B] text-white shadow-2xl border border-blue-900/60 overflow-hidden relative group">
+              {/* Subtle Ambient Background Accents */}
+              <div className="absolute top-0 right-0 w-96 h-96 bg-[#E99A24]/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+              <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
+
+              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                {/* 3D Booklet Mockup Preview - Entire Card is Clickable and Opens the PDF directly */}
+                <div className="lg:col-span-5 flex justify-center">
                   <a
-                    href="/documents/helpdesk/Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
+                    href="/documents/helpdesk/Dalail_Family_ERP_Visual_User_Guide_2026.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative block w-full max-w-[210px] rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 transition-all duration-300 hover:scale-[1.03] hover:shadow-cyan-500/20"
-                    title="Click to view the full 28-page PDF publication"
+                    className="relative block w-full max-w-md rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-slate-900/40 transition-all duration-300 hover:scale-[1.03] hover:shadow-cyan-500/30 hover:border-[#E99A24]/60 cursor-pointer"
+                    title="Click to open the complete DALAIL FAMILY ERP Visual User Guide PDF"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src="/documents/helpdesk/guide_cover_preview.png"
-                      alt="Dalail Family ERP Institutional Profile & User Guide Cover"
-                      className="w-full h-auto object-cover select-none"
+                      src="/documents/helpdesk/Dalail_Family_ERP_User_Guide_Mockup.png"
+                      alt="DALAIL FAMILY ERP – Visual User Guide 2026 3D Booklet Mockup"
+                      className="w-full h-auto object-cover select-none transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 text-center">
-                      <span className="text-[11px] font-bold text-white flex items-center justify-center gap-1.5">
-                        <FileText className="w-3.5 h-3.5 text-[#F7D9A0]" />
-                        <span>Open 28-Page PDF</span>
+
+                    {/* Floating Hover Banner */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-90 sm:opacity-0 hover:opacity-100 sm:group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end p-4 text-center">
+                      <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#E99A24] text-slate-950 font-black text-xs shadow-lg mx-auto">
+                        <FileText className="w-4 h-4" />
+                        <span>Click to Open Visual Guide PDF &rarr;</span>
+                      </div>
+                      <span className="text-[10px] text-blue-200 mt-1.5 font-medium">
+                        Opens full 16-page official document in browser viewer
                       </span>
                     </div>
                   </a>
                 </div>
 
                 {/* Editorial Details & Action Suite */}
-                <div className="md:col-span-8 space-y-4">
+                <div className="lg:col-span-7 space-y-4">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="px-2.5 py-1 bg-[#E99A24] text-slate-950 text-[10px] font-black rounded-md uppercase tracking-wider shadow-xs">
-                      Official Publication
+                      Official Visual Guide
                     </span>
                     <span className="px-2.5 py-1 bg-white/10 text-blue-200 text-[10px] font-bold rounded-md border border-white/10">
-                      28 Pages &bull; A4 Edition
+                      16 Pages &bull; Illustrated Edition
                     </span>
                     <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 text-[10px] font-bold rounded-md border border-emerald-400/30">
-                      High-Resolution Illustrated
+                      Campus Admin & Student Guide
                     </span>
                   </div>
 
                   <div>
                     <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
-                      DALAIL FAMILY ERP – Complete Institutional Profile & Operational User Guide
+                      DALAIL FAMILY ERP – VISUAL USER GUIDE 2026
                     </h3>
                     <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed mt-2">
-                      Comprehensive official publication combining the sacred heritage of Dalailul Khairath Islamic Foundation (Regd.), public website architecture, verified YouTube & Instagram media showcases, regional campus network, student field collection procedures, WhatsApp automated receipts, campus administration manuals, and troubleshooting protocols.
+                      Explore the complete visual guide for Campus Admin and Student users. Comprehensive illustrated handbook detailing portal navigation, Android PWA setup, campus dispatches, field collection receipts, verified cash handover, and real-time administrative settlements.
                     </p>
                   </div>
 
                   {/* 4 Core Pillars Matrix */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 text-center">
-                    <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-                      <span className="block text-xs font-black text-[#F7D9A0]">Module 1&ndash;4</span>
-                      <span className="text-[10px] text-blue-200">Heritage & Public</span>
+                    <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                      <span className="block text-xs font-black text-[#F7D9A0]">Module 01</span>
+                      <span className="text-[10px] text-blue-200 block mt-0.5">Role Login & PWA</span>
                     </div>
-                    <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-                      <span className="block text-xs font-black text-[#F7D9A0]">Module 5&ndash;7</span>
-                      <span className="text-[10px] text-blue-200">Student Field Guide</span>
+                    <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                      <span className="block text-xs font-black text-[#F7D9A0]">Module 02</span>
+                      <span className="text-[10px] text-blue-200 block mt-0.5">Campus Dispatches</span>
                     </div>
-                    <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-                      <span className="block text-xs font-black text-[#F7D9A0]">Module 8</span>
-                      <span className="text-[10px] text-blue-200">Campus Admin</span>
+                    <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                      <span className="block text-xs font-black text-[#F7D9A0]">Module 03</span>
+                      <span className="text-[10px] text-blue-200 block mt-0.5">Student Field Work</span>
                     </div>
-                    <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-                      <span className="block text-xs font-black text-[#F7D9A0]">Module 9&ndash;10</span>
-                      <span className="text-[10px] text-blue-200">Help Desk & PWA</span>
+                    <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                      <span className="block text-xs font-black text-[#F7D9A0]">Module 04</span>
+                      <span className="text-[10px] text-blue-200 block mt-0.5">Cash Settlement</span>
                     </div>
                   </div>
 
                   {/* Dual Action CTAs */}
                   <div className="pt-2 flex flex-wrap items-center gap-3">
                     <a
-                      href="/documents/helpdesk/Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
+                      href="/documents/helpdesk/Dalail_Family_ERP_Visual_User_Guide_2026.pdf"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#E99A24] hover:bg-[#d4891b] text-slate-950 font-black text-xs sm:text-sm transition-all shadow-md active:scale-95"
@@ -667,22 +678,12 @@ export default function HelpDeskPage() {
                     </a>
 
                     <a
-                      href="/documents/helpdesk/Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
-                      download="Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
+                      href="/documents/helpdesk/Dalail_Family_ERP_Visual_User_Guide_2026.pdf"
+                      download="Dalail_Family_ERP_Visual_User_Guide_2026.pdf"
                       className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm transition-all border border-white/20 active:scale-95"
                     >
                       <span>Download PDF</span>
-                      <span className="text-[11px] text-blue-200 font-mono font-normal">(5.1 MB)</span>
-                    </a>
-
-                    <a
-                      href="/documents/helpdesk/publication_source.html"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-3 rounded-xl text-blue-200 hover:text-white font-semibold text-xs transition-colors"
-                    >
-                      <span>Read Online Edition</span>
-                      <ExternalLink className="w-3 h-3" />
+                      <span className="text-[11px] text-blue-200 font-mono font-normal">(20.6 MB)</span>
                     </a>
                   </div>
                 </div>
