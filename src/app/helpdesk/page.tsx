@@ -544,62 +544,159 @@ export default function HelpDeskPage() {
 
         {/* ===================== TAB 3: USER GUIDE & FAQS ===================== */}
         {activeTab === 'guide' && (
-          <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-card space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-card space-y-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
               <div>
-                <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  <HelpCircle className="w-5 h-5 text-[#164A9B]" />
-                  <span>User Guide & Frequently Asked Questions</span>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#164A9B] text-xs font-bold border border-blue-200/60 mb-2">
+                  <Sparkles className="w-3.5 h-3.5 text-[#E99A24]" />
+                  <span>Official 2026 Institutional Publication</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  <HelpCircle className="w-6 h-6 text-[#164A9B]" />
+                  <span>Institutional Profile & Comprehensive User Guide</span>
                 </h2>
-                <p className="text-xs text-slate-500 font-medium mt-1">
-                  Find quick guidance on donation verification, receiver credentials, and portal usage.
+                <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
+                  Complete official documentation covering heritage, public portal, field work collection, campus administration, and support.
                 </p>
               </div>
 
-              <a
-                href="/documents/helpdesk/Dalail_ERP_User_Manual_and_Helpdesk_Guide.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#164A9B] hover:bg-[#0C2F66] text-white font-bold text-xs transition-colors shadow-sm self-start sm:self-auto"
-              >
-                <FileText className="w-4 h-4 text-[#F7D9A0]" />
-                <span>Download PDF Guide</span>
-                <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-mono">1.3 MB</span>
-              </a>
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <a
+                  href="/documents/helpdesk/Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#164A9B] hover:bg-[#0C2F66] text-white font-bold text-xs transition-colors shadow-sm"
+                >
+                  <FileText className="w-4 h-4 text-[#F7D9A0]" />
+                  <span>View Full PDF</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-white/70" />
+                </a>
+
+                <a
+                  href="/documents/helpdesk/Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
+                  download="Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-colors border border-slate-200 shadow-2xs"
+                >
+                  <span>Download</span>
+                  <span className="text-[10px] bg-slate-200/80 px-1.5 py-0.5 rounded font-mono">5.1 MB</span>
+                </a>
+              </div>
             </div>
 
-            {/* Official User Manual PDF Feature Card */}
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-[#0C2F66] to-[#164A9B] text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md">
-              <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
-                  <FileText className="w-6 h-6 text-[#F7D9A0]" />
+            {/* Premium Institutional Publication Feature Card with Cover Thumbnail Preview */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#071938] via-[#0C2F66] to-[#164A9B] text-white shadow-xl border border-blue-900/50 overflow-hidden relative">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                {/* Book Cover Thumbnail Preview */}
+                <div className="md:col-span-4 flex justify-center">
+                  <a
+                    href="/documents/helpdesk/Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative block w-full max-w-[210px] rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 transition-all duration-300 hover:scale-[1.03] hover:shadow-cyan-500/20"
+                    title="Click to view the full 28-page PDF publication"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/documents/helpdesk/guide_cover_preview.png"
+                      alt="Dalail Family ERP Institutional Profile & User Guide Cover"
+                      className="w-full h-auto object-cover select-none"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 text-center">
+                      <span className="text-[11px] font-bold text-white flex items-center justify-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-[#F7D9A0]" />
+                        <span>Open 28-Page PDF</span>
+                      </span>
+                    </div>
+                  </a>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 bg-[#E99A24] text-slate-950 text-[10px] font-black rounded-md uppercase">
-                      Official Document
+
+                {/* Editorial Details & Action Suite */}
+                <div className="md:col-span-8 space-y-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="px-2.5 py-1 bg-[#E99A24] text-slate-950 text-[10px] font-black rounded-md uppercase tracking-wider shadow-xs">
+                      Official Publication
                     </span>
-                    <span className="text-xs text-blue-200 font-semibold">Illustrated User Manual</span>
+                    <span className="px-2.5 py-1 bg-white/10 text-blue-200 text-[10px] font-bold rounded-md border border-white/10">
+                      28 Pages &bull; A4 Edition
+                    </span>
+                    <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 text-[10px] font-bold rounded-md border border-emerald-400/30">
+                      High-Resolution Illustrated
+                    </span>
                   </div>
-                  <h3 className="font-bold text-sm text-white mt-1">
-                    DALAIL FAMILY ERP – Comprehensive User Manual & Helpdesk Guide
-                  </h3>
-                  <p className="text-xs text-blue-100/80 mt-0.5">
-                    Student Portal ഉപയോഗം, Campus Admin പ്രവർത്തനങ്ങൾ, രസീത് വിതരണം എന്നിവയുടെ പൂർണ്ണ സ്ക്രീൻഷോട്ടുകളോടെയുള്ള ഔദ്യോഗിക ഗൈഡ്.
-                  </p>
+
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
+                      DALAIL FAMILY ERP – Complete Institutional Profile & Operational User Guide
+                    </h3>
+                    <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed mt-2">
+                      Comprehensive official publication combining the sacred heritage of Dalailul Khairath Islamic Foundation (Regd.), public website architecture, verified YouTube & Instagram media showcases, regional campus network, student field collection procedures, WhatsApp automated receipts, campus administration manuals, and troubleshooting protocols.
+                    </p>
+                  </div>
+
+                  {/* 4 Core Pillars Matrix */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 text-center">
+                    <div className="p-2 rounded-xl bg-white/5 border border-white/10">
+                      <span className="block text-xs font-black text-[#F7D9A0]">Module 1&ndash;4</span>
+                      <span className="text-[10px] text-blue-200">Heritage & Public</span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white/5 border border-white/10">
+                      <span className="block text-xs font-black text-[#F7D9A0]">Module 5&ndash;7</span>
+                      <span className="text-[10px] text-blue-200">Student Field Guide</span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white/5 border border-white/10">
+                      <span className="block text-xs font-black text-[#F7D9A0]">Module 8</span>
+                      <span className="text-[10px] text-blue-200">Campus Admin</span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white/5 border border-white/10">
+                      <span className="block text-xs font-black text-[#F7D9A0]">Module 9&ndash;10</span>
+                      <span className="text-[10px] text-blue-200">Help Desk & PWA</span>
+                    </div>
+                  </div>
+
+                  {/* Dual Action CTAs */}
+                  <div className="pt-2 flex flex-wrap items-center gap-3">
+                    <a
+                      href="/documents/helpdesk/Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#E99A24] hover:bg-[#d4891b] text-slate-950 font-black text-xs sm:text-sm transition-all shadow-md active:scale-95"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>View User Guide (PDF)</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+
+                    <a
+                      href="/documents/helpdesk/Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
+                      download="Dalail_ERP_Institutional_Profile_and_User_Guide.pdf"
+                      className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm transition-all border border-white/20 active:scale-95"
+                    >
+                      <span>Download PDF</span>
+                      <span className="text-[11px] text-blue-200 font-mono font-normal">(5.1 MB)</span>
+                    </a>
+
+                    <a
+                      href="/documents/helpdesk/publication_source.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-3 rounded-xl text-blue-200 hover:text-white font-semibold text-xs transition-colors"
+                    >
+                      <span>Read Online Edition</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
                 </div>
               </div>
-              <a
-                href="/documents/helpdesk/Dalail_ERP_User_Manual_and_Helpdesk_Guide.pdf"
-                download="Dalail_ERP_User_Manual_and_Helpdesk_Guide.pdf"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#E99A24] hover:bg-[#d4891b] text-slate-950 font-bold text-xs transition-colors shrink-0 shadow-sm"
-              >
-                <span>Download Illustrated PDF</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#164A9B]" />
+                  <span>Frequently Asked Questions & Quick Solutions</span>
+                </h3>
+                <span className="text-xs text-slate-500 font-medium">Updated for ERP v2.4</span>
+              </div>
               {faqs.map((faq, idx) => {
                 const isOpen = expandedFaq === idx;
                 return (
