@@ -287,61 +287,51 @@ export default function StudentFieldCollectionPage() {
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-6 sm:pb-8">
           {/* Top Bar with Back, Logo, Badges & Actions */}
-          <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/15">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/15">
+            <div className="flex items-center gap-2 min-w-0">
               <Link
                 href="/"
-                className="p-1.5 -ml-1.5 text-white/80 hover:text-white rounded-xl hover:bg-white/10 transition-colors"
+                className="p-1.5 -ml-1 text-white/80 hover:text-white rounded-xl hover:bg-white/10 transition-colors shrink-0"
                 title="Return to Home"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Link>
 
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-full bg-white p-0.5 shadow-md flex items-center justify-center shrink-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-white p-0.5 shadow-md flex items-center justify-center shrink-0">
                   <Image
                     src="/assets/official-logo.jpg"
                     alt="Dalail Logo"
-                    width={36}
-                    height={36}
+                    width={32}
+                    height={32}
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <div>
-                  <span className="text-[10px] tracking-wider font-bold text-[#F7D9A0] uppercase block">
+                <div className="min-w-0 leading-tight">
+                  <span className="text-[9px] tracking-wider font-bold text-[#F7D9A0] uppercase block truncate">
                     DALAILUL KHAIRATH
                   </span>
-                  <span className="text-xs font-semibold text-white/90">
+                  <span className="text-xs font-bold text-white truncate block">
                     Student Field Work Portal
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => triggerPwaInstall()}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E99A24] hover:bg-[#d4891b] text-slate-950 text-xs font-black transition-all shadow-md active:scale-95"
-                title="Install Student App on phone (Opens in full-screen with no browser address bar)"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Install App</span>
-                <span className="sm:hidden">App</span>
-              </button>
-
+            <div className="flex items-center gap-1.5 shrink-0">
               <Link
                 href={`/verify/id/${member?.memberId || 'DKIF-REC-01'}`}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold backdrop-blur-xs border border-white/20 transition-all shadow-xs"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold backdrop-blur-xs border border-white/20 transition-all shadow-xs"
                 title="View & Share Receiver ID Card"
               >
                 <CreditCard className="w-3.5 h-3.5 text-[#F7D9A0]" />
                 <span className="hidden sm:inline">Receiver ID Card</span>
-                <span className="sm:hidden">ID</span>
+                <span className="sm:hidden text-[11px]">ID</span>
               </Link>
 
               <button
                 onClick={() => setShowMaterialsModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold backdrop-blur-xs border border-white/20 transition-all shadow-xs"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold backdrop-blur-xs border border-white/20 transition-all shadow-xs"
                 title="Field Work Authorization Materials"
               >
                 <FolderOpen className="w-3.5 h-3.5 text-[#F7D9A0]" />
@@ -350,22 +340,22 @@ export default function StudentFieldCollectionPage() {
 
               <button
                 onClick={refreshData}
-                className="p-2 text-white/80 hover:text-white rounded-xl hover:bg-white/15 transition-colors border border-white/10"
+                className="p-1.5 text-white/80 hover:text-white rounded-xl hover:bg-white/15 transition-colors border border-white/10"
                 title="Refresh Live Data"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
           {/* Greeting & Student Identity (Mockup S1 / S2) */}
-          <div className="mt-4 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+          <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
             <div>
-              <span className="text-xs text-blue-200 font-medium">Assalamu Alaikum</span>
-              <h1 className="font-playfair text-2xl sm:text-3xl font-bold text-white tracking-tight mt-0.5">
+              <span className="text-[11px] text-blue-200 font-medium">Assalamu Alaikum</span>
+              <h1 className="font-playfair text-xl sm:text-3xl font-bold text-white tracking-tight mt-0.5">
                 {member?.name || 'Basim Aslam'}
               </h1>
-              <div className="flex items-center gap-2 mt-1.5 text-xs text-[#F7D9A0] font-semibold">
+              <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-[#F7D9A0] font-semibold">
                 <span>{member?.campusName || 'Kakkidippuram Campus'}</span>
                 <span>•</span>
                 <span className="font-mono bg-white/15 px-2 py-0.5 rounded-md text-white text-[11px]">
@@ -387,25 +377,26 @@ export default function StudentFieldCollectionPage() {
       {/* Main Container */}
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6">
         {/* Main Tabs (Today's vs History vs Team & Settlement) */}
-        <div className="flex gap-2 max-w-lg mx-auto sm:max-w-none overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex gap-1.5 sm:gap-2 max-w-lg mx-auto sm:max-w-none overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => setActiveTab('today')}
-            className={`flex-1 min-w-[120px] py-3 px-3 rounded-xl transition-all text-center text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 ${
+            className={`flex-1 min-w-[100px] sm:min-w-[130px] py-2.5 px-2.5 sm:py-3 sm:px-3 rounded-xl transition-all text-center text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 ${
               activeTab === 'today'
                 ? 'bg-[#E99A24] text-[#0C2F66] shadow-md ring-2 ring-[#E99A24]/30'
                 : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
             }`}
           >
-            <span>Today&apos;s Field Route</span>
+            <span className="sm:hidden">Field Route</span>
+            <span className="hidden sm:inline">Today&apos;s Field Route</span>
             {receipts.length > 0 && (
-              <span className="text-[10px] bg-[#0C2F66] text-white px-2 py-0.5 rounded-full font-mono font-bold">
+              <span className="text-[10px] bg-[#0C2F66] text-white px-1.5 py-0.5 rounded-full font-mono font-bold">
                 {receipts.length}
               </span>
             )}
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`flex-1 min-w-[110px] py-3 px-3 rounded-xl transition-all text-center text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 ${
+            className={`flex-1 min-w-[90px] sm:min-w-[110px] py-2.5 px-2.5 sm:py-3 sm:px-3 rounded-xl transition-all text-center text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 ${
               activeTab === 'history'
                 ? 'bg-[#E99A24] text-[#0C2F66] shadow-md ring-2 ring-[#E99A24]/30'
                 : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
@@ -415,25 +406,27 @@ export default function StudentFieldCollectionPage() {
           </button>
           <button
             onClick={() => setActiveTab('historical')}
-            className={`flex-1 min-w-[140px] py-3 px-3 rounded-xl transition-all text-center text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 ${
+            className={`flex-1 min-w-[100px] sm:min-w-[140px] py-2.5 px-2.5 sm:py-3 sm:px-3 rounded-xl transition-all text-center text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 ${
               activeTab === 'historical'
                 ? 'bg-[#E99A24] text-[#0C2F66] shadow-md ring-2 ring-[#E99A24]/30'
                 : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
             }`}
           >
             <History className="w-3.5 h-3.5" />
-            <span>Historical Collection</span>
+            <span className="sm:hidden">Historical</span>
+            <span className="hidden sm:inline">Historical Collection</span>
           </button>
           <button
             onClick={() => setActiveTab('settlement')}
-            className={`flex-1 min-w-[140px] py-3 px-3 rounded-xl transition-all text-center text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 ${
+            className={`flex-1 min-w-[100px] sm:min-w-[140px] py-2.5 px-2.5 sm:py-3 sm:px-3 rounded-xl transition-all text-center text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 ${
               activeTab === 'settlement'
                 ? 'bg-[#E99A24] text-[#0C2F66] shadow-md ring-2 ring-[#E99A24]/30'
                 : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
             }`}
           >
             <Crown className="w-3.5 h-3.5" />
-            <span>Team & Settlement</span>
+            <span className="sm:hidden">Settlement</span>
+            <span className="hidden sm:inline">Team & Settlement</span>
           </button>
         </div>
 

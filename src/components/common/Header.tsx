@@ -45,7 +45,18 @@ export const Header: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPasswordText, setShowPasswordText] = useState(false);
   const [passwordStatus, setPasswordStatus] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  const [isStandalone, setIsStandalone] = useState(false);
   const router = useRouter();
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isStandaloneMode =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
+        document.referrer.includes('android-app://');
+      setIsStandalone(isStandaloneMode);
+    }
+  }, []);
 
   const mainAdminNav = [
     { label: 'Overview', href: '/admin', icon: LayoutDashboard },
@@ -121,60 +132,67 @@ export const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-dalail-border shadow-subtle">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Left: Mobile Menu Toggle & Brand Logo */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
           {role !== 'student' && (
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="p-2 -ml-2 text-slate-700 hover:bg-slate-100 rounded-xl transition-colors lg:hidden"
+              className="p-1.5 -ml-1 text-slate-700 hover:bg-slate-100 rounded-xl transition-colors lg:hidden shrink-0"
               aria-label="Open Navigation Menu"
             >
               <Menu className="w-5 h-5" />
             </button>
           )}
-          <Link href={homeHref}>
+          <Link href={homeHref} className="min-w-0">
             <Logo size="sm" />
           </Link>
         </div>
 
         {/* Right Role Switcher, Install App & Account Profile */}
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() => triggerPwaInstall()}
-            className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#164A9B] text-xs font-bold border border-blue-200 transition-colors shadow-2xs"
-            title="Install DALAIL FAMILY ERP on your device (Standalone Native App)"
-          >
-            <Download className="w-3.5 h-3.5 text-[#164A9B]" />
-            <span className="hidden sm:inline">Install App</span>
-            <span className="sm:hidden text-[10px]">App</span>
-          </button>
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          {!isStandalone && (
+            <button
+              type="button"
+              onClick={() => triggerPwaInstall()}
+              className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#164A9B] text-xs font-bold border border-blue-200 transition-colors shadow-2xs"
+              title="Install DALAIL FAMILY ERP on your device (Standalone Native App)"
+            >
+              <Download className="w-3.5 h-3.5 text-[#164A9B]" />
+              <span className="hidden sm:inline">Install App</span>
+              <span className="sm:hidden text-[10px]">App</span>
+            </button>
+          )}
 
           <div className="relative">
             <button
               onClick={() => setRoleMenuOpen(!roleMenuOpen)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-dalail-primary bg-slate-50 hover:bg-slate-100 transition-all text-xs font-semibold"
+              className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 hover:border-dalail-primary bg-slate-50 hover:bg-slate-100 transition-all text-xs font-semibold"
             >
               {getRoleBadge()}
-              <span className="hidden sm:inline text-slate-700 font-bold truncate max-w-[140px]">
+              <span className="hidden md:inline text-slate-700 font-bold truncate max-w-[120px]">
                 {user?.name || 'Account'}
               </span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
             {roleMenuOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-float border border-slate-200 py-2 z-50 animate-scale-in">
-                <div className="px-4 py-2 border-b border-slate-100">
-                  <p className="text-xs font-bold text-slate-800">{user?.name}</p>
-                  <p className="text-[11px] text-slate-500 font-mono">{user?.email}</p>
-                  {user?.campusName && (
-                    <p className="text-[10px] text-dalail-primary font-semibold mt-0.5">
-                      📍 {user.campusName}
-                    </p>
-                  )}
-                </div>
+              <>
+                <div
+                  className="fixed inset-0 z-40 bg-black/10 sm:hidden"
+                  onClick={() => setRoleMenuOpen(false)}
+                />
+                <div className="absolute right-0 mt-2 w-64 max-w-[90vw] bg-white rounded-2xl shadow-float border border-slate-200 py-2 z-50 animate-scale-in">
+                  <div className="px-4 py-2 border-b border-slate-100">
+                    <p className="text-xs font-bold text-slate-800">{user?.name}</p>
+                    <p className="text-[11px] text-slate-500 font-mono">{user?.email}</p>
+                    {user?.campusName && (
+                      <p className="text-[10px] text-dalail-primary font-semibold mt-0.5">
+                        📍 {user.campusName}
+                      </p>
+                    )}
+                  </div>
 
                 <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   Switch Active Role (Demo)
@@ -265,9 +283,10 @@ export const Header: React.FC = () => {
                   </button>
                 </div>
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
+      </div>
       </div>
 
       {/* Change Password Modal */}
@@ -374,17 +393,36 @@ export const Header: React.FC = () => {
       )}
       {/* Mobile Navigation Drawer for Admin and Campus Admin */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex lg:hidden animate-fade-in">
-          <div className="bg-white w-72 max-w-[85vw] h-full shadow-2xl flex flex-col justify-between p-5 overflow-y-auto">
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex lg:hidden animate-fade-in"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <div
+            className="bg-white w-72 max-w-[85vw] h-full shadow-2xl flex flex-col justify-between p-5 overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="space-y-5">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-2.5">
-                  <Logo size="sm" />
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/assets/official-logo.jpg"
+                      alt="Dalail Logo"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-black text-xs text-slate-900 truncate">DALAIL ERP</h3>
+                    <p className="text-[10px] text-slate-400 font-semibold truncate">
+                      {role === 'campus_admin' ? 'Campus Admin' : 'Main Admin'}
+                    </p>
+                  </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl"
+                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl shrink-0"
                   aria-label="Close Navigation"
                 >
                   <X className="w-5 h-5" />

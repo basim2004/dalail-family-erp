@@ -67,38 +67,40 @@ export default function AdminOverviewPage() {
   const totalBalance = totals.totalRemainingBalance;
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
+    <div className="space-y-6 animate-fade-in pb-12 overflow-x-hidden">
       {/* Top Banner */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-subtle flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
+      <div className="bg-white rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-subtle flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="w-full md:w-auto min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-dalail-primary bg-blue-50 px-2.5 py-1 rounded-md">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-dalail-primary bg-blue-50 px-2.5 py-0.5 rounded-md">
               Central Administration Control
             </span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md flex items-center gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Live Accounting Active
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-2">
+          <h1 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight mt-2">
             Dalail Family ERP — Financial & Field Operations
           </h1>
-          <p className="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
+          <p className="text-[11px] sm:text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
             DALAILUL KHAIRATH ISLAMIC FOUNDATION (Regd.), Kakkidippuram Campus, P.O. Alamkode, Malappuram Dt.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto shrink-0 pt-1 sm:pt-0">
           <Link
             href="/admin/settlement"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dalail-primary text-white text-xs font-bold hover:bg-dalail-dark shadow-sm transition-all"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-dalail-primary text-white text-xs font-bold hover:bg-dalail-dark shadow-sm transition-all text-center"
           >
-            <Award className="w-4 h-4" /> 2K26 Settlement Statement
+            <Award className="w-4 h-4 shrink-0" />
+            <span className="truncate">2K26 Settlement</span>
           </Link>
           <Link
             href="/admin/reports"
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition-all border border-slate-200"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition-all border border-slate-200 text-center"
           >
-            <FileSpreadsheet className="w-4 h-4 text-slate-500" /> Audit Reports
+            <FileSpreadsheet className="w-4 h-4 text-slate-500 shrink-0" />
+            <span className="truncate">Audit Reports</span>
           </Link>
         </div>
       </div>

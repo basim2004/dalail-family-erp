@@ -26,6 +26,17 @@ export function PublicNavbar({ activeTab }: PublicNavbarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isStandaloneMode =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
+        document.referrer.includes('android-app://');
+      setIsStandalone(isStandaloneMode);
+    }
+  }, []);
 
   const navLinks = [
     { label: 'Home', href: '/', icon: Home },
@@ -98,16 +109,18 @@ export function PublicNavbar({ activeTab }: PublicNavbarProps) {
 
             {/* Right: Install App, Hotline & Login Button */}
             <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => triggerPwaInstall()}
-                className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-[#164A9B] text-xs font-bold border border-blue-200 transition-colors shadow-2xs"
-                title="Install DALAIL FAMILY ERP on your device (Standalone Native App)"
-              >
-                <Download className="w-3.5 h-3.5 text-[#164A9B]" />
-                <span className="hidden sm:inline">Install App</span>
-                <span className="sm:hidden text-[11px]">Install</span>
-              </button>
+              {!isStandalone && (
+                <button
+                  type="button"
+                  onClick={() => triggerPwaInstall()}
+                  className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-[#164A9B] text-xs font-bold border border-blue-200 transition-colors shadow-2xs"
+                  title="Install DALAIL FAMILY ERP on your device (Standalone Native App)"
+                >
+                  <Download className="w-3.5 h-3.5 text-[#164A9B]" />
+                  <span className="hidden sm:inline">Install App</span>
+                  <span className="sm:hidden text-[11px]">Install</span>
+                </button>
+              )}
 
               <a
                 href="tel:+917034149149"
