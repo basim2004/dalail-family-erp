@@ -416,14 +416,15 @@ export const initialPublicMediaSettings: PublicMediaSettings = {
   instagramHandle: 'dalailul_khairath_',
   instagramName: 'Dalailul Khairath',
   instagramBio: [
-    'دَلَائِلُ الْخَيْرَاتِ الإسلامية',
-    'Center of Higher Islamic Learning & Orphan Welfare',
-    '📍 Kakkidippuram, Malappuram, Kerala',
-    '🌐 dalail.org',
+    'Education',
+    'DALAILUL KHAIRATH, KAKKIDIPPURAM',
+    'Qur\'an Hub of @jamia_madeenathunnoor',
+    '"Welcome to a Legacy of Knowledge & Excellence."',
+    'youtube.com/@dalailmedia3555',
   ],
-  instagramPostsCount: '248',
-  instagramFollowersCount: '12.4K',
-  instagramFollowingCount: '86',
+  instagramPostsCount: '340',
+  instagramFollowersCount: '597',
+  instagramFollowingCount: '12',
   instagramPosts: [
     {
       id: 'ig_1',
