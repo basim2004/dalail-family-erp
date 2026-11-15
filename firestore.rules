@@ -1,0 +1,88 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isMainAdmin() {
+      return isAuthenticated() && getUserData().role == 'main_admin';
+    }
+    
+    function isCampusAdmin(campusId) {
+      return isAuthenticated() && 
+        (getUserData().role == 'main_admin' || 
+         (getUserData().role == 'campus_admin' && getUserData().campusId == campusId));
+    }
+    
+    function isSelf(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isMainAdmin();
+    }
+
+    // Campuses
+    match /campuses/{campusId} {
+      allow read: if true;
+      allow write: if isMainAdmin();
+    }
+
+    // Students & Academic Records
+    match /students/{studentId} {
+      allow read: if isAuthenticated();
+      allow write: if isMainAdmin() || (isAuthenticated() && isCampusAdmin(request.resource.data.academic.campusId));
+    }
+
+    // Dispatches
+    match /dispatches/{dispatchId} {
+      allow read: if isAuthenticated();
+      allow write: if isMainAdmin() || (isAuthenticated() && isCampusAdmin(request.resource.data.campusId));
+    }
+
+    // Receipts (Public read for QR verification)
+    match /receipts/{receiptId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update: if isMainAdmin();
+      allow delete: if false; // Issued receipts are immutable
+    }
+
+    // Payment Orders & Transactions
+    match /paymentOrders/{orderId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isMainAdmin() || (isAuthenticated() && resource.data.studentId == getUserData().studentId);
+    }
+
+    // Expenses
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isMainAdmin() || (isAuthenticated() && isCampusAdmin(resource.data.campusId));
+    }
+
+    // Settlements
+    match /settlements/{settlementId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isMainAdmin() || (isAuthenticated() && isCampusAdmin(resource.data.campusId));
+    }
+
+    // Notifications
+    match /notifications/{notifId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+  }
+}
+

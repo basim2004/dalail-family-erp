@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Select Field Work Students</title>
+<script src="9a8902de-81a7-477e-b9d0-3064c7b72f75"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>/* cyrillic-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("be8e68c1-261b-49ee-8c5a-c9bac401a991") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("7c3269ba-6725-499c-aca2-31beb72e0e1f") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("d9e1ac49-8825-4854-acd2-c324ea38f71f") format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("ecd1fe8b-b35a-4a6d-9b0a-560a37a29ce6") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("be186e2a-3de8-4e24-b75f-e0c17d047704") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("d15c9516-ca63-4072-9b8f-618149d32dbb") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3f3780f6-a842-4856-8ca5-754c7281be5a") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("be8e68c1-261b-49ee-8c5a-c9bac401a991") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("7c3269ba-6725-499c-aca2-31beb72e0e1f") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("d9e1ac49-8825-4854-acd2-c324ea38f71f") format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("ecd1fe8b-b35a-4a6d-9b0a-560a37a29ce6") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("be186e2a-3de8-4e24-b75f-e0c17d047704") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("d15c9516-ca63-4072-9b8f-618149d32dbb") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("3f3780f6-a842-4856-8ca5-754c7281be5a") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("be8e68c1-261b-49ee-8c5a-c9bac401a991") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("7c3269ba-6725-499c-aca2-31beb72e0e1f") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("d9e1ac49-8825-4854-acd2-c324ea38f71f") format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("ecd1fe8b-b35a-4a6d-9b0a-560a37a29ce6") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("be186e2a-3de8-4e24-b75f-e0c17d047704") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("d15c9516-ca63-4072-9b8f-618149d32dbb") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("3f3780f6-a842-4856-8ca5-754c7281be5a") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("be8e68c1-261b-49ee-8c5a-c9bac401a991") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("7c3269ba-6725-499c-aca2-31beb72e0e1f") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("d9e1ac49-8825-4854-acd2-c324ea38f71f") format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("ecd1fe8b-b35a-4a6d-9b0a-560a37a29ce6") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("be186e2a-3de8-4e24-b75f-e0c17d047704") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("d15c9516-ca63-4072-9b8f-618149d32dbb") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("3f3780f6-a842-4856-8ca5-754c7281be5a") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTjYgFE_.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTPYgFE_.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTLYgFE_.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTzYgA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTjYgFE_.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTPYgFE_.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTLYgFE_.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTzYgA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#10213D}
+a{color:#164A9B}a:hover{color:#2876C8}
+button{font-family:inherit}
+h1,h2{font-family:'Playfair Display',serif}
+.pat{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect x='16' y='16' width='32' height='32' fill='none' stroke='white' stroke-opacity='.16'/%3E%3Crect x='16' y='16' width='32' height='32' fill='none' stroke='white' stroke-opacity='.16' transform='rotate(45 32 32)'/%3E%3C/svg%3E")}
+</style>
+</helmet>
+<div style="display:flex;flex-wrap:wrap;min-height:800px;background:#EEF4FC">
+  <div class="pat" style="flex:0 0 250px;width:250px;background-color:#0C2F66;background-image:linear-gradient(180deg,rgba(12,47,102,.97),rgba(22,74,155,.97)),url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect x='16' y='16' width='32' height='32' fill='none' stroke='white' stroke-opacity='.16'/%3E%3Crect x='16' y='16' width='32' height='32' fill='none' stroke='white' stroke-opacity='.16' transform='rotate(45 32 32)'/%3E%3C/svg%3E&quot;);padding:22px 16px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px">
+    <div style="display:flex;align-items:center;gap:10px;padding:4px 8px 18px">
+      <img src="7fc5827d-359b-4f41-9c99-4afac5bce9bb" alt="Logo" style="width:40px;height:40px">
+      <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:18px;color:#fff;line-height:1.15">Dalail<br>Family</div>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+      <a href="{{n.href}}" style="display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:14px;min-height:44px;box-sizing:border-box;font-size:14px;text-decoration:none;background:{{n.bg}};color:{{n.fg}};font-weight:{{n.fw}}">
+        <svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.d}}"></path></svg>
+        {{n.label}}
+      </a>
+    </sc-for>
+    <div style="margin-top:auto;padding:12px;font-size:12px;color:#BCD0EE">Signed in as Campus Admin</div>
+  </div>
+  <div style="flex:999 1 560px;min-width:0;padding:32px;box-sizing:border-box;display:flex;flex-direction:column;gap:20px">
+    <div class="pat" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;background-color:#164A9B;background-image:linear-gradient(120deg,#0C2F66,#2876C8),url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect x='16' y='16' width='32' height='32' fill='none' stroke='white' stroke-opacity='.16'/%3E%3Crect x='16' y='16' width='32' height='32' fill='none' stroke='white' stroke-opacity='.16' transform='rotate(45 32 32)'/%3E%3C/svg%3E&quot;);border-radius:24px;padding:26px 30px;color:#fff;box-shadow:0 10px 30px rgba(12,47,102,0.18)">
+      <div>
+        <h1 style="margin:0;font-size:32px;color:#fff">Field Work Students</h1>
+        <p style="margin:6px 0 0;font-size:14px;color:#D6E4F8">Choose which students of this campus can use Field Work in their student panel</p>
+      </div>
+      <a href="FieldStudents.dc.html" style="display:flex;align-items:center;height:44px;padding:0 20px;border-radius:14px;background:#E99A24;color:#0C2F66;box-shadow:0 8px 18px rgba(0,0,0,0.2);font-weight:600;font-size:14px;text-decoration:none">Save selection</a>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+      <sc-raw-select aria-label="Campus" style="flex:0 1 260px;height:44px;border:1px solid #C9D6E8;border-radius:10px;padding:0 12px;font-size:14px;background:#fff"><option>Kakkidippuram Campus</option></sc-raw-select>
+      <input type="text" aria-label="Search students" placeholder="Search by name" style="flex:1 1 220px;height:44px;border:1px solid #C9D6E8;border-radius:10px;padding:0 14px;font-size:14px;background:#fff;box-sizing:border-box">
+      <div style="font-size:14px;font-weight:600;color:#164A9B;background:#EAF3FF;border-radius:999px;padding:10px 16px">{{countText}}</div>
+    </div>
+    <div style="background:#fff;border-radius:24px;box-shadow:0 10px 30px rgba(12,47,102,0.10);overflow:hidden">
+      <div style="overflow-x:auto">
+        <sc-raw-table style="width:100%;border-collapse:collapse;font-size:14px;min-width:560px">
+          <sc-raw-thead><sc-raw-tr style="background:#EAF3FF;color:#164A9B;text-align:left">
+            <sc-raw-th style="padding:14px 16px">Student</sc-raw-th><sc-raw-th style="padding:14px 16px">Place</sc-raw-th><sc-raw-th style="padding:14px 16px">Student panel</sc-raw-th><sc-raw-th style="padding:14px 16px">Field Work</sc-raw-th>
+          </sc-raw-tr></sc-raw-thead>
+          <sc-raw-tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+              <sc-raw-tr style="border-top:1px solid #E6EDF7">
+                <sc-raw-td style="padding:14px 16px;font-weight:600">{{r.name}}</sc-raw-td>
+                <sc-raw-td style="padding:14px 16px;color:#5B6B82">{{r.place}}</sc-raw-td>
+                <sc-raw-td style="padding:14px 16px;color:#5B6B82">{{r.panel}}</sc-raw-td>
+                <sc-raw-td style="padding:10px 16px">
+                  <button sc-camel-on-click="{{r.toggle}}" aria-pressed="{{r.pressed}}" aria-label="{{r.label}}" style="display:flex;align-items:center;gap:10px;border:1px solid {{r.border}};background:{{r.bg}};color:{{r.fg}};border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;min-height:44px">
+                    <span style="width:14px;height:14px;border-radius:50%;background:{{r.dot}};display:inline-block"></span>{{r.text}}
+                  </button>
+                </sc-raw-td>
+              </sc-raw-tr>
+            </sc-for>
+          </sc-raw-tbody>
+        </sc-raw-table>
+      </div>
+    </div>
+    <div style="font-size:13px;color:#5B6B82">Selected students see a Field Work option in their student panel. Others do not.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:800}}">
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { on: [true, true, true, false, false, false, false] }; }
+  renderVals() {
+    const N = [
+      ['Campuses','Campuses.dc.html','M3 21h18M5 21V7l7-4 7 4v14M9 9h1M9 13h1M14 9h1M14 13h1'],
+      ['Members','Members.dc.html','M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8'],
+      ['Field Work Students','FieldStudents.dc.html','M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M16 11l2 2 4-4'],
+      ['Dispatches','Dispatches.dc.html','M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6'],
+      ['Brochures','Brochures.dc.html','M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5z'],
+      ['Field Work Materials','FieldWork.dc.html','M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9L9.6 3.9A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z'],
+      ['Accounts','AdAccounts.dc.html','M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1']
+    ];
+    const active = 2;
+    const M = [['ATHNAN','Ayiroor'],['BASIM ASLAM','Edayur'],['MUHAMMED MIDLAJ KP','Edayur'],['ARSHAD AYYOOB','Eramangalam'],['ABDUL GAFOOR','Ayiroor'],['MUHAMMED ASLAM','Ayiroor'],['MUHAMMED SALIH','Edayur']];
+    const on = this.state.on;
+    const count = on.filter(Boolean).length;
+    return {
+      nav: N.map((n, i) => ({ label: n[0], href: n[1], d: n[2], bg: i === active ? '#E99A24' : 'transparent', fg: i === active ? '#0C2F66' : '#D6E4F8', fw: i === active ? '700' : '500' })),
+      countText: count + ' of ' + M.length + ' selected',
+      rows: M.map((m, i) => ({
+        name: m[0], place: m[1], panel: 'Has login',
+        pressed: on[i] ? 'true' : 'false',
+        label: (on[i] ? 'Remove ' : 'Select ') + m[0] + ' for Field Work',
+        text: on[i] ? 'Field Work on' : 'Not selected',
+        bg: on[i] ? '#DDF3EC' : '#F5F8FC', fg: on[i] ? '#0E6B4F' : '#3B4B63',
+        border: on[i] ? '#9ED8C4' : '#C9D6E8', dot: on[i] ? '#159B73' : '#9DB0C9',
+        toggle: () => { const n = this.state.on.slice(); n[i] = !n[i]; this.setState({ on: n }); }
+      }))
+    };
+  }
+}
+</script>
+
+
+</body></html>

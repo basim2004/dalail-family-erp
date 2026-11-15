@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #F5F8FC;
+  --foreground: #1E293B;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-arabic {
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Islamic pattern background from mockup */
+.bg-islamic-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect x='16' y='16' width='32' height='32' fill='none' stroke='white' stroke-opacity='.08'/%3E%3Crect x='16' y='16' width='32' height='32' fill='none' stroke='white' stroke-opacity='.08' transform='rotate(45 32 32)'/%3E%3C/svg%3E");
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Mockup Splash Screen Keyframes */
+@keyframes splashOut {
+  0%, 82% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+@keyframes logoIn {
+  0% { transform: scale(0.4) rotate(-90deg); opacity: 0; }
+  55% { transform: scale(1.08) rotate(0deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes ringPulse {
+  0% { transform: scale(0.6); opacity: 0.7; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes txtIn {
+  0%, 35% { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes barFill {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+.animate-splash-out {
+  animation: splashOut 3.4s ease forwards;
+}
+
+.animate-logo-in {
+  animation: logoIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.animate-ring-pulse {
+  animation: ringPulse 1.6s ease-out 0.5s infinite;
+}
+
+.animate-text-in {
+  animation: txtIn 2s ease both;
+}
+
+.animate-bar-fill {
+  animation: barFill 2.8s ease forwards;
+}
+
+/* Print Rules for Receipts & ID Cards */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  header, aside, nav, .print\:hidden {
+    display: none !important;
+  }
+  #official-receipt-print {
+    box-shadow: none !important;
+    border-width: 4px !important;
+    margin: 0 auto !important;
+    page-break-inside: avoid !important;
+  }
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+}
+
