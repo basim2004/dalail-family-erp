@@ -545,14 +545,58 @@ export default function HelpDeskPage() {
         {/* ===================== TAB 3: USER GUIDE & FAQS ===================== */}
         {activeTab === 'guide' && (
           <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-card space-y-6">
-            <div>
-              <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <HelpCircle className="w-5 h-5 text-[#164A9B]" />
-                <span>User Guide & Frequently Asked Questions</span>
-              </h2>
-              <p className="text-xs text-slate-500 font-medium mt-1">
-                Find quick guidance on donation verification, receiver credentials, and portal usage.
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  <HelpCircle className="w-5 h-5 text-[#164A9B]" />
+                  <span>User Guide & Frequently Asked Questions</span>
+                </h2>
+                <p className="text-xs text-slate-500 font-medium mt-1">
+                  Find quick guidance on donation verification, receiver credentials, and portal usage.
+                </p>
+              </div>
+
+              <a
+                href="/documents/helpdesk/Dalail_ERP_User_Manual_and_Helpdesk_Guide.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#164A9B] hover:bg-[#0C2F66] text-white font-bold text-xs transition-colors shadow-sm self-start sm:self-auto"
+              >
+                <FileText className="w-4 h-4 text-[#F7D9A0]" />
+                <span>Download PDF Guide</span>
+                <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-mono">1.3 MB</span>
+              </a>
+            </div>
+
+            {/* Official User Manual PDF Feature Card */}
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-[#0C2F66] to-[#164A9B] text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+                  <FileText className="w-6 h-6 text-[#F7D9A0]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 bg-[#E99A24] text-slate-950 text-[10px] font-black rounded-md uppercase">
+                      Official Document
+                    </span>
+                    <span className="text-xs text-blue-200 font-semibold">Illustrated User Manual</span>
+                  </div>
+                  <h3 className="font-bold text-sm text-white mt-1">
+                    DALAIL FAMILY ERP – Comprehensive User Manual & Helpdesk Guide
+                  </h3>
+                  <p className="text-xs text-blue-100/80 mt-0.5">
+                    Student Portal ഉപയോഗം, Campus Admin പ്രവർത്തനങ്ങൾ, രസീത് വിതരണം എന്നിവയുടെ പൂർണ്ണ സ്ക്രീൻഷോട്ടുകളോടെയുള്ള ഔദ്യോഗിക ഗൈഡ്.
+                  </p>
+                </div>
+              </div>
+              <a
+                href="/documents/helpdesk/Dalail_ERP_User_Manual_and_Helpdesk_Guide.pdf"
+                download="Dalail_ERP_User_Manual_and_Helpdesk_Guide.pdf"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#E99A24] hover:bg-[#d4891b] text-slate-950 font-bold text-xs transition-colors shrink-0 shadow-sm"
+              >
+                <span>Download Illustrated PDF</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
             </div>
 
             <div className="space-y-3">

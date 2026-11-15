@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8">
+  <title>DALAILUL KHAIRATH ERP - Official User Manual & Helpdesk Guide</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 14mm 16mm;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #1e293b;
+      background: #ffffff;
+      font-size: 11pt;
+      line-height: 1.5;
+    }
+    .page-break {
+      page-break-before: always;
+    }
+    
+    /* Cover Page */
+    .cover-container {
+      min-height: 260mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 3px solid #164A9B;
+      padding: 30px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 60%, #eff6ff 100%);
+    }
+    .cover-header {
+      text-align: center;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 20px;
+    }
+    .arabic-title {
+      font-family: 'Traditional Arabic', serif;
+      font-size: 24pt;
+      color: #0C2F66;
+      margin: 0;
+      letter-spacing: 1px;
+    }
+    .foundation-title {
+      font-size: 18pt;
+      font-weight: 900;
+      color: #164A9B;
+      margin: 8px 0 4px 0;
+      letter-spacing: 0.5px;
+    }
+    .foundation-sub {
+      font-size: 9.5pt;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .cover-body {
+      text-align: center;
+      padding: 30px 10px;
+    }
+    .badge {
+      display: inline-block;
+      background: #164A9B;
+      color: #ffffff;
+      font-size: 9pt;
+      font-weight: 800;
+      padding: 6px 16px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 15px;
+    }
+    .manual-title {
+      font-size: 26pt;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.2;
+      margin: 10px 0;
+    }
+    .malayalam-title {
+      font-size: 14pt;
+      font-weight: 700;
+      color: #0284c7;
+      margin: 10px 0 20px 0;
+    }
+    .cover-desc {
+      font-size: 10.5pt;
+      color: #475569;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .roles-grid {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+    .role-box {
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 9pt;
+      font-weight: 700;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+    .cover-footer {
+      border-top: 2px solid #e2e8f0;
+      padding-top: 15px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 8.5pt;
+      color: #64748b;
+    }
+    
+    /* Section Styles */
+    .section-header {
+      border-bottom: 2px solid #164A9B;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-title {
+      font-size: 15pt;
+      font-weight: 800;
+      color: #0C2F66;
+      margin: 0;
+    }
+    .section-badge {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 8pt;
+      font-weight: 700;
+    }
+    .text-ml {
+      font-size: 10pt;
+      color: #334155;
+      margin-bottom: 8px;
+      line-height: 1.55;
+    }
+    .highlight-box {
+      background: #f8fafc;
+      border-left: 4px solid #164A9B;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+      font-size: 9.5pt;
+    }
+    .screenshot-card {
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 14px 0;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+      background: #f1f5f9;
+      text-align: center;
+    }
+    .screenshot-img {
+      width: 100%;
+      height: auto;
+      max-height: 110mm;
+      object-fit: contain;
+      display: block;
+      background: #ffffff;
+    }
+    .screenshot-caption {
+      padding: 6px 12px;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      font-size: 8pt;
+      font-weight: 700;
+      color: #475569;
+      text-align: left;
+    }
+    .steps-list {
+      margin: 10px 0;
+      padding-left: 20px;
+      font-size: 9.5pt;
+    }
+    .steps-list li {
+      margin-bottom: 6px;
+    }
+    .contact-box {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-top: 15px;
+      font-size: 9pt;
+      color: #065f46;
+    }
+    .footer-bar {
+      margin-top: 20px;
+      padding-top: 10px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 8pt;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== COVER PAGE ==================== -->
+  <div class="cover-container">
+    <div class="cover-header">
+      <h1 class="arabic-title">مؤسسة دلائل الخيرات الإسلامية</h1>
+      <div class="foundation-title">DALAILUL KHAIRATH ISLAMIC FOUNDATION (REGD.)</div>
+      <div class="foundation-sub">Kakkidippuram, P.O. Alamkode, Pin: 679585, Malappuram Dt., Kerala</div>
+      <div class="foundation-sub" style="margin-top: 3px; font-weight: bold; color: #164A9B;">
+        Official WhatsApp Helpline: +91 70341 49149 | Email: kakkidippuramdkif@gmail.com
+      </div>
+    </div>
+
+    <div class="cover-body">
+      <div class="badge">Official Operational Manual &amp; Help Desk Guide</div>
+      <div class="manual-title">DALAIL FAMILY ERP<br>USER MANUAL</div>
+      <div class="malayalam-title">പോർട്ടൽ ഉപയോഗ മാർഗ്ഗരേഖ &amp; ഹെൽപ്പ് ഡെസ്ക് ഗൈഡ്</div>
+      <p class="cover-desc">
+        വിദ്യാർത്ഥികൾക്കും (Student Receivers), കാമ്പസ് അഡ്മിൻമാർക്കും (Campus Admins), ദാതാക്കൾക്കും ERP പോർട്ടൽ എളുപ്പത്തിൽ ഉപയോഗിക്കുന്നതിനുള്ള സമഗ്രമായ പ്രവർത്തന മാർഗ്ഗരേഖ.
+      </p>
+
+      <div class="roles-grid">
+        <div class="role-box" style="border-top: 3px solid #164A9B;">
+          🎓 Student Portal<br><span style="font-size: 8pt; font-weight: normal; color: #64748b;">ഫീൽഡ് കളക്ഷൻ &amp; രസീത്</span>
+        </div>
+        <div class="role-box" style="border-top: 3px solid #059669;">
+          🏛️ Campus Admin<br><span style="font-size: 8pt; font-weight: normal; color: #64748b;">റൂട്ട് &amp; സെറ്റിൽമെന്റ്</span>
+        </div>
+        <div class="role-box" style="border-top: 3px solid #d97706;">
+          🎧 Help Desk<br><span style="font-size: 8pt; font-weight: normal; color: #64748b;">സഹായം &amp; വെരിഫിക്കേഷൻ</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <span>Authorized by Head Office, Kakkidippuram</span>
+      <span>Official Sender: +91 70341 49149</span>
+      <span>Edition: 2026</span>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== CHAPTER 1: SIGN IN ==================== -->
+  <div>
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">1. Sign In &amp; Role Selection (പോർട്ടൽ ലോഗിൻ)</h2>
+        <span style="font-size: 8.5pt; color: #64748b;">ലോഗിൻ ചെയ്യുന്ന വിധവും റോൾ തിരഞ്ഞെടുക്കലും</span>
+      </div>
+      <span class="section-badge">Section 01</span>
+    </div>
+
+    <p class="text-ml">
+      Dalail Family ERP-യിൽ ഓരോ ഉപയോക്താവിനും അവരുടെ ഉത്തരവാദിത്തത്തിനനുസരിച്ച് പ്രത്യേക ലോഗിൻ റോൾ ക്രമീകരിച്ചിരിക്കുന്നു:
+    </p>
+
+    <ul class="steps-list">
+      <li><strong>Main Admin:</strong> കേന്ദ്ര ഹെഡ് ഓഫീസ് അഡ്മിൻ (BASIM ASLAM) - മുഴുവൻ കാമ്പസുകളുടെയും ഫീൽഡ് കളക്ഷനുകളുടെയും ഓവർവ്യൂ.</li>
+      <li><strong>Campus Admin:</strong> കാമ്പസ് അഡ്മിൻ (USTHAD ABDUL HAKEEM SA'ADI) - കാമ്പസിലെ റൂട്ടുകൾ, ഡിസ്പാച്ചുകൾ, അംഗങ്ങൾ എന്നിവയുടെ മേൽനോട്ടം.</li>
+      <li><strong>Student (Receiver):</strong> ഫീൽഡിൽ പ്രവർത്തിക്കുന്ന വിദ്യാർത്ഥികൾ - സംഭാവനകൾ രേഖപ്പെടുത്താനും രസീത് വാട്സ്ആപ്പ് വഴി അയക്കാനും.</li>
+    </ul>
+
+    <div class="screenshot-card">
+      <img src="screenshots/01_login_portal.png" class="screenshot-img" alt="Login Portal Screenshot">
+      <div class="screenshot-caption">ചിത്രം 1.1: Dalail Family ERP ലോഗിൻ സ്ക്രീൻ - റോൾ തിരഞ്ഞെടുക്കലും Forgot Password ലിങ്കും</div>
+    </div>
+
+    <div class="highlight-box">
+      <strong>🔑 പാസ്‌വേഡ് മാറ്റാനും അയക്കാനും (Password Reset &amp; Delivery):</strong><br>
+      ലോഗിൻ സ്ക്രീനിലെ <strong>"Forgot Password? (പാസ്‌വേഡ് മാറ്റുക / അയക്കുക)"</strong> ക്ലിക്ക് ചെയ്താൽ യൂസർനെയിം നൽകി പുതിയ പാസ്‌വേഡ് സെറ്റ് ചെയ്യാം. തുടർന്ന് <strong>"Send via Official WhatsApp"</strong> ക്ലിക്ക് ചെയ്താൽ ഔദ്യോഗിക നമ്പറായ <strong>+91 70341 49149</strong> വഴി ലോഗിൻ വിവരങ്ങൾ വാട്സ്ആപ്പിലേക്ക് ഉടൻ ലഭിക്കും.
+    </div>
+
+    <div class="footer-bar">
+      <span>DALAIL FAMILY ERP - USER MANUAL</span>
+      <span>Page 2</span>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== CHAPTER 2: STUDENT PORTAL ==================== -->
+  <div>
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">2. Student Field Work Portal (സ്റ്റുഡന്റ് പോർട്ടൽ)</h2>
+        <span style="font-size: 8.5pt; color: #64748b;">ഫീൽഡ് കളക്ഷനും ഒറിജിനൽ രസീത് വിതരണവും</span>
+      </div>
+      <span class="section-badge">Section 02</span>
+    </div>
+
+    <p class="text-ml">
+      ഫീൽഡ് വർക്കിനായി നിയോഗിക്കപ്പെട്ട വിദ്യാർത്ഥികൾ (ഉദാ: ATHNAN, BASIM, MIDLAJ) തങ്ങളുടെ യൂസർനെയിമും പാസ്‌വേഡും ഉപയോഗിച്ച് ലോഗിൻ ചെയ്യുമ്പോൾ ലഭിക്കുന്ന സ്ക്രീനാണിത്:
+    </p>
+
+    <div class="screenshot-card">
+      <img src="screenshots/02_student_portal.png" class="screenshot-img" alt="Student Portal Screenshot">
+      <div class="screenshot-caption">ചിത്രം 2.1: സ്റ്റുഡന്റ് ഫീൽഡ് വർക്ക് പോർട്ടൽ - സംഭാവന രേഖപ്പെടുത്തലും UPI QR പേയ്‌മെന്റും</div>
+    </div>
+
+    <p class="text-ml" style="font-weight: bold; color: #164A9B; margin-top: 10px;">
+      പ്രധാന പ്രവർത്തന ഘട്ടങ്ങൾ:
+    </p>
+    <ol class="steps-list">
+      <li><strong>സംഭാവന രേഖപ്പെടുത്തൽ (Record Collection):</strong> ദാതാവിന്റെ പേര്, മൊബൈൽ നമ്പർ, സ്ഥലം, തുക എന്നിവ രേഖപ്പെടുത്തുക.</li>
+      <li><strong>പേയ്‌മെന്റ് രീതി:</strong> ക്യാഷ് (Cash) അല്ലെങ്കിൽ സ്ക്രീനിൽ തെളിയുന്ന ഡയറക്റ്റ് UPI QR കോഡ് സ്കാൻ ചെയ്യിപ്പിച്ച് ബാങ്ക് അക്കൗണ്ടിലേക്ക് നേരിട്ട് പണം വാങ്ങാം.</li>
+      <li><strong>ഔദ്യോഗിക രസീത് ജനറേഷൻ (Official Receipt):</strong> ഫൗണ്ടേഷന്റെ സീലും രജിസ്ട്രേഷൻ നമ്പറും ഉള്ള <strong>No. 3102</strong> മോഡൽ ഒറിജിനൽ രസീത് ജനറേറ്റ് ചെയ്യപ്പെടുന്നു.</li>
+      <li><strong>വാട്സ്ആപ്പ് വഴി അയക്കൽ:</strong> "Send via Official WhatsApp" ക്ലിക്ക് ചെയ്താൽ ദാതാവിന്റെ നമ്പറിലേക്ക് ഫൗണ്ടേഷന്റെ നമ്പർ (+91 70341 49149) വഴി രസീതും ഓൺലൈൻ വെരിഫിക്കേഷൻ ലിങ്കും അയക്കപ്പെടും.</li>
+    </ol>
+
+    <div class="footer-bar">
+      <span>DALAIL FAMILY ERP - USER MANUAL</span>
+      <span>Page 3</span>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== CHAPTER 3: CAMPUS ADMIN PORTAL ==================== -->
+  <div>
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">3. Campus Admin Portal (കാമ്പസ് അഡ്മിൻ പോർട്ടൽ)</h2>
+        <span style="font-size: 8.5pt; color: #64748b;">റൂട്ട് ഡിസ്പാച്ചുകൾ, ഗ്രൂപ്പുകൾ &amp; ഐഡി കാർഡ് മാനേജ്മെന്റ്</span>
+      </div>
+      <span class="section-badge">Section 03</span>
+    </div>
+
+    <p class="text-ml">
+      കാമ്പസ് അഡ്മിനായ <strong>USTHAD ABDUL HAKEEM SA'ADI</strong> (കക്കിടിപ്പുറം കാമ്പസ്) നേതൃത്വം നൽകുന്ന പ്രവർത്തനങ്ങൾ താഴെ നൽകുന്നു:
+    </p>
+
+    <div class="screenshot-card">
+      <img src="screenshots/03_campus_admin_portal.png" class="screenshot-img" alt="Campus Admin Portal">
+      <div class="screenshot-caption">ചിത്രം 3.1: കാമ്പസ് അഡ്മിൻ ഡാഷ്‌ബോർഡ് - കളക്ഷൻ ഗ്രൂപ്പുകൾ, ഡിസ്പാച്ച് റൂട്ടുകൾ, തുക സെറ്റിൽമെന്റ്</div>
+    </div>
+
+    <div class="screenshot-card">
+      <img src="screenshots/04_campus_admin_members.png" class="screenshot-img" alt="Campus Members Management">
+      <div class="screenshot-caption">ചിത്രം 3.2: മെമ്പേഴ്സ് മാനേജ്മെന്റ് - ആധികാരിക ഐഡി കാർഡ് ജനറേറ്ററും പാസ്‌വേഡ് മാനേജ്മെന്റും</div>
+    </div>
+
+    <ul class="steps-list">
+      <li><strong>റൂട്ട് ഡിസ്പാച്ച് (Route Dispatch):</strong> വയനാട്, മലപ്പുറം, കോഴിക്കോട് തുടങ്ങി വിവിധ പ്രദേശങ്ങളിലേക്ക് ടീമുകളെ അയക്കലും ട്രാക്കിംഗും.</li>
+      <li><strong>ഐഡി കാർഡ് പ്രിന്റിംഗ് (Official ID Card Generator):</strong> വിദ്യാർത്ഥികളുടെ ഫോട്ടോയും ഹൗസ് വിലാസവും അടങ്ങിയ ആധികാരിക ഐഡി കാർഡുകൾ പ്രിന്റ് ചെയ്യൽ.</li>
+      <li><strong>സെറ്റിൽമെന്റ് (Settlement &amp; Expense):</strong> ഫീൽഡ് വർക്കർമാർക്ക് അനുവദിക്കുന്ന ബത്തകളും ഫൗണ്ടേഷനിലേക്ക് അടക്കേണ്ട ഫൈനൽ കളക്ഷനും കൃത്യമായി ഒത്തുനോക്കൽ.</li>
+    </ul>
+
+    <div class="footer-bar">
+      <span>DALAIL FAMILY ERP - USER MANUAL</span>
+      <span>Page 4</span>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== CHAPTER 4: VERIFICATION & HELPDESK ==================== -->
+  <div>
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">4. Receipt Verification &amp; Help Desk (സഹായ സംവിധാനങ്ങൾ)</h2>
+        <span style="font-size: 8.5pt; color: #64748b;">രസീത് ഓൺലൈൻ പരിശോധനയും ഹെൽപ്പ് ഡെസ്ക് ടിക്കറ്റും</span>
+      </div>
+      <span class="section-badge">Section 04</span>
+    </div>
+
+    <p class="text-ml">
+      ഏതൊരു ദാതാവിനും പൊതുജനങ്ങൾക്കും സംഭാവനയുടെ നിജസ്ഥിതി ഓൺലൈനായി പരിശോധിക്കാനും സഹായം തേടാനും സൗകര്യമുണ്ട്:
+    </p>
+
+    <div class="screenshot-card">
+      <img src="screenshots/05_receipt_verification.png" class="screenshot-img" alt="Receipt Verification Portal">
+      <div class="screenshot-caption">ചിത്രം 4.1: ഓൺലൈൻ രസീത് പരിശോധന - ഡിജിറ്റൽ വെരിഫിക്കേഷൻ ബാഡ്ജ് &amp; വിവരങ്ങൾ</div>
+    </div>
+
+    <div class="screenshot-card">
+      <img src="screenshots/06_helpdesk_portal.png" class="screenshot-img" alt="Helpdesk Support Portal">
+      <div class="screenshot-caption">ചിത്രം 4.2: ഹെൽപ്പ് ഡെസ്ക് പോർട്ടൽ - ടിക്കറ്റ് രജിസ്ട്രേഷൻ, ട്രാക്കിംഗ്, കോൺടാക്റ്റ് വിവരങ്ങൾ</div>
+    </div>
+
+    <div class="contact-box">
+      <strong>📞 പ്രധാന ഹെൽപ്പ് ഡെസ്ക് സമ്പർക്ക വിവരങ്ങൾ:</strong><br>
+      • ഔദ്യോഗിക ഹെൽപ്പ് ലൈൻ / WhatsApp: <strong>+91 70341 49149</strong><br>
+      • ഇമെയിൽ: <strong>kakkidippuramdkif@gmail.com</strong> / <strong>admin@dalail.org</strong><br>
+      • ഹെഡ് ഓഫീസ്: Masjid Zainab Campus, Kakkidippuram, P.O. Alamkode - 679585, Malappuram Dt.<br>
+      • ഓഫീസ് സമയം: രാവിലെ 08:00 AM മുതൽ രാത്രി 08:00 PM വരെ
+    </div>
+
+    <div class="footer-bar">
+      <span>DALAIL FAMILY ERP - USER MANUAL</span>
+      <span>Page 5 (End of Manual)</span>
+    </div>
+  </div>
+
+</body>
+</html>
