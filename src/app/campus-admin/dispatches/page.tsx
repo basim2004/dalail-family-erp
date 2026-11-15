@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/db/dbService';
+import { useAuth } from '@/lib/services/authService';
 import { Dispatch, Member, Expense, Receipt } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils/formatters';
 import {
@@ -20,11 +21,13 @@ import {
   MapPin,
   ShieldCheck,
   Trash2,
+  CheckCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CampusAdminDispatchesPage() {
-  const campusId = 'campus_kak';
+  const { user } = useAuth();
+  const campusId = user?.campusId || 'campus_kak';
   const campus = db.getCampusById(campusId);
   const [dispatches, setDispatches] = useState<Dispatch[]>(db.getDispatches(campusId));
   const members = db.getMembers(campusId);
@@ -34,9 +37,12 @@ export default function CampusAdminDispatchesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedDispatch, setSelectedDispatch] = useState<Dispatch | null>(null);
   const [deletingDispatch, setDeletingDispatch] = useState<Dispatch | null>(null);
+  const [settlingDispatch, setSettlingDispatch] = useState<Dispatch | null>(null);
+  const [verifiedCashInput, setVerifiedCashInput] = useState<string>('0');
+  const [settlementNotesInput, setSettlementNotesInput] = useState<string>('');
 
   // Create Dispatch Form State
-  const [studentId, setStudentId] = useState(fieldWorkStudents[0]?.id || members[0]?.id);
+  const [studentId, setStudentId] = useState(fieldWorkStudents[0]?.id || members[0]?.id || '');
   const [routePlace, setRoutePlace] = useState('');
   const [districtCode, setDistrictCode] = useState('MLP-VAL-01');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -45,11 +51,43 @@ export default function CampusAdminDispatchesPage() {
   const [allowance, setAllowance] = useState<number | ''>(500);
   const [notes, setNotes] = useState('');
 
+  useEffect(() => {
+    if (!studentId && members.length > 0) {
+      setStudentId(fieldWorkStudents[0]?.id || members[0]?.id || '');
+    }
+  }, [members, fieldWorkStudents, studentId]);
+
   const refreshList = () => {
     setDispatches(db.getDispatches(campusId));
     if (selectedDispatch) {
       setSelectedDispatch(db.getDispatchById(selectedDispatch.id) || null);
     }
+  };
+
+  const handleOpenSettlement = (disp: Dispatch) => {
+    const fin = db.getDispatchFinancials(disp.id);
+    setSettlingDispatch(disp);
+    setVerifiedCashInput(String(Math.max(0, fin.netCash)));
+    setSettlementNotesInput(disp.settlementNotes || '');
+  };
+
+  const handleConfirmSettlement = () => {
+    if (!settlingDispatch) return;
+    const fin = db.getDispatchFinancials(settlingDispatch.id);
+    const cashHandedOver = Number(verifiedCashInput) || 0;
+    
+    db.settleDispatch(settlingDispatch.id, {
+      cashHandedOver,
+      approvedExpenses: fin.expenses,
+      settlementNotes: settlementNotesInput.trim() || 'Verified by Campus Admin',
+      settledBy: campus?.campusAdminName || user?.name || 'Campus Admin',
+    });
+
+    setSettlingDispatch(null);
+    if (selectedDispatch?.id === settlingDispatch.id) {
+      setSelectedDispatch(null);
+    }
+    refreshList();
   };
 
   const handleConfirmDeleteDispatch = () => {
@@ -66,14 +104,18 @@ export default function CampusAdminDispatchesPage() {
     e.preventDefault();
     if (!routePlace.trim() || !studentId || !calendarsGiven) return;
 
-    const chosenStudent = members.find((m) => m.id === studentId);
+    const chosenStudent = members.find((m) => m.id === studentId) || members[0];
     if (!chosenStudent) return;
 
     db.createDispatch({
       studentId: chosenStudent.id,
       studentName: chosenStudent.name,
+      leaderId: chosenStudent.id,
+      leaderName: chosenStudent.name,
+      participatingMemberIds: [chosenStudent.id],
+      participatingMemberNames: [chosenStudent.name],
       campusId,
-      campusName: campus?.name || 'Kakkidippuram Campus',
+      campusName: campus?.name || chosenStudent.campusName || 'Kakkidippuram Campus',
       routePlace: routePlace.trim(),
       districtCode: districtCode.trim(),
       date,
@@ -82,7 +124,13 @@ export default function CampusAdminDispatchesPage() {
       allowance: Number(allowance) || 0,
       notes: notes.trim(),
       status: 'In Field',
-      dispatchedBy: campus?.campusAdminName || 'Campus Admin',
+      dispatchedBy: campus?.campusAdminName || user?.name || 'Campus Admin',
+      totalCollection: 0,
+      cashCollection: 0,
+      upiCollection: 0,
+      approvedExpenses: 0,
+      cashHandedOver: 0,
+      cashDue: 0,
     });
 
     setShowCreateModal(false);
@@ -101,18 +149,15 @@ export default function CampusAdminDispatchesPage() {
     refreshList();
   };
 
-  const handleSettle = (dispatchId: string) => {
-    if (confirm('Confirm settlement: Has the student handed over the verified net cash balance?')) {
-      db.settleDispatch(dispatchId, campus?.campusAdminName || 'Campus Admin');
-      refreshList();
-    }
-  };
-
   const selectedFinancials = selectedDispatch
     ? db.getDispatchFinancials(selectedDispatch.id)
     : null;
   const selectedReceipts = selectedDispatch ? db.getReceipts(selectedDispatch.id) : [];
   const selectedExpenses = selectedDispatch ? db.getExpenses(selectedDispatch.id) : [];
+
+  const settlingFinancials = settlingDispatch
+    ? db.getDispatchFinancials(settlingDispatch.id)
+    : null;
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
@@ -168,12 +213,14 @@ export default function CampusAdminDispatchesPage() {
                       </span>
                       <span
                         className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                          disp.status === 'Completed'
+                          disp.status === 'Completed' || disp.status === 'Settled'
                             ? 'bg-slate-100 text-slate-700'
+                            : disp.status === 'Submitted'
+                            ? 'bg-amber-100 text-amber-800 border border-amber-300'
                             : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                         }`}
                       >
-                        {disp.status}
+                        {disp.status === 'Submitted' ? 'Submitted for Settlement' : disp.status}
                       </span>
                       <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">
                         {disp.deploymentType}
@@ -189,17 +236,21 @@ export default function CampusAdminDispatchesPage() {
                       Dispatched by {disp.dispatchedBy}
                     </p>
 
-                    <div className="flex items-center gap-4 text-xs text-slate-500 pt-1">
+                    <div className="flex items-center gap-4 text-xs text-slate-500 pt-1 flex-wrap">
                       <span>
-                        Receipts: <b className="text-slate-800">{fin.receiptsCount}</b> (
-                        {formatCurrency(fin.totalCollected || 0)})
+                        Donors: <b className="text-slate-800">{fin.receiptsCount}</b>
                       </span>
                       <span>
-                        Calendars: <b className="text-slate-800">{disp.calendarsSold}</b> sold (
-                        {remaining} left of {disp.calendarsGiven})
+                        Cash: <b className="text-emerald-700 font-mono">{formatCurrency(fin.collectedCash || 0)}</b>
                       </span>
                       <span>
-                        Net Cash: <b className="text-dalail-primary">{formatCurrency(fin.netCash || 0)}</b>
+                        UPI: <b className="text-purple-700 font-mono">{formatCurrency(fin.collectedUpi || 0)}</b>
+                      </span>
+                      <span>
+                        Total: <b className="text-slate-900 font-mono">{formatCurrency(fin.totalCollected || 0)}</b>
+                      </span>
+                      <span>
+                        Net Cash Due: <b className="text-dalail-primary font-mono">{formatCurrency(fin.netCash || 0)}</b>
                       </span>
                     </div>
                   </div>
@@ -213,13 +264,17 @@ export default function CampusAdminDispatchesPage() {
                       <Eye className="w-3.5 h-3.5" /> Details & Review
                     </button>
 
-                    {disp.status !== 'Completed' && (
+                    {disp.status !== 'Completed' && disp.status !== 'Settled' ? (
                       <button
-                        onClick={() => handleSettle(disp.id)}
+                        onClick={() => handleOpenSettlement(disp)}
                         className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-colors"
                       >
-                        <Check className="w-3.5 h-3.5" /> Settle Cash
+                        <CheckCheck className="w-3.5 h-3.5" /> Verify & Settle
                       </button>
+                    ) : (
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Settled
+                      </span>
                     )}
 
                     <button
@@ -554,18 +609,178 @@ export default function CampusAdminDispatchesPage() {
                 Close
               </button>
 
-              {selectedDispatch.status !== 'Completed' ? (
+              {selectedDispatch.status !== 'Completed' && selectedDispatch.status !== 'Settled' ? (
                 <button
-                  onClick={() => handleSettle(selectedDispatch.id)}
+                  onClick={() => handleOpenSettlement(selectedDispatch)}
                   className="px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm flex items-center gap-1.5"
                 >
-                  <Check className="w-4 h-4" /> Settle Dispatch (Handed Over Cash)
+                  <CheckCheck className="w-4 h-4" /> Verify & Settle Dispatch
                 </button>
               ) : (
                 <span className="text-xs font-bold text-slate-500">
-                  Settled by {selectedDispatch.settledBy}
+                  Settled by {selectedDispatch.settledBy || 'Campus Admin'}
                 </span>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SETTLEMENT VERIFICATION MODAL */}
+      {settlingDispatch && settlingFinancials && (
+        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-slate-900">
+                    Verify & Settle Collection
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Campus Admin verification before final closure
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSettlingDispatch(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Dispatch & Student Info */}
+            <div className="grid grid-cols-2 gap-3 p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Student</span>
+                <span className="font-bold text-slate-900 text-sm">{settlingDispatch.studentName}</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Dispatch Route</span>
+                <span className="font-bold text-slate-900">{settlingDispatch.routePlace}</span>
+                <span className="text-[10px] font-mono text-slate-500 block">({settlingDispatch.districtCode})</span>
+              </div>
+            </div>
+
+            {/* Financial Overview Metrics */}
+            <div className="grid grid-cols-3 gap-2.5">
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl text-center">
+                <span className="text-[10px] font-bold text-blue-700 uppercase block">Donors</span>
+                <span className="text-lg font-black text-blue-900 font-mono">
+                  {settlingFinancials.receiptCount}
+                </span>
+              </div>
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-center">
+                <span className="text-[10px] font-bold text-emerald-700 uppercase block">Total Cash</span>
+                <span className="text-lg font-black text-emerald-900 font-mono">
+                  {formatCurrency(settlingFinancials.cash)}
+                </span>
+              </div>
+              <div className="p-3 bg-purple-50 border border-purple-200 rounded-2xl text-center">
+                <span className="text-[10px] font-bold text-purple-700 uppercase block">Direct UPI</span>
+                <span className="text-lg font-black text-purple-900 font-mono">
+                  {formatCurrency(settlingFinancials.upi)}
+                </span>
+              </div>
+            </div>
+
+            {/* Calculations Breakdown */}
+            <div className="space-y-2 p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200 text-xs">
+              <div className="flex justify-between items-center py-1 border-b border-slate-200">
+                <span className="text-slate-600 font-medium">Gross Collection:</span>
+                <span className="font-mono font-bold text-slate-900">
+                  {formatCurrency(settlingFinancials.total)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-200">
+                <span className="text-slate-600 font-medium">Approved Field Expenses:</span>
+                <span className="font-mono font-bold text-rose-600">
+                  - {formatCurrency(settlingFinancials.expenses)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-1">
+                <span className="text-slate-800 font-bold">Net Cash Expected:</span>
+                <span className="font-mono font-bold text-emerald-700 text-sm">
+                  {formatCurrency(settlingFinancials.netCash)}
+                </span>
+              </div>
+            </div>
+
+            {/* Physical Cash Verification Input */}
+            <div className="space-y-3 pt-1">
+              <div>
+                <label className="block text-xs font-bold text-slate-800 mb-1">
+                  Physical Cash Handed Over (Verified by Campus Admin) *
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-slate-400 font-bold text-xs">₹</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={verifiedCashInput}
+                    onChange={(e) => setVerifiedCashInput(e.target.value)}
+                    className="w-full pl-8 pr-3 py-2 text-sm font-mono font-bold border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    placeholder="Enter actual physical cash received"
+                  />
+                </div>
+              </div>
+
+              {/* Difference Calculation */}
+              {(() => {
+                const enteredCash = Number(verifiedCashInput) || 0;
+                const diff = enteredCash - settlingFinancials.netCash;
+                return (
+                  <div className={`p-2.5 rounded-xl border flex items-center justify-between text-xs ${
+                    diff === 0 
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
+                      : diff > 0 
+                      ? 'bg-blue-50 border-blue-200 text-blue-800'
+                      : 'bg-rose-50 border-rose-200 text-rose-800'
+                  }`}>
+                    <span className="font-bold">
+                      {diff === 0 ? 'Cash Matches Exactly' : diff > 0 ? 'Surplus Cash Received' : 'Shortage in Handover'}
+                    </span>
+                    <span className="font-mono font-black">
+                      {diff === 0 ? '₹0 Difference' : `${diff > 0 ? '+' : ''}${formatCurrency(diff)}`}
+                    </span>
+                  </div>
+                );
+              })()}
+
+              <div>
+                <label className="block text-xs font-bold text-slate-800 mb-1">
+                  Settlement Verification Notes
+                </label>
+                <textarea
+                  rows={2}
+                  value={settlementNotesInput}
+                  onChange={(e) => setSettlementNotesInput(e.target.value)}
+                  placeholder="e.g. Cash counted and deposited in campus safe. Receipts verified."
+                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setSettlingDispatch(null)}
+                className="flex-1 py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmSettlement}
+                className="flex-1 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm transition-colors flex items-center justify-center gap-1.5"
+              >
+                <CheckCheck className="w-4 h-4" /> Confirm & Settle
+              </button>
             </div>
           </div>
         </div>

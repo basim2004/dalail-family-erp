@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/services/authService';
 import { db } from '@/lib/db/dbService';
 import { Dispatch, Receipt, Expense, DonationCategory, PaymentMode } from '@/lib/types';
@@ -66,12 +66,21 @@ export default function StudentFieldCollectionPage() {
     const all = db.getDispatches();
     if (!member) return [];
     return all.filter(
-      (d) => d.participatingMemberIds?.includes(member.id) || d.studentId === member.id
+      (d) => d.participatingMemberIds?.includes(member.id) || d.studentId === member.id || d.leaderId === member.id
     );
   };
 
   const [dispatches, setDispatches] = useState<Dispatch[]>(getStudentDispatches());
-  const activeDispatch = dispatches.find((d) => d.status === 'In Field');
+
+  useEffect(() => {
+    if (member) {
+      setDispatches(getStudentDispatches());
+    }
+  }, [member?.id]);
+
+  const activeDispatch = dispatches.find(
+    (d) => d.status === 'In Field' || d.status === 'Assigned' || d.status === 'Submitted'
+  );
   const pastDispatches = dispatches.filter(
     (d) => d.status === 'Completed' || d.status === 'Settled'
   );
@@ -87,6 +96,8 @@ export default function StudentFieldCollectionPage() {
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [submitNotes, setSubmitNotes] = useState('');
   const [selectedHistoryDispatch, setSelectedHistoryDispatch] = useState<Dispatch | null>(null);
   const [showUpiModal, setShowUpiModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -114,6 +125,14 @@ export default function StudentFieldCollectionPage() {
     }
   };
 
+  const handleSubmitForSettlement = () => {
+    if (!activeDispatch) return;
+    db.submitDispatchForSettlement(activeDispatch.id, submitNotes);
+    setShowSubmitModal(false);
+    setSubmitNotes('');
+    refreshData();
+  };
+
   const handleConfirmDeleteReceipt = () => {
     if (!deletingReceipt) return;
     db.deleteReceipt(deletingReceipt.id);
@@ -130,9 +149,14 @@ export default function StudentFieldCollectionPage() {
     allowance: 0,
     totalCollected: 0,
     collectedCash: 0,
+    collectedUpi: 0,
     expenses: 0,
     netCash: 0,
     receiptsCount: 0,
+    total: 0,
+    cash: 0,
+    upi: 0,
+    receiptCount: 0,
   };
 
   const materials = db.getFieldWorkItems();
@@ -140,7 +164,7 @@ export default function StudentFieldCollectionPage() {
   // Aggregate History Statistics dynamically computed from authentic DB records
   const allStudentReceipts = db.getReceipts(undefined, member?.id);
   const totalCollectedAll = allStudentReceipts.reduce((acc, r) => acc + r.amount, 0);
-  const totalUpiAll = allStudentReceipts.filter((r) => r.paymentMode === 'Direct UPI').reduce((acc, r) => acc + r.amount, 0);
+  const totalUpiAll = allStudentReceipts.filter((r) => r.paymentMode === 'Direct UPI' || r.paymentMode === 'UPI').reduce((acc, r) => acc + r.amount, 0);
   const totalCashAll = totalCollectedAll - totalUpiAll;
   const allStudentExpenses = db.getExpenses(undefined, member?.id);
   const totalExpensesAll = allStudentExpenses.filter((e) => e.status === 'Approved').reduce((acc, e) => acc + e.amount, 0);
@@ -470,8 +494,12 @@ export default function StudentFieldCollectionPage() {
               <div className="bg-white rounded-3xl border border-slate-200 shadow-card overflow-hidden">
                 <div className="p-6 bg-gradient-to-r from-dalail-primary via-dalail-secondary to-blue-700 text-white space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-white/20 px-3 py-1 rounded-full inline-block backdrop-blur-xs border border-white/20">
-                      ● Active Route: {activeDispatch.status}
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full inline-block backdrop-blur-xs border ${
+                      activeDispatch.status === 'Submitted'
+                        ? 'bg-amber-400/30 text-amber-100 border-amber-300/40'
+                        : 'bg-white/20 text-white border-white/20'
+                    }`}>
+                      ● {activeDispatch.status === 'Submitted' ? 'Submitted for Settlement' : `Active Route: ${activeDispatch.status}`}
                     </span>
                     <span className="text-xs font-mono text-blue-100 font-bold bg-white/10 px-2.5 py-0.5 rounded-lg">
                       {activeDispatch.districtCode}
@@ -525,7 +553,7 @@ export default function StudentFieldCollectionPage() {
                       Direct UPI Payments
                     </span>
                     <span className="text-xl sm:text-2xl font-black text-purple-700 font-mono mt-1 block">
-                      {formatCurrency(receipts.filter(r => r.paymentMode === 'Direct UPI').reduce((sum, r) => sum + r.amount, 0))}
+                      {formatCurrency(receipts.filter(r => r.paymentMode === 'Direct UPI' || r.paymentMode === 'UPI').reduce((sum, r) => sum + r.amount, 0))}
                     </span>
                     <span className="text-[11px] font-semibold text-purple-600 block mt-0.5">
                       Credited directly to bank
@@ -580,6 +608,30 @@ export default function StudentFieldCollectionPage() {
                       <span>Deployment Info</span>
                     </button>
                   </div>
+
+                  {activeDispatch.status === 'Submitted' ? (
+                    <div className="mt-3.5 p-3 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span className="font-bold text-amber-900">
+                          Route submitted for settlement. Campus Admin is reviewing collections & cash handover.
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200/60">
+                      <span className="text-[11px] text-slate-500">
+                        Done with field collections? Submit for Campus Admin verification & settlement.
+                      </span>
+                      <button
+                        onClick={() => setShowSubmitModal(true)}
+                        className="w-full sm:w-auto py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 shrink-0"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Submit for Settlement</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Today's Issued Receipts Feed (Mockup S2 & S5) */}
@@ -1965,6 +2017,97 @@ export default function StudentFieldCollectionPage() {
                 className="flex-1 py-2.5 px-4 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors shadow-sm"
               >
                 Delete Receipt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUBMIT FOR SETTLEMENT MODAL */}
+      {showSubmitModal && activeDispatch && (
+        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-slate-900">
+                    Submit Field Collection
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Hand over to Campus Admin for verification
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowSubmitModal(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Financial Summary */}
+            <div className="space-y-2 p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+              <div className="flex justify-between items-center py-1 border-b border-slate-200">
+                <span className="text-slate-600">Total Donors / Receipts:</span>
+                <span className="font-mono font-bold text-slate-900">{receipts.length}</span>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-200">
+                <span className="text-slate-600">Gross Collection:</span>
+                <span className="font-mono font-bold text-slate-900">
+                  {formatCurrency(financials.totalCollected || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-200">
+                <span className="text-slate-600">Direct UPI (Credited directly):</span>
+                <span className="font-mono font-bold text-purple-700">
+                  {formatCurrency(financials.collectedUpi || financials.upi || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-200">
+                <span className="text-slate-600">Approved Field Expenses:</span>
+                <span className="font-mono font-bold text-rose-600">
+                  - {formatCurrency(financials.expenses || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-1 font-bold text-slate-900">
+                <span>Net Physical Cash to Hand Over:</span>
+                <span className="font-mono text-emerald-700 text-sm">
+                  {formatCurrency(Math.max(0, (financials.collectedCash || 0) - (financials.expenses || 0)))}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Student Handover Notes (Optional)
+              </label>
+              <textarea
+                rows={2}
+                value={submitNotes}
+                onChange={(e) => setSubmitNotes(e.target.value)}
+                placeholder="e.g. Completed Valanchery town. Cash ready for handover."
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowSubmitModal(false)}
+                className="flex-1 py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmitForSettlement}
+                className="flex-1 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors shadow-sm flex items-center justify-center gap-1.5"
+              >
+                <CheckCircle2 className="w-4 h-4" /> Confirm Submit
               </button>
             </div>
           </div>

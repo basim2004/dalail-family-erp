@@ -207,7 +207,28 @@ class DatabaseService {
   }
 
   getUserById(id: string): User | undefined {
-    return this.users.find((u) => u.id === id || u.email === id || u.username === id);
+    const direct = this.users.find((u) => u.id === id || u.email === id || u.username === id);
+    if (direct) return direct;
+
+    // Check if it's a student user or member ID
+    const memberId = id.startsWith('user_student_') ? id.replace('user_student_', '') : id;
+    const member = this.members.find((m) => m.id === memberId || m.memberId === memberId || m.name.toLowerCase() === id.toLowerCase());
+    if (member) {
+      return {
+        id: `user_student_${member.id}`,
+        name: member.name,
+        username: member.studentUsername || member.name.toLowerCase().replace(/\s+/g, ''),
+        email: `${member.name.toLowerCase().replace(/\s+/g, '')}@dalail.org`,
+        phone: member.phone || '',
+        role: 'student',
+        campusId: member.campusId,
+        campusName: member.campusName,
+        memberId: member.id,
+        active: true,
+        createdAt: member.createdAt,
+      };
+    }
+    return undefined;
   }
 
   addCampusAdmin(adminData: Omit<User, 'id' | 'role' | 'createdAt'>): User {
@@ -528,6 +549,24 @@ class DatabaseService {
     return this.dispatches[index];
   }
 
+  submitDispatchForSettlement(id: string, notes?: string): Dispatch | undefined {
+    const index = this.dispatches.findIndex((d) => d.id === id || d.dispatchId === id);
+    if (index === -1) return undefined;
+    const dispatch = this.dispatches[index];
+    const fin = this.getDispatchFinancials(dispatch.id);
+    this.dispatches[index] = {
+      ...dispatch,
+      totalCollection: fin.totalCollected,
+      cashCollection: fin.collectedCash,
+      upiCollection: fin.collectedUpi,
+      approvedExpenses: fin.expenses,
+      status: 'Submitted',
+      settlementNotes: notes || dispatch.notes,
+    };
+    this.save('dispatches', this.dispatches);
+    return this.dispatches[index];
+  }
+
   settleDispatch(
     id: string,
     settlement:
@@ -543,26 +582,36 @@ class DatabaseService {
     if (index === -1) return undefined;
 
     const dispatch = this.dispatches[index];
+    const fin = this.getDispatchFinancials(dispatch.id);
     const isString = typeof settlement === 'string';
     const settledBy = isString ? settlement : settlement.settledBy;
-    const cashHandedOver = isString
-      ? Math.max(0, (dispatch.cashCollection || 0) - (dispatch.approvedExpenses || 0))
-      : settlement.cashHandedOver !== undefined
-      ? settlement.cashHandedOver
-      : (dispatch.cashHandedOver || 0);
+
+    const liveTotal = fin.totalCollected || dispatch.totalCollection || 0;
+    const liveCash = fin.collectedCash || dispatch.cashCollection || 0;
+    const liveUpi = fin.collectedUpi || dispatch.upiCollection || 0;
     const approvedExpenses =
       !isString && settlement.approvedExpenses !== undefined
         ? settlement.approvedExpenses
-        : (dispatch.approvedExpenses || 0);
-    const expectedHandover = Math.max(0, (dispatch.cashCollection || 0) - approvedExpenses);
-    const cashDue = expectedHandover - cashHandedOver;
+        : fin.expenses;
+
+    const expectedCashHandover = Math.max(0, liveCash - approvedExpenses);
+    const cashHandedOver = isString
+      ? expectedCashHandover
+      : settlement.cashHandedOver !== undefined
+      ? settlement.cashHandedOver
+      : expectedCashHandover;
+
+    const cashDue = Math.max(0, expectedCashHandover - cashHandedOver);
 
     this.dispatches[index] = {
       ...dispatch,
+      totalCollection: liveTotal,
+      cashCollection: liveCash,
+      upiCollection: liveUpi,
       cashHandedOver,
       approvedExpenses,
       cashDue,
-      status: cashDue === 0 ? 'Settled' : 'Submitted',
+      status: 'Settled',
       settlementNotes: !isString && settlement.settlementNotes ? settlement.settlementNotes : dispatch.settlementNotes,
       settledBy,
       settledAt: new Date().toISOString(),
@@ -638,17 +687,41 @@ class DatabaseService {
     allowance: number;
     netCash: number;
     receiptsCount: number;
+    total: number;
+    cash: number;
+    upi: number;
+    receiptCount: number;
   } {
     const dispatch = this.dispatches.find((d) => d.id === dispatchId || d.dispatchId === dispatchId);
-    const rcpts = this.receipts.filter((r) => r.dispatchId === dispatchId);
-    const totalCollected = rcpts.reduce((sum, r) => sum + r.amount, 0) || dispatch?.totalCollection || 0;
-    const collectedCash = rcpts.filter((r) => r.paymentMode === 'Cash' || r.paymentMode === 'Cash in Hand').reduce((sum, r) => sum + r.amount, 0) || dispatch?.cashCollection || 0;
-    const collectedUpi = rcpts.filter((r) => r.paymentMode === 'UPI' || r.paymentMode === 'Direct UPI').reduce((sum, r) => sum + r.amount, 0) || dispatch?.upiCollection || 0;
-    const expList = this.expenses.filter((e) => e.dispatchId === dispatchId && e.status === 'Approved');
-    const expenses = expList.reduce((sum, e) => sum + e.amount, 0) || dispatch?.approvedExpenses || 0;
+    const rcpts = this.receipts.filter(
+      (r) => r.dispatchId === dispatchId || (dispatch && (r.dispatchId === dispatch.id || r.dispatchId === dispatch.dispatchId))
+    );
+    const hasLiveReceipts = rcpts.length > 0;
+    const isCashMode = (mode: string) => mode === 'Cash' || mode === 'Cash in Hand';
+    const isUpiMode = (mode: string) => mode === 'UPI' || mode === 'Direct UPI';
+
+    const collectedCash = hasLiveReceipts
+      ? rcpts.filter((r) => isCashMode(r.paymentMode)).reduce((sum, r) => sum + r.amount, 0)
+      : dispatch?.cashCollection || 0;
+
+    const collectedUpi = hasLiveReceipts
+      ? rcpts.filter((r) => isUpiMode(r.paymentMode)).reduce((sum, r) => sum + r.amount, 0)
+      : dispatch?.upiCollection || 0;
+
+    const totalCollected = hasLiveReceipts
+      ? collectedCash + collectedUpi
+      : dispatch?.totalCollection || 0;
+
+    const expList = this.expenses.filter(
+      (e) => e.dispatchId === dispatchId || (dispatch && (e.dispatchId === dispatch.id || e.dispatchId === dispatch.dispatchId))
+    );
+    const approvedExpList = expList.filter((e) => e.status === 'Approved');
+    const expenses = approvedExpList.reduce((sum, e) => sum + e.amount, 0) || dispatch?.approvedExpenses || 0;
     const allowance = dispatch?.allowance || 0;
     const netCash = Math.max(0, collectedCash - expenses);
-    const receiptsCount = rcpts.length || (dispatch ? Math.round(totalCollected / 2000) : 0);
+    const receiptsCount = hasLiveReceipts
+      ? rcpts.length
+      : dispatch ? (dispatch.hasReceiptData ? Math.round(totalCollected / 2000) : 0) : 0;
 
     return {
       totalCollected,
@@ -658,6 +731,10 @@ class DatabaseService {
       allowance,
       netCash,
       receiptsCount,
+      total: totalCollected,
+      cash: collectedCash,
+      upi: collectedUpi,
+      receiptCount: receiptsCount,
     };
   }
 
@@ -665,7 +742,14 @@ class DatabaseService {
   getReceipts(dispatchId?: string, campusId?: string): Receipt[] {
     const list = this.receipts && this.receipts.length > 0 ? this.receipts : initialReceipts;
     return list.filter((r) => {
-      if (dispatchId && r.dispatchId !== dispatchId) return false;
+      if (dispatchId) {
+        if (r.dispatchId !== dispatchId) {
+          const disp = this.dispatches.find((d) => d.id === dispatchId || d.dispatchId === dispatchId);
+          if (!disp || (r.dispatchId !== disp.id && r.dispatchId !== disp.dispatchId)) {
+            return false;
+          }
+        }
+      }
       if (campusId && campusId !== 'all' && r.campusId !== campusId) return false;
       return true;
     });
@@ -710,14 +794,15 @@ class DatabaseService {
 
     // Update dispatch financial totals in real-time
     if (receiptData.dispatchId) {
-      const dispatch = this.dispatches.find((d) => d.id === receiptData.dispatchId);
+      const dispatch = this.dispatches.find(
+        (d) => d.id === receiptData.dispatchId || d.dispatchId === receiptData.dispatchId
+      );
       if (dispatch) {
-        dispatch.totalCollection = (dispatch.totalCollection || 0) + receiptData.amount;
-        if (receiptData.paymentMode === 'Cash in Hand') {
-          dispatch.cashCollection = (dispatch.cashCollection || 0) + receiptData.amount;
-        } else {
-          dispatch.upiCollection = (dispatch.upiCollection || 0) + receiptData.amount;
-        }
+        const isCash = receiptData.paymentMode === 'Cash' || receiptData.paymentMode === 'Cash in Hand';
+        const fin = this.getDispatchFinancials(dispatch.id);
+        dispatch.totalCollection = fin.totalCollected;
+        dispatch.cashCollection = fin.collectedCash;
+        dispatch.upiCollection = fin.collectedUpi;
         if (receiptData.calendarGiven) {
           dispatch.calendarsSold = Math.min(dispatch.calendarsGiven, (dispatch.calendarsSold || 0) + 1);
         }
@@ -733,15 +818,18 @@ class DatabaseService {
     const rcpt = this.receipts.find((r) => r.id === id || r.receiptNo === id);
     if (!rcpt) return false;
 
+    this.receipts = this.receipts.filter((r) => r.id !== rcpt.id && r.receiptNo !== rcpt.receiptNo);
+    this.save('receipts', this.receipts);
+
     if (rcpt.dispatchId) {
-      const dispatch = this.dispatches.find((d) => d.id === rcpt.dispatchId);
+      const dispatch = this.dispatches.find(
+        (d) => d.id === rcpt.dispatchId || d.dispatchId === rcpt.dispatchId
+      );
       if (dispatch) {
-        dispatch.totalCollection = Math.max(0, (dispatch.totalCollection || 0) - rcpt.amount);
-        if (rcpt.paymentMode === 'Cash in Hand') {
-          dispatch.cashCollection = Math.max(0, (dispatch.cashCollection || 0) - rcpt.amount);
-        } else {
-          dispatch.upiCollection = Math.max(0, (dispatch.upiCollection || 0) - rcpt.amount);
-        }
+        const fin = this.getDispatchFinancials(dispatch.id);
+        dispatch.totalCollection = fin.totalCollected;
+        dispatch.cashCollection = fin.collectedCash;
+        dispatch.upiCollection = fin.collectedUpi;
         if (rcpt.calendarGiven && dispatch.calendarsSold > 0) {
           dispatch.calendarsSold -= 1;
         }
@@ -750,8 +838,6 @@ class DatabaseService {
       }
     }
 
-    this.receipts = this.receipts.filter((r) => r.id !== rcpt.id && r.receiptNo !== rcpt.receiptNo);
-    this.save('receipts', this.receipts);
     return true;
   }
 
