@@ -1,0 +1,33 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Public official assets (brochures, logos, stamps)
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+    
+    // Student ID photos & document attachments
+    match /students/{studentId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+    
+    // Receipt scans & payment proofs
+    match /receipts/{receiptId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+    
+    // Admin backups and reports
+    match /backups/{allPaths=**} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}

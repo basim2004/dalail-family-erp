@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole, Member } from '../types';
 import { db } from '../db/dbService';
+import { auth } from '../db/firebase';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -116,6 +118,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     localStorage.removeItem('dalail_v2_auth_id');
+    try {
+      signOut(auth).catch(() => {});
+    } catch {
+      // Ignore if auth offline
+    }
   };
 
   const currentMember = user?.memberId ? db.getMemberById(user.memberId) || null : null;

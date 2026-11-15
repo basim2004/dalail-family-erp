@@ -1,3 +1,5 @@
+import { firestore } from './firebase';
+import { doc, setDoc } from 'firebase/firestore';
 import {
   User,
   Campus,
@@ -853,6 +855,136 @@ class DatabaseService {
     this.fieldWorkItems.splice(index, 1);
     this.save('fieldwork', this.fieldWorkItems);
     return true;
+  }
+
+  // ==========================================
+  // FIREBASE & FIRESTORE INTEGRATION METHODS
+  // ==========================================
+
+  /**
+   * Create complete local JSON backup of all existing records
+   */
+  public createCompleteBackup(): { timestamp: string; version: string; data: Record<string, any> } {
+    const backup = {
+      version: '2.0.0',
+      timestamp: new Date().toISOString(),
+      institution: 'Dalailul Khairath Islamic Foundation (Regd.)',
+      stats: {
+        users: this.users.length,
+        campuses: this.campuses.length,
+        members: this.members.length,
+        dispatches: this.dispatches.length,
+        receipts: this.receipts.length,
+        expenses: this.expenses.length,
+        totalCollection: this.receipts.reduce((sum, r) => sum + r.amount, 0),
+      },
+      data: {
+        users: this.users,
+        campuses: this.campuses,
+        members: this.members,
+        brochures: this.brochures,
+        fieldwork: this.fieldWorkItems,
+        groups: this.groups,
+        dispatches: this.dispatches,
+        receipts: this.receipts,
+        expenses: this.expenses,
+        settlementSettings: this.settlementSettings,
+        payments: this.payments,
+      },
+    };
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('dalail_backup_latest', JSON.stringify(backup));
+      } catch (err) {
+        console.warn('Backup storage error:', err);
+      }
+    }
+    return backup;
+  }
+
+  /**
+   * Migrate and sync all records to Cloud Firestore while preserving all original IDs
+   */
+  public async migrateToFirestore(): Promise<{
+    success: boolean;
+    migratedCounts: Record<string, number>;
+    errors: string[];
+  }> {
+    const results = {
+      success: true,
+      migratedCounts: {
+        campuses: 0,
+        users: 0,
+        members: 0,
+        dispatches: 0,
+        receipts: 0,
+        expenses: 0,
+        groups: 0,
+      },
+      errors: [] as string[],
+    };
+
+    try {
+      // 1. Campuses
+      for (const campus of this.campuses) {
+        try {
+          await setDoc(doc(firestore, 'campuses', campus.id), campus, { merge: true });
+          results.migratedCounts.campuses++;
+        } catch (e: any) {
+          results.errors.push(`Campus ${campus.id}: ${e.message}`);
+        }
+      }
+
+      // 2. Members / Students
+      for (const member of this.members) {
+        try {
+          await setDoc(doc(firestore, 'students', member.id), member, { merge: true });
+          results.migratedCounts.members++;
+        } catch (e: any) {
+          results.errors.push(`Member ${member.id}: ${e.message}`);
+        }
+      }
+
+      // 3. Dispatches
+      for (const disp of this.dispatches) {
+        try {
+          await setDoc(doc(firestore, 'dispatches', disp.id), disp, { merge: true });
+          results.migratedCounts.dispatches++;
+        } catch (e: any) {
+          results.errors.push(`Dispatch ${disp.id}: ${e.message}`);
+        }
+      }
+
+      // 4. Receipts
+      for (const rec of this.receipts) {
+        try {
+          await setDoc(doc(firestore, 'receipts', rec.id), rec, { merge: true });
+          results.migratedCounts.receipts++;
+        } catch (e: any) {
+          results.errors.push(`Receipt ${rec.id}: ${e.message}`);
+        }
+      }
+
+      // 5. Expenses
+      for (const exp of this.expenses) {
+        try {
+          await setDoc(doc(firestore, 'expenses', exp.id), exp, { merge: true });
+          results.migratedCounts.expenses++;
+        } catch (e: any) {
+          results.errors.push(`Expense ${exp.id}: ${e.message}`);
+        }
+      }
+
+      if (results.errors.length > 0) {
+        results.success = false;
+      }
+    } catch (globalErr: any) {
+      results.success = false;
+      results.errors.push(`Global sync error: ${globalErr.message}`);
+    }
+
+    return results;
   }
 }
 
