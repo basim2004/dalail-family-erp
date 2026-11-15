@@ -29,8 +29,10 @@ export interface WhatsAppMessageResult {
   previewText?: string;
 }
 
-export const OFFICIAL_SENDER_NUMBER = '+91 70341 49149';
-export const OFFICIAL_SENDER_CLEAN = '917034149149';
+export const OFFICIAL_SENDER_NUMBER = '+91 8547931509';
+export const OFFICIAL_SENDER_CLEAN = '918547931509';
+export const DEVELOPER_PHONE = '+91 8547931509';
+export const DEVELOPER_PHONE_CLEAN = '918547931509';
 export const WHATSAPP_TEMPLATE_NAME = 'dalail_donation_receipt';
 
 /**

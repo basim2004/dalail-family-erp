@@ -69,13 +69,11 @@ export default function MembersAdminPage() {
     const u = m.studentUsername || m.name.toLowerCase().replace(/[^a-z0-9]/g, '');
     const p = m.studentPassword || 'password123';
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const text = `*DALAILUL KHAIRATH ISLAMIC FOUNDATION (REGD.)*\n_Official Member Portal Credentials_\n\nAssalamu Alaikum,\nHere are your login credentials for Dalail Family ERP:\n\n👤 *Member Name:* ${m.name}\n🆔 *Member ID:* ${m.memberId}\n🏛️ *Campus:* ${m.campusName}\n🌐 *Portal Login:* ${origin}/login\n\n🔑 *Username:* ${u}\n🔒 *Password:* ${p}\n\nPlease keep your credentials confidential.\nOfficial Sender: +91 70341 49149\nEmail: kakkidippuramdkif@gmail.com`;
+    const text = `*DALAILUL KHAIRATH ISLAMIC FOUNDATION (REGD.)*\n_Official Member Portal Credentials_\n\nAssalamu Alaikum,\nHere are your login credentials for Dalail Family ERP:\n\n👤 *Member Name:* ${m.name}\n🆔 *Member ID:* ${m.memberId}\n🏛️ *Campus:* ${m.campusName}\n🌐 *Portal Login:* ${origin}/login\n\n🔑 *Username:* ${u}\n🔒 *Password:* ${p}\n\nPlease keep your credentials confidential.\nOfficial Sender: +91 8547931509\nDeveloper Desk: +91 8547931509\nEmail: kakkidippuramdkif@gmail.com`;
 
-    const phoneDigits = (m.phone || '').replace(/[^0-9]/g, '');
-    const waUrl =
-      phoneDigits.length >= 10
-        ? `https://api.whatsapp.com/send?phone=${phoneDigits}&text=${encodeURIComponent(text)}`
-        : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    // Direct developer WhatsApp number: +91 8547931509
+    const targetPhone = '918547931509';
+    const waUrl = `https://api.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(text)}`;
 
     window.open(waUrl, '_blank');
     setWhatsappSentMemberId(m.id);
@@ -421,7 +419,7 @@ export default function MembersAdminPage() {
                           type="button"
                           onClick={() => sendCredentialsWhatsApp(m)}
                           className="p-1 text-slate-400 hover:text-emerald-600 rounded transition-colors"
-                          title="Send Password via WhatsApp (+91 70341 49149)"
+                          title="Send Password to Developer WhatsApp (+91 8547931509)"
                         >
                           {whatsappSentMemberId === m.id ? (
                             <Check className="w-3.5 h-3.5 text-emerald-600" />
@@ -909,7 +907,7 @@ export default function MembersAdminPage() {
                               type="button"
                               onClick={() => sendCredentialsWhatsApp(m)}
                               className="p-1 text-slate-400 hover:text-emerald-600 rounded"
-                              title="Send Password via WhatsApp (+91 70341 49149)"
+                              title="Send Password to Developer WhatsApp (+91 8547931509)"
                             >
                               {whatsappSentMemberId === m.id ? (
                                 <Check className="w-3.5 h-3.5 text-emerald-600" />

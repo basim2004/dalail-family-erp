@@ -156,7 +156,7 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
               onClick={handleSendOfficialWhatsApp}
               disabled={isSendingWhatsApp}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-xs disabled:opacity-50"
-              title="Send official receipt via +91 70341 49149"
+              title="Send official receipt via +91 8547931509"
             >
               <Share2 className="w-3.5 h-3.5" />
               <span>{isSendingWhatsApp ? 'Sending...' : 'Official WhatsApp'}</span>
@@ -573,7 +573,7 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   </h3>
                   <p className="text-[11px] text-blue-200 font-mono">
-                    Sender: +91 70341 49149
+                    Sender: +91 8547931509
                   </p>
                 </div>
               </div>
@@ -648,7 +648,7 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Official Sender:</span>
-                  <span className="font-bold text-emerald-700">+91 70341 49149</span>
+                  <span className="font-bold text-emerald-700">+91 8547931509</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Message ID:</span>

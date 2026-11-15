@@ -89,7 +89,7 @@ export default function LoginPage() {
             ? 'Campus Admin'
             : 'Student / Receiver',
         campusName: matchedUser.campusName || 'Kakkidippuram Main Campus',
-        phone: matchedUser.phone || '+91 70341 49149',
+        phone: matchedUser.phone || '+91 8547931509',
         currentPassword: matchedUser.password || 'password123',
         type: 'user',
       });
@@ -114,7 +114,7 @@ export default function LoginPage() {
           matchedMember.name.toLowerCase().replace(/[^a-z0-9]/g, ''),
         roleName: 'Official Receiver / Student',
         campusName: matchedMember.campusName,
-        phone: matchedMember.phone || '+91 70341 49149',
+        phone: matchedMember.phone || '+91 8547931509',
         currentPassword: matchedMember.studentPassword || 'password123',
         type: 'member',
       });
@@ -122,7 +122,7 @@ export default function LoginPage() {
     }
 
     setForgotError(
-      'No matching account found. Please check your username or contact Admin at +91 70341 49149.'
+      'No matching account found. Please check your username or contact Admin/Developer at +91 8547931509.'
     );
   };
 
@@ -150,15 +150,12 @@ export default function LoginPage() {
   const handleSendViaWhatsApp = () => {
     if (!foundAccount) return;
     const pwd = foundAccount.currentPassword || newPassword || 'password123';
-    const text = `*DALAILUL KHAIRATH ISLAMIC FOUNDATION (REGD.)*\n_Official Portal Access Credentials_\n\nAssalamu Alaikum,\nHere are your login credentials for Dalail Family ERP:\n\n👤 *Name:* ${foundAccount.name}\n🔑 *Username:* ${foundAccount.username}\n🔒 *Password:* ${pwd}\n🏛️ *Campus:* ${foundAccount.campusName}\n🌐 *Portal Login:* ${
-      typeof window !== 'undefined' ? window.location.origin : ''
-    }/login\n\nOfficial Foundation Support: +91 70341 49149\nEmail: kakkidippuramdkif@gmail.com`;
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const text = `*DALAILUL KHAIRATH ISLAMIC FOUNDATION (REGD.)*\n_Official Portal Access Credentials_\n\nAssalamu Alaikum,\nAccount login credentials for Dalail Family ERP:\n\n👤 *Name:* ${foundAccount.name}\n🔑 *Username:* ${foundAccount.username}\n🔒 *Password:* ${pwd}\n🏛️ *Campus:* ${foundAccount.campusName}\n🌐 *Portal Login:* ${origin}/login\n\nOfficial Sender / Developer Desk: +91 8547931509\nEmail: kakkidippuramdkif@gmail.com`;
 
-    const cleanPhone = foundAccount.phone.replace(/[^0-9]/g, '');
-    const waUrl =
-      cleanPhone.length >= 10
-        ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`
-        : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    // Direct developer WhatsApp number: +91 8547931509
+    const targetPhone = '918547931509';
+    const waUrl = `https://api.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(text)}`;
 
     window.open(waUrl, '_blank');
     setWhatsappSent(true);
@@ -573,12 +570,12 @@ export default function LoginPage() {
                         className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all"
                       >
                         <Smartphone className="w-4 h-4" />
-                        <span>Send via Official WhatsApp (+91 70341 49149)</span>
+                        <span>Send to Developer WhatsApp (+91 8547931509)</span>
                         <Send className="w-3.5 h-3.5" />
                       </button>
                       {whatsappSent && (
                         <p className="text-[10px] text-emerald-700 font-bold mt-1 text-center">
-                          ✓ WhatsApp opened with official credentials message!
+                          ✓ WhatsApp opened with message for developer (+91 8547931509)!
                         </p>
                       )}
                     </div>
@@ -588,8 +585,8 @@ export default function LoginPage() {
 
               {/* Foundation Support Footer Note */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-                <span>Official Sender: <strong>+91 70341 49149</strong></span>
-                <span>Head Office: Kakkidippuram</span>
+                <span>Official Sender: <strong>+91 8547931509</strong></span>
+                <span>Developer Phone: <strong>+91 8547931509</strong></span>
               </div>
             </div>
           </div>
