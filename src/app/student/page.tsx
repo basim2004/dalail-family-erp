@@ -280,156 +280,188 @@ export default function StudentFieldCollectionPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-[#F5F8FC] pb-24 font-sans overflow-x-hidden">
-      {/* Top Header Banner - Mockup S1 & S2 Curved Gradient Design */}
-      <header className="relative bg-gradient-to-r from-[#0C2F66] via-[#164A9B] to-[#2876C8] text-white rounded-b-[28px] sm:rounded-b-[36px] shadow-lg overflow-hidden">
-        <div className="absolute inset-0 bg-islamic-pattern opacity-15 pointer-events-none" />
+    <div className="w-full space-y-6 font-sans">
+      {/* ===================== REDESIGNED STUDENT PROFILE SECTION (Corporate Blue & White) ===================== */}
+      <section className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden relative">
+        {/* Subtle Institutional Top Accent Bar */}
+        <div className="h-1.5 w-full bg-gradient-to-r from-[#0C2F66] via-[#164A9B] to-[#2876C8]" />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-6 sm:pb-8">
-          {/* Top Bar with Back, Logo, Badges & Actions */}
-          <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/15">
-            <div className="flex items-center gap-2 min-w-0">
-              <Link
-                href="/"
-                className="p-1.5 -ml-1 text-white/80 hover:text-white rounded-xl hover:bg-white/10 transition-colors shrink-0"
-                title="Return to Home"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-white p-0.5 shadow-md flex items-center justify-center shrink-0">
-                  <Image
-                    src="/assets/official-logo.jpg"
-                    alt="Dalail Logo"
-                    width={32}
-                    height={32}
-                    className="w-full h-full object-contain"
+        <div className="p-5 sm:p-6 lg:p-7 space-y-5">
+          {/* Top Row: Avatar, Student Info, Badges and Action Buttons */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            {/* Left: Avatar + Details */}
+            <div className="flex items-start sm:items-center gap-4 min-w-0">
+              {/* Student Photo / Avatar */}
+              <div className="relative shrink-0">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-blue-100 shadow-xs bg-slate-50 flex items-center justify-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={member?.photoUrl || '/assets/member_photo_1.jpg'}
+                    alt={member?.name || 'Student'}
+                    className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="min-w-0 leading-tight">
-                  <span className="text-[9px] tracking-wider font-bold text-[#F7D9A0] uppercase block truncate">
-                    DALAILUL KHAIRATH
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white p-0.5 shadow-xs flex items-center justify-center">
+                  <div className="w-full h-full rounded-full bg-emerald-500 border border-white" title="Active Receiver" />
+                </div>
+              </div>
+
+              {/* Student Name & Hierarchy */}
+              <div className="min-w-0 space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#164A9B] bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-[#164A9B]" />
+                    <span>Official Receiver</span>
                   </span>
-                  <span className="text-xs font-bold text-white truncate block">
-                    Student Field Work Portal
+                  <span className="text-xs text-slate-400 font-medium hidden sm:inline">&bull;</span>
+                  <span className="text-xs text-slate-500 font-medium hidden sm:inline">Assalamu Alaikum</span>
+                </div>
+
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight leading-tight truncate">
+                  {member?.name || 'Basim Aslam'}
+                </h1>
+
+                {/* Badges: Campus Name & ID */}
+                <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50/80 text-[#164A9B] text-xs font-bold border border-blue-100/90 truncate max-w-full">
+                    <Building2 className="w-3.5 h-3.5 text-[#164A9B] shrink-0" />
+                    <span className="truncate">{member?.campusName || 'Kakkidippuram Campus'}</span>
+                  </span>
+
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-mono font-bold border border-slate-200 shrink-0">
+                    ID: {member?.memberId || 'DKIF-REC-01'}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 shrink-0">
+            {/* Right: ID Card, Materials & Refresh Action Buttons */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 lg:pt-0 shrink-0 border-t lg:border-t-0 border-slate-100">
               <Link
                 href={`/verify/id/${member?.memberId || 'DKIF-REC-01'}`}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold backdrop-blur-xs border border-white/20 transition-all shadow-xs"
-                title="View & Share Receiver ID Card"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#164A9B] hover:bg-[#0C2F66] text-white text-xs font-bold transition-all shadow-xs"
+                title="View & Download Official Digital ID Card"
               >
-                <CreditCard className="w-3.5 h-3.5 text-[#F7D9A0]" />
-                <span className="hidden sm:inline">Receiver ID Card</span>
-                <span className="sm:hidden text-[11px]">ID</span>
+                <CreditCard className="w-4 h-4 text-amber-300 shrink-0" />
+                <span>Receiver ID Card</span>
               </Link>
 
               <button
+                type="button"
                 onClick={() => setShowMaterialsModal(true)}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold backdrop-blur-xs border border-white/20 transition-all shadow-xs"
-                title="Field Work Authorization Materials"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200 transition-all"
+                title="Field Work Authorization Materials & Brochures"
               >
-                <FolderOpen className="w-3.5 h-3.5 text-[#F7D9A0]" />
-                <span className="hidden sm:inline">Materials</span>
+                <FolderOpen className="w-4 h-4 text-[#164A9B] shrink-0" />
+                <span>Materials</span>
               </button>
 
               <button
+                type="button"
                 onClick={refreshData}
-                className="p-1.5 text-white/80 hover:text-white rounded-xl hover:bg-white/15 transition-colors border border-white/10"
+                className="p-2.5 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-500 hover:text-[#164A9B] border border-slate-200 transition-all"
                 title="Refresh Live Data"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
+                <RefreshCw className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* Greeting & Student Identity (Mockup S1 / S2) */}
-          <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-            <div>
-              <span className="text-[11px] text-blue-200 font-medium">Assalamu Alaikum</span>
-              <h1 className="font-playfair text-xl sm:text-3xl font-bold text-white tracking-tight mt-0.5">
-                {member?.name || 'Basim Aslam'}
-              </h1>
-              <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-[#F7D9A0] font-semibold">
-                <span>{member?.campusName || 'Kakkidippuram Campus'}</span>
-                <span>•</span>
-                <span className="font-mono bg-white/15 px-2 py-0.5 rounded-md text-white text-[11px]">
-                  ID: {member?.memberId || 'DKIF-REC-01'}
+          {/* Active Route Status Strip or Ready Notice */}
+          {activeDispatch ? (
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50/40 to-emerald-50/50 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <div className="min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Active Field Assignment</span>
+                  <span className="text-xs sm:text-sm font-black text-slate-900 truncate block">
+                    {activeDispatch.routePlace} &bull; <span className="text-[#164A9B] font-mono">{activeDispatch.districtCode}</span>
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 text-xs font-bold text-slate-700 shrink-0">
+                <span className="bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-2xs">
+                  Collected: <span className="font-mono text-emerald-600 font-black">₹{financials.totalCollected.toLocaleString()}</span>
+                </span>
+                <span className="bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-2xs">
+                  Receipts: <span className="font-mono text-[#164A9B] font-black">{receipts.length}</span>
                 </span>
               </div>
             </div>
-
-            {activeDispatch && (
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/15 backdrop-blur-xs border border-white/20 text-xs font-bold text-white self-start sm:self-auto">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Active Route: {activeDispatch.routePlace}</span>
+          ) : (
+            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs text-slate-500">
+              <div className="flex items-center gap-2">
+                <Compass className="w-4 h-4 text-[#164A9B]" />
+                <span>Ready for Next Field Route Assignment</span>
               </div>
-            )}
-          </div>
+              <span className="text-[11px] font-semibold text-slate-400">2K26 Campaign Active</span>
+            </div>
+          )}
         </div>
-      </header>
+      </section>
 
-      {/* Main Container */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6">
-        {/* Main Tabs (Today's vs History vs Team & Settlement) */}
-        <div className="flex gap-1.5 sm:gap-2 max-w-lg mx-auto sm:max-w-none overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
-          <button
-            onClick={() => setActiveTab('today')}
-            className={`flex-1 min-w-[100px] sm:min-w-[130px] py-2.5 px-2.5 sm:py-3 sm:px-3 rounded-xl transition-all text-center text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 ${
-              activeTab === 'today'
-                ? 'bg-[#E99A24] text-[#0C2F66] shadow-md ring-2 ring-[#E99A24]/30'
-                : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
-            }`}
-          >
-            <span className="sm:hidden">Field Route</span>
-            <span className="hidden sm:inline">Today&apos;s Field Route</span>
-            {receipts.length > 0 && (
-              <span className="text-[10px] bg-[#0C2F66] text-white px-1.5 py-0.5 rounded-full font-mono font-bold">
-                {receipts.length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`flex-1 min-w-[90px] sm:min-w-[110px] py-2.5 px-2.5 sm:py-3 sm:px-3 rounded-xl transition-all text-center text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 ${
-              activeTab === 'history'
-                ? 'bg-[#E99A24] text-[#0C2F66] shadow-md ring-2 ring-[#E99A24]/30'
-                : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
-            }`}
-          >
-            <span>History ({pastDispatches.length})</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('historical')}
-            className={`flex-1 min-w-[100px] sm:min-w-[140px] py-2.5 px-2.5 sm:py-3 sm:px-3 rounded-xl transition-all text-center text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 ${
-              activeTab === 'historical'
-                ? 'bg-[#E99A24] text-[#0C2F66] shadow-md ring-2 ring-[#E99A24]/30'
-                : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
-            }`}
-          >
-            <History className="w-3.5 h-3.5" />
-            <span className="sm:hidden">Historical</span>
-            <span className="hidden sm:inline">Historical Collection</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('settlement')}
-            className={`flex-1 min-w-[100px] sm:min-w-[140px] py-2.5 px-2.5 sm:py-3 sm:px-3 rounded-xl transition-all text-center text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 ${
-              activeTab === 'settlement'
-                ? 'bg-[#E99A24] text-[#0C2F66] shadow-md ring-2 ring-[#E99A24]/30'
-                : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
-            }`}
-          >
-            <Crown className="w-3.5 h-3.5" />
-            <span className="sm:hidden">Settlement</span>
-            <span className="hidden sm:inline">Team & Settlement</span>
-          </button>
-        </div>
+      {/* Main Tabs (Today's vs History vs Historical Collection vs Team & Settlement) */}
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <button
+          onClick={() => setActiveTab('today')}
+          className={`flex-1 min-w-[120px] py-2.5 px-3 rounded-2xl transition-all text-center text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 border ${
+            activeTab === 'today'
+              ? 'bg-[#164A9B] text-white border-[#164A9B] shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+          }`}
+        >
+          <Compass className="w-3.5 h-3.5" />
+          <span className="sm:hidden">Field Route</span>
+          <span className="hidden sm:inline">Today&apos;s Field Route</span>
+          {receipts.length > 0 && (
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold ${
+              activeTab === 'today' ? 'bg-white text-[#164A9B]' : 'bg-[#164A9B] text-white'
+            }`}>
+              {receipts.length}
+            </span>
+          )}
+        </button>
 
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`flex-1 min-w-[100px] py-2.5 px-3 rounded-2xl transition-all text-center text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 border ${
+            activeTab === 'history'
+              ? 'bg-[#164A9B] text-white border-[#164A9B] shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+          }`}
+        >
+          <Clock className="w-3.5 h-3.5" />
+          <span>History ({pastDispatches.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('historical')}
+          className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-2xl transition-all text-center text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 border ${
+            activeTab === 'historical'
+              ? 'bg-[#164A9B] text-white border-[#164A9B] shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+          }`}
+        >
+          <History className="w-3.5 h-3.5" />
+          <span className="sm:hidden">Historical</span>
+          <span className="hidden sm:inline">Historical Collection</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('settlement')}
+          className={`flex-1 min-w-[130px] py-2.5 px-3 rounded-2xl transition-all text-center text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 border ${
+            activeTab === 'settlement'
+              ? 'bg-[#164A9B] text-white border-[#164A9B] shadow-xs'
+              : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+          }`}
+        >
+          <Crown className="w-3.5 h-3.5" />
+          <span className="sm:hidden">Settlement</span>
+          <span className="hidden sm:inline">Team & Settlement</span>
+        </button>
+      </div>
+
+      <div className="space-y-6">
         {/* ===================== TAB 1: TODAY'S ACTIVE DISPATCH ===================== */}
         {activeTab === 'today' && (
           <div className="space-y-4 animate-fade-in">
@@ -1222,7 +1254,7 @@ export default function StudentFieldCollectionPage() {
             ) : null}
           </div>
         )}
-      </main>
+      </div>
 
       {/* ===================== FIELD WORK MATERIALS MODAL ===================== */}
       {showMaterialsModal && (

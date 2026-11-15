@@ -38,7 +38,7 @@ export default function StudentLayout({
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F8FC]">
       <Header />
-      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 pb-20">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 pb-24 min-w-0">
         {children}
       </main>
     </div>

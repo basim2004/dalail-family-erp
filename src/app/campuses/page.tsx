@@ -6,9 +6,6 @@ import {
   PublicNavbar,
 } from '@/components/common/PublicNavbar';
 import {
-  PublicFooter,
-} from '@/components/common/PublicFooter';
-import {
   FloatingAIChat,
 } from '@/components/common/FloatingAIChat';
 import { registeredCampuses } from '@/lib/data/campusesData';
@@ -293,9 +290,6 @@ export default function CampusesPage() {
 
       {/* Floating AI Chat Assistant */}
       <FloatingAIChat />
-
-      {/* Public Footer */}
-      <PublicFooter />
     </div>
   );
 }
