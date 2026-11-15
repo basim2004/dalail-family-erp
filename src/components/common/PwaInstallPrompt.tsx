@@ -205,20 +205,20 @@ export function PwaInstallPrompt() {
             </div>
 
             <div className="space-y-3.5 text-xs text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <span className="font-bold text-[#164A9B] flex items-center gap-1.5 text-xs">
                   <Smartphone className="w-4 h-4 text-[#164A9B]" />
                   <span>On Android Phone (Google Chrome):</span>
                 </span>
                 <ol className="list-decimal list-inside pl-1 space-y-1 text-slate-600 text-[11px] leading-relaxed">
-                  <li>Tap the <strong>3 dots (⋮)</strong> menu in Chrome&apos;s top-right.</li>
-                  <li>Select <strong>&quot;Install app&quot;</strong> (or <em>&quot;Add to Home screen&quot;</em>).</li>
+                  <li>Tap the <strong>3 dots (⋮)</strong> menu in Chrome&apos;s top-right corner.</li>
+                  <li>Select <strong>&quot;Install app&quot;</strong> (അല്ലെങ്കിൽ <em>&quot;Add to Home screen&quot;</em>).</li>
                   <li>Tap <strong>&quot;Install&quot;</strong>.</li>
-                  <li className="text-emerald-700 font-bold">The app will launch from your home screen as a full-screen app with NO address bar.</li>
+                  <li className="text-emerald-700 font-bold">ആപ്പ് ഹോം സ്ക്രീനിൽ വരും. അവിടെ നിന്ന് തുറക്കുമ്പോൾ Chrome search bar ഇല്ലാതെ ഫുൾ സ്ക്രീനായി ഓപ്പൺ ആകും.</li>
                 </ol>
               </div>
 
-              <div className="pt-2 border-t border-slate-200/80 space-y-1">
+              <div className="pt-2 border-t border-slate-200/80 space-y-1.5">
                 <span className="font-bold text-slate-800 flex items-center gap-1.5 text-xs">
                   <Smartphone className="w-4 h-4 text-slate-600" />
                   <span>On iPhone / iPad (Safari):</span>

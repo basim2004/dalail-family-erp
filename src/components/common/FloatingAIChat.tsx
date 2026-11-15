@@ -109,11 +109,11 @@ export function FloatingAIChat() {
   return (
     <>
       {/* Floating Action Beacon Button */}
-      <div className="fixed bottom-6 right-6 z-50 no-print">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 no-print">
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="relative flex items-center gap-2.5 px-4 py-3 rounded-full bg-[#164A9B] hover:bg-[#0C2F66] text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-white/80"
+          className="relative flex items-center justify-center p-3 sm:px-4 sm:py-3 rounded-full bg-[#164A9B] hover:bg-[#0C2F66] text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-white/80"
           aria-label="Open Dalail AI Assistant"
         >
           <div className="relative">
@@ -121,7 +121,7 @@ export function FloatingAIChat() {
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping" />
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full" />
           </div>
-          <span className="font-bold text-xs tracking-wide pr-1 hidden sm:inline">
+          <span className="font-bold text-xs tracking-wide pl-2 pr-1 hidden sm:inline">
             Dalail AI Assistant
           </span>
         </button>

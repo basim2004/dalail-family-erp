@@ -42,21 +42,21 @@ export function PublicNavbar({ activeTab }: PublicNavbarProps) {
   return (
     <>
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Left: Brand Identity */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <button
                 type="button"
                 onClick={() => setDrawerOpen(true)}
-                className="p-2 -ml-2 text-slate-700 hover:bg-slate-100 rounded-xl transition-colors md:hidden"
+                className="p-1.5 -ml-1 text-slate-700 hover:bg-slate-100 rounded-xl transition-colors md:hidden shrink-0"
                 aria-label="Open Navigation Menu"
               >
-                <Menu className="w-6 h-6" />
+                <Menu className="w-5 h-5" />
               </button>
 
-              <Link href="/" className="flex items-center gap-3.5 group">
-                <div className="w-11 h-11 rounded-full overflow-hidden border border-slate-200 bg-white shadow-2xs p-0.5 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <Link href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-slate-200 bg-white shadow-2xs p-0.5 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/assets/official-logo.jpg"
@@ -64,11 +64,12 @@ export function PublicNavbar({ activeTab }: PublicNavbarProps) {
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <div className="leading-tight">
-                  <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight uppercase flex items-center gap-2">
-                    <span>DALAIL FAMILY ERP</span>
+                <div className="leading-tight truncate min-w-0">
+                  <h1 className="text-xs sm:text-lg font-black text-slate-900 tracking-tight uppercase whitespace-nowrap">
+                    <span className="sm:hidden">DALAIL ERP</span>
+                    <span className="hidden sm:inline">DALAIL FAMILY ERP</span>
                   </h1>
-                  <p className="text-[11px] text-slate-500 font-semibold tracking-wide">
+                  <p className="text-[10px] text-slate-500 font-semibold tracking-wide truncate hidden sm:block">
                     Dalailul Khairath Islamic Foundation
                   </p>
                 </div>
@@ -83,10 +84,11 @@ export function PublicNavbar({ activeTab }: PublicNavbarProps) {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${active
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                      active
                         ? 'text-[#164A9B] bg-blue-50/90 border border-blue-200 shadow-2xs font-black'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
+                    }`}
                   >
                     {link.label}
                   </Link>
@@ -95,16 +97,16 @@ export function PublicNavbar({ activeTab }: PublicNavbarProps) {
             </nav>
 
             {/* Right: Install App, Hotline & Login Button */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
               <button
                 type="button"
                 onClick={() => triggerPwaInstall()}
-                className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-[#164A9B] text-[11px] sm:text-xs font-bold border border-blue-200 transition-colors shadow-2xs"
+                className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-[#164A9B] text-xs font-bold border border-blue-200 transition-colors shadow-2xs"
                 title="Install DALAIL FAMILY ERP on your device (Standalone Native App)"
               >
                 <Download className="w-3.5 h-3.5 text-[#164A9B]" />
                 <span className="hidden sm:inline">Install App</span>
-                <span className="sm:hidden text-[10px]">App</span>
+                <span className="sm:hidden text-[11px]">Install</span>
               </button>
 
               <a
@@ -118,10 +120,10 @@ export function PublicNavbar({ activeTab }: PublicNavbarProps) {
 
               <Link
                 href="/login"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#164A9B] hover:bg-[#0C2F66] text-white text-xs font-bold shadow-sm transition-all hover:shadow-md"
+                className="inline-flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#164A9B] hover:bg-[#0C2F66] text-white text-xs font-bold shadow-sm transition-all hover:shadow-md"
               >
                 <UserCheck className="w-3.5 h-3.5" />
-                <span>{user ? 'My Portal' : 'Login'}</span>
+                <span>{user ? 'Portal' : 'Login'}</span>
               </Link>
             </div>
           </div>

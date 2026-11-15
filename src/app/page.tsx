@@ -97,22 +97,22 @@ export default function HomePage() {
                 Welcome to Dalailul Khairath Islamic Foundation (Regd.) at Kakkidippuram, P.O. Alamkode, Malappuram Dt., Kerala. Integrating traditional Islamic scholarship with dignified orphan sponsorship and humanitarian care.
               </p>
 
-              <div className="pt-2 sm:pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+              <div className="pt-2 sm:pt-4 grid grid-cols-2 sm:flex sm:flex-row items-center gap-2.5 sm:gap-3">
                 <a
                   href="#highlights"
-                  className="w-full sm:w-auto text-center justify-center px-5 py-2.5 rounded-full bg-[#164A9B] hover:bg-[#0C2F66] text-white font-bold text-xs border border-white/20 transition-all shadow-sm"
+                  className="w-full sm:w-auto text-center justify-center px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-[#164A9B] hover:bg-[#0C2F66] text-white font-bold text-xs border border-white/20 transition-all shadow-sm"
                 >
                   Campus Highlights
                 </a>
                 <Link
                   href="/campuses"
-                  className="w-full sm:w-auto text-center justify-center px-5 py-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold text-xs border border-white/40 backdrop-blur-md transition-all shadow-sm"
+                  className="w-full sm:w-auto text-center justify-center px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold text-xs border border-white/40 backdrop-blur-md transition-all shadow-sm"
                 >
                   Explore Campuses &rarr;
                 </Link>
                 <Link
                   href="/helpdesk"
-                  className="w-full sm:w-auto text-center justify-center px-5 py-2.5 rounded-full bg-[#F5B82E] hover:bg-[#e0a420] text-slate-950 font-black text-xs transition-all shadow-sm"
+                  className="col-span-2 sm:col-span-1 w-full sm:w-auto text-center justify-center px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-[#F5B82E] hover:bg-[#e0a420] text-slate-950 font-black text-xs transition-all shadow-sm"
                 >
                   Help Desk & Support
                 </Link>
@@ -122,31 +122,31 @@ export default function HomePage() {
         </section>
 
         {/* ===================== INSTITUTIONAL INTRODUCTION & LEADERSHIP PROFILE ===================== */}
-        <section className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-subtle grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <section className="bg-white rounded-3xl p-5 sm:p-10 border border-slate-200 shadow-subtle grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
           {/* Executive Leadership & Authorized Signatory Card */}
-          <div className="lg:col-span-5 flex flex-col items-center text-center p-6 bg-gradient-to-b from-blue-50/60 to-slate-50/90 rounded-3xl border border-blue-100 shadow-2xs">
+          <div className="lg:col-span-5 flex flex-col items-center text-center p-5 sm:p-6 bg-gradient-to-b from-blue-50/60 to-slate-50/90 rounded-3xl border border-blue-100 shadow-2xs">
             <div
-              className="relative mb-3 group cursor-pointer"
+              className="relative mb-3 group cursor-pointer inline-block"
               onClick={() => setActiveImageModal('/assets/founder.jpg')}
               title="Click to view founder portrait"
             >
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-4 border-white shadow-lg bg-slate-900 group-hover:scale-105 transition-transform duration-200">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-4 border-white shadow-lg bg-slate-900 group-hover:scale-105 transition-transform duration-200 relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/assets/founder.jpg"
                   alt="USTHAD ABDUL SALAM SA'ADI Kakkidippuram - Founder & General Secretary"
                   className="w-full h-full object-cover object-top"
                 />
-              </div>
-              <div className="absolute -bottom-1 -right-1 p-1.5 bg-[#164A9B] text-white rounded-full shadow-md border-2 border-white">
-                <ShieldCheck className="w-4 h-4" />
+                <div className="absolute bottom-1 right-1 p-1 bg-[#164A9B] text-white rounded-full shadow-md border-2 border-white">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                </div>
               </div>
             </div>
 
             <span className="text-[10px] font-black uppercase tracking-wider text-[#164A9B] bg-blue-100/80 border border-blue-200 px-3 py-0.5 rounded-full mb-1">
               Founder & General Secretary
             </span>
-            <h3 className="text-lg font-black text-slate-900 tracking-tight leading-snug">
+            <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug">
               USTHAD ABDUL SALAM SA&apos;ADI Kakkidippuram
             </h3>
             <p className="text-xs text-slate-600 font-semibold mt-1">
@@ -161,39 +161,48 @@ export default function HomePage() {
               <span>+91 7034149149</span>
             </a>
 
-            {/* High Quality Official Signature & Seal Block */}
-            <div className="mt-5 pt-4 border-t border-slate-200/90 w-full flex flex-col items-center space-y-2">
-              <div className="w-full bg-white rounded-2xl p-3.5 border border-slate-200 shadow-subtle flex flex-col sm:flex-row items-center sm:items-start justify-between gap-3 text-center sm:text-left">
-                <div className="flex-1 flex flex-col items-center sm:items-start text-center sm:text-left min-w-0">
-                  <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
-                    Authorized Signatory
-                  </span>
-                  <div className="h-12 w-full flex items-center justify-center sm:justify-start my-0.5">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/assets/office-signature.png"
-                      alt="Signature - USTHAD ABDUL SALAM SA'ADI Kakkidippuram"
-                      className="max-h-11 w-auto object-contain filter contrast-125"
-                      style={{ imageRendering: '-webkit-optimize-contrast' }}
-                    />
-                  </div>
-                  <span className="text-[11px] font-black text-slate-800 truncate block">
-                    USTHAD ABDUL SALAM SA&apos;ADI Kakkidippuram
-                  </span>
-                  <span className="text-[9px] text-slate-400 font-medium">Founder & General Secretary</span>
-                </div>
+            {/* High Quality Official Signature & Seal Block (Side-by-side certificate layout) */}
+            <div className="mt-4 pt-3 border-t border-slate-200/90 w-full space-y-2">
+              <div className="w-full bg-white rounded-2xl p-3 border border-slate-200 shadow-subtle">
+                <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider block mb-2">
+                  Official Credential Verification
+                </span>
 
-                <div className="w-16 h-16 relative shrink-0 border-t sm:border-t-0 sm:border-l border-slate-100 pt-2 sm:pt-0 sm:pl-3 flex items-center justify-center">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/assets/office-seal.png"
-                    alt="Official Foundation Seal"
-                    className="w-14 h-14 object-contain"
-                  />
+                <div className="grid grid-cols-2 gap-2 items-center">
+                  {/* Left: Authorized Signature */}
+                  <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-50 border border-slate-100 h-24">
+                    <span className="text-[8px] uppercase font-black text-slate-400 tracking-wider mb-1">
+                      Signatory
+                    </span>
+                    <div className="flex-1 flex items-center justify-center w-full">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/assets/office-signature.png"
+                        alt="Signature - USTHAD ABDUL SALAM SA'ADI Kakkidippuram"
+                        className="max-h-12 w-auto object-contain filter contrast-125"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right: Foundation Official Seal */}
+                  <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-50 border border-slate-100 h-24">
+                    <span className="text-[8px] uppercase font-black text-slate-400 tracking-wider mb-1">
+                      Official Seal
+                    </span>
+                    <div className="flex-1 flex items-center justify-center w-full">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/assets/office-seal.png"
+                        alt="Official Foundation Seal"
+                        className="h-12 w-12 object-contain"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="inline-flex items-center gap-1.5 text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60 text-center">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+
+              <div className="inline-flex items-center justify-center gap-1.5 text-[10px] text-emerald-700 font-bold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60 w-full">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span>Verified Executive Authority Endorsement</span>
               </div>
             </div>
