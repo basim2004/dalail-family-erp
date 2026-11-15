@@ -12,6 +12,7 @@ import {
   Expense,
   SettlementSettings,
   SettlementPaymentRecord,
+  PublicMediaSettings,
 } from '../types';
 import {
   initialUsers,
@@ -25,6 +26,7 @@ import {
   initialExpenses,
   initialSettlementSettings,
   initialPayments,
+  initialPublicMediaSettings,
 } from './mockData';
 
 class DatabaseService {
@@ -39,6 +41,7 @@ class DatabaseService {
   private expenses: Expense[] = [];
   private settlementSettings: SettlementSettings = initialSettlementSettings;
   private payments: SettlementPaymentRecord[] = [];
+  private publicMediaSettings: PublicMediaSettings = initialPublicMediaSettings;
   private initialized = false;
 
   constructor() {
@@ -58,6 +61,7 @@ class DatabaseService {
       this.expenses = [...initialExpenses];
       this.settlementSettings = { ...initialSettlementSettings };
       this.payments = [...initialPayments];
+      this.publicMediaSettings = { ...initialPublicMediaSettings };
       this.initialized = true;
       return;
     }
@@ -148,6 +152,7 @@ class DatabaseService {
       this.expenses = load('expenses', initialExpenses);
       this.settlementSettings = load('settlement_settings', initialSettlementSettings);
       this.payments = load('payments', initialPayments);
+      this.publicMediaSettings = load('public_media_settings', initialPublicMediaSettings);
       this.initialized = true;
     } catch {
       this.users = [...initialUsers];
@@ -161,6 +166,7 @@ class DatabaseService {
       this.expenses = [...initialExpenses];
       this.settlementSettings = { ...initialSettlementSettings };
       this.payments = [...initialPayments];
+      this.publicMediaSettings = { ...initialPublicMediaSettings };
       this.initialized = true;
     }
   }
@@ -811,6 +817,17 @@ class DatabaseService {
     this.settlementSettings = { ...this.settlementSettings, ...updates };
     this.save('settlement_settings', this.settlementSettings);
     return this.settlementSettings;
+  }
+
+  // --- Public Media & Showcase Settings (YouTube & Instagram) ---
+  getPublicMediaSettings(): PublicMediaSettings {
+    return { ...this.publicMediaSettings };
+  }
+
+  updatePublicMediaSettings(updates: Partial<PublicMediaSettings>): PublicMediaSettings {
+    this.publicMediaSettings = { ...this.publicMediaSettings, ...updates };
+    this.save('public_media_settings', this.publicMediaSettings);
+    return this.publicMediaSettings;
   }
 
   getPayments(volunteerId?: string): SettlementPaymentRecord[] {

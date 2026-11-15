@@ -245,3 +245,30 @@ export interface SettlementPaymentRecord {
   approvedBy: string;
   createdAt: string;
 }
+
+export interface InstagramPostItem {
+  id: string;
+  imageUrl: string;
+  postUrl: string;
+  caption?: string;
+}
+
+export interface PublicMediaSettings {
+  // YouTube Section
+  youtubeEnabled: boolean;
+  youtubeUrl: string;
+  youtubeTitle: string;
+  youtubeDescription: string;
+  youtubeBadge: string;
+
+  // Instagram Showcase Section
+  instagramEnabled: boolean;
+  instagramUrl: string;
+  instagramHandle: string;
+  instagramName: string;
+  instagramBio: string[];
+  instagramPostsCount: string;
+  instagramFollowersCount: string;
+  instagramFollowingCount: string;
+  instagramPosts: InstagramPostItem[];
+}

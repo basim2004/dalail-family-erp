@@ -10,6 +10,7 @@ import {
   Expense,
   SettlementSettings,
   SettlementPaymentRecord,
+  PublicMediaSettings,
 } from '../types';
 import { RAW_HISTORICAL_DATA } from '../services/historicalCollectionService';
 
@@ -402,3 +403,63 @@ export const initialFieldWorkItems: FieldWorkItem[] = [
     updatedAt: '2026-02-12',
   },
 ];
+
+export const initialPublicMediaSettings: PublicMediaSettings = {
+  youtubeEnabled: true,
+  youtubeUrl: 'https://youtu.be/KjdFwGty0QY',
+  youtubeTitle: 'Watch Our Story: The Sacred Journey of Dalailul Khairath',
+  youtubeDescription: 'Discover the institutional heritage, comprehensive Islamic scholarship, and humanitarian orphan sponsorship at Dalailul Khairath Islamic Foundation Kakkidippuram.',
+  youtubeBadge: 'Official Foundation Documentary',
+
+  instagramEnabled: true,
+  instagramUrl: 'https://www.instagram.com/dalailul_khairath_/',
+  instagramHandle: 'dalailul_khairath_',
+  instagramName: 'Dalailul Khairath',
+  instagramBio: [
+    'دَلَائِلُ الْخَيْرَاتِ الإسلامية',
+    'Center of Higher Islamic Learning & Orphan Welfare',
+    '📍 Kakkidippuram, Malappuram, Kerala',
+    '🌐 dalail.org',
+  ],
+  instagramPostsCount: '248',
+  instagramFollowersCount: '12.4K',
+  instagramFollowingCount: '86',
+  instagramPosts: [
+    {
+      id: 'ig_1',
+      imageUrl: '/assets/campus-main.jpg',
+      postUrl: 'https://www.instagram.com/dalailul_khairath_/',
+      caption: 'Masjid Zainab & Kakkidippuram Main Campus Complex',
+    },
+    {
+      id: 'ig_2',
+      imageUrl: '/assets/authentic_student_1.jpg',
+      postUrl: 'https://www.instagram.com/dalailul_khairath_/',
+      caption: 'Tahfeezul Quran & Tajweed recitation sessions',
+    },
+    {
+      id: 'ig_3',
+      imageUrl: '/assets/authentic_student_2.jpg',
+      postUrl: 'https://www.instagram.com/dalailul_khairath_/',
+      caption: 'Classical research library & Arabic treatises study',
+    },
+    {
+      id: 'ig_4',
+      imageUrl: '/assets/authentic_student_3.jpg',
+      postUrl: 'https://www.instagram.com/dalailul_khairath_/',
+      caption: 'Dars study circles with senior faculty scholars',
+    },
+    {
+      id: 'ig_5',
+      imageUrl: '/assets/authentic_student_4.jpg',
+      postUrl: 'https://www.instagram.com/dalailul_khairath_/',
+      caption: 'Academic Conference Hall & Scholarly Assembly',
+    },
+    {
+      id: 'ig_6',
+      imageUrl: '/assets/founder.jpg',
+      postUrl: 'https://www.instagram.com/dalailul_khairath_/',
+      caption: 'Founder & General Secretary Usthad Abdul Salam Sa\'adi',
+    },
+  ],
+};

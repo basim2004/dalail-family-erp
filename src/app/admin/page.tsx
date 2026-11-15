@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db/dbService';
+import { AdminMediaSettingsModal } from '@/components/media/AdminMediaSettingsModal';
 import {
   formatINR,
   calculateFinalVolunteerSettlements,
@@ -25,9 +26,12 @@ import {
   ArrowUpRight,
   ShieldCheck,
   Award,
+  Film,
+  Sliders,
 } from 'lucide-react';
 
 export default function AdminOverviewPage() {
+  const [showMediaModal, setShowMediaModal] = useState(false);
   const campuses = db.getCampuses();
   const members = db.getMembers();
   const brochures = db.getBrochures();
@@ -102,6 +106,15 @@ export default function AdminOverviewPage() {
             <FileSpreadsheet className="w-4 h-4 text-slate-500 shrink-0" />
             <span className="truncate">Audit Reports</span>
           </Link>
+          <button
+            type="button"
+            onClick={() => setShowMediaModal(true)}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold border border-purple-200 transition-all text-center col-span-2 sm:col-span-1"
+            title="Configure Featured YouTube Video & Instagram Showcase"
+          >
+            <Film className="w-4 h-4 shrink-0 text-purple-600" />
+            <span className="truncate">Public Media</span>
+          </button>
         </div>
       </div>
 
@@ -511,6 +524,14 @@ export default function AdminOverviewPage() {
           })}
         </div>
       </div>
+
+      {/* Admin Public Media & Showcase Settings Modal */}
+      {showMediaModal && (
+        <AdminMediaSettingsModal
+          isOpen={showMediaModal}
+          onClose={() => setShowMediaModal(false)}
+        />
+      )}
     </div>
   );
 }

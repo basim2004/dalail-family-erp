@@ -11,6 +11,8 @@ import {
 import {
   FloatingAIChat,
 } from '@/components/common/FloatingAIChat';
+import { FeaturedVideoSection } from '@/components/media/FeaturedVideoSection';
+import { InstagramShowcaseSection } from '@/components/media/InstagramShowcaseSection';
 import {
   Building2,
   BookOpen,
@@ -248,6 +250,12 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* ===================== 3. YOUTUBE DOCUMENTARY SHOWCASE (Watch Our Story) ===================== */}
+        <FeaturedVideoSection />
+
+        {/* ===================== 4. INSTAGRAM SMARTPHONE SHOWCASE ===================== */}
+        <InstagramShowcaseSection />
 
         {/* ===================== CAMPUS HIGHLIGHTS ===================== */}
         <section id="highlights" className="space-y-6">
