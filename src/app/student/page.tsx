@@ -43,6 +43,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { triggerPwaInstall } from '@/components/common/PwaInstallPrompt';
 import { OfficialReceipt } from '@/components/receipt/OfficialReceipt';
 import {
   calculateReconstructedBreakdown,
@@ -318,6 +319,16 @@ export default function StudentFieldCollectionPage() {
             </div>
 
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => triggerPwaInstall()}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E99A24] hover:bg-[#d4891b] text-slate-950 text-xs font-black transition-all shadow-md active:scale-95"
+                title="Install Student App on phone (Opens in full-screen with no browser address bar)"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Install App</span>
+                <span className="sm:hidden">App</span>
+              </button>
+
               <Link
                 href={`/verify/id/${member?.memberId || 'DKIF-REC-01'}`}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold backdrop-blur-xs border border-white/20 transition-all shadow-xs"

@@ -1,0 +1,63 @@
+{
+  "name": "DALAIL FAMILY ERP",
+  "short_name": "Dalail ERP",
+  "description": "Centralized Enterprise Platform for Multi-Campus Operations, Student ID Cards, Dispatches, and Real-Time Field Collections - Dalailul Khairath Islamic Foundation (Regd.)",
+  "start_url": "/",
+  "scope": "/",
+  "id": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "window-controls-overlay"],
+  "orientation": "any",
+  "background_color": "#0C2F66",
+  "theme_color": "#164A9B",
+  "categories": ["education", "finance", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/app-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Student Portal",
+      "short_name": "Student",
+      "description": "Field Work Collection & Instant Receipts",
+      "url": "/student",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Campus Admin",
+      "short_name": "Campus",
+      "description": "Campus Routes, Dispatches & Settlement",
+      "url": "/campus-admin",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Verify Receipt",
+      "short_name": "Verify",
+      "description": "Verify official donation receipt",
+      "url": "/verify/receipt/DF-2026-03102",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

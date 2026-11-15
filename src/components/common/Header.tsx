@@ -7,6 +7,7 @@ import { Logo } from './Logo';
 import { useAuth } from '@/lib/services/authService';
 import { db } from '@/lib/db/dbService';
 import { UserRole } from '@/lib/types';
+import { triggerPwaInstall } from './PwaInstallPrompt';
 import {
   ChevronDown,
   LogOut,
@@ -32,6 +33,7 @@ import {
   Users,
   FolderOpen,
   BookOpen,
+  Download,
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -137,8 +139,18 @@ export const Header: React.FC = () => {
           </Link>
         </div>
 
-        {/* Right Role Switcher & Account Profile */}
-        <div className="flex items-center gap-3">
+        {/* Right Role Switcher, Install App & Account Profile */}
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => triggerPwaInstall()}
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#164A9B] text-xs font-bold border border-blue-200 transition-colors shadow-2xs"
+            title="Install DALAIL FAMILY ERP on your device (Standalone Native App)"
+          >
+            <Download className="w-3.5 h-3.5 text-[#164A9B]" />
+            <span>Install App</span>
+          </button>
+
           <div className="relative">
             <button
               onClick={() => setRoleMenuOpen(!roleMenuOpen)}
@@ -215,6 +227,15 @@ export const Header: React.FC = () => {
                 </div>
 
                 <div className="border-t border-slate-100 mt-2 pt-1 px-1">
+                  <button
+                    onClick={() => {
+                      setRoleMenuOpen(false);
+                      triggerPwaInstall();
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-emerald-700 hover:bg-emerald-50 transition-colors text-left"
+                  >
+                    <Download className="w-3.5 h-3.5 text-emerald-600" /> Install App (Standalone)
+                  </button>
                   <button
                     onClick={() => {
                       setRoleMenuOpen(false);

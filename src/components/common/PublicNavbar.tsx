@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/services/authService';
+import { triggerPwaInstall } from '@/components/common/PwaInstallPrompt';
 import {
   Menu,
   X,
@@ -14,6 +15,7 @@ import {
   Building2,
   Headphones,
   GraduationCap,
+  Download,
 } from 'lucide-react';
 
 interface PublicNavbarProps {
@@ -92,8 +94,18 @@ export function PublicNavbar({ activeTab }: PublicNavbarProps) {
               })}
             </nav>
 
-            {/* Right: Hotline & Login Button */}
-            <div className="flex items-center gap-3">
+            {/* Right: Install App, Hotline & Login Button */}
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => triggerPwaInstall()}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-[#164A9B] text-xs font-bold border border-blue-200 transition-colors shadow-2xs"
+                title="Install DALAIL FAMILY ERP on your device (Standalone Native App)"
+              >
+                <Download className="w-3.5 h-3.5 text-[#164A9B]" />
+                <span>Install App</span>
+              </button>
+
               <a
                 href="tel:+917034149149"
                 className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
@@ -165,6 +177,18 @@ export function PublicNavbar({ activeTab }: PublicNavbarProps) {
             </div>
 
             <div className="pt-4 border-t border-slate-100 space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setDrawerOpen(false);
+                  triggerPwaInstall();
+                }}
+                className="w-full py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
+              >
+                <Download className="w-4 h-4" />
+                <span>Install App (Standalone)</span>
+              </button>
+
               <Link
                 href="/login"
                 onClick={() => setDrawerOpen(false)}
