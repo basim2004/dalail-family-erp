@@ -58,11 +58,23 @@ export default function CampusAdminDispatchesPage() {
   }, [members, fieldWorkStudents, studentId]);
 
   const refreshList = () => {
+    db.syncWithFirestore().then(() => {
+      setDispatches(db.getDispatches(campusId));
+      if (selectedDispatch) {
+        setSelectedDispatch(db.getDispatchById(selectedDispatch.id) || null);
+      }
+    });
     setDispatches(db.getDispatches(campusId));
     if (selectedDispatch) {
       setSelectedDispatch(db.getDispatchById(selectedDispatch.id) || null);
     }
   };
+
+  useEffect(() => {
+    db.syncWithFirestore().then(() => {
+      setDispatches(db.getDispatches(campusId));
+    });
+  }, [campusId]);
 
   const handleOpenSettlement = (disp: Dispatch) => {
     const fin = db.getDispatchFinancials(disp.id);

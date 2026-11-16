@@ -1,5 +1,5 @@
 import { firestore } from './firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDocs, collection } from 'firebase/firestore';
 import {
   User,
   Campus,
@@ -154,6 +154,11 @@ class DatabaseService {
       this.payments = load('payments', initialPayments);
       this.publicMediaSettings = load('public_media_settings', initialPublicMediaSettings);
       this.initialized = true;
+
+      // Automatically sync cloud dispatches and receipts across devices
+      if (typeof window !== 'undefined') {
+        this.syncWithFirestore();
+      }
     } catch {
       this.users = [...initialUsers];
       this.campuses = [...initialCampuses];
@@ -178,6 +183,67 @@ class DatabaseService {
       } catch (e) {
         console.error(`Failed to save ${key}:`, e);
       }
+    }
+  }
+
+  /**
+   * Real-Time Cross-Device Cloud Sync via Firebase Firestore
+   * Synchronizes dispatches and receipts created on Laptop instantly to Phones and other devices
+   */
+  public async syncWithFirestore(): Promise<boolean> {
+    if (typeof window === 'undefined') return false;
+    try {
+      let changed = false;
+
+      // 1. Pull dispatches from Cloud Firestore
+      const dispSnap = await getDocs(collection(firestore, 'dispatches'));
+      if (!dispSnap.empty) {
+        dispSnap.forEach((d) => {
+          const remote = d.data() as Dispatch;
+          const idx = this.dispatches.findIndex((x) => x.id === remote.id || x.dispatchId === remote.dispatchId);
+          if (idx >= 0) {
+            // Update existing if different
+            if (JSON.stringify(this.dispatches[idx]) !== JSON.stringify(remote)) {
+              this.dispatches[idx] = { ...this.dispatches[idx], ...remote };
+              changed = true;
+            }
+          } else {
+            // Prepend new dispatch created on another device
+            this.dispatches.unshift(remote);
+            changed = true;
+          }
+        });
+        if (changed) {
+          this.save('dispatches', this.dispatches);
+        }
+      }
+
+      // 2. Pull receipts from Cloud Firestore
+      const rcptSnap = await getDocs(collection(firestore, 'receipts'));
+      let rcptChanged = false;
+      if (!rcptSnap.empty) {
+        rcptSnap.forEach((d) => {
+          const remote = d.data() as Receipt;
+          const idx = this.receipts.findIndex((x) => x.id === remote.id || x.receiptNo === remote.receiptNo);
+          if (idx >= 0) {
+            if (JSON.stringify(this.receipts[idx]) !== JSON.stringify(remote)) {
+              this.receipts[idx] = { ...this.receipts[idx], ...remote };
+              rcptChanged = true;
+            }
+          } else {
+            this.receipts.unshift(remote);
+            rcptChanged = true;
+          }
+        });
+        if (rcptChanged) {
+          this.save('receipts', this.receipts);
+        }
+      }
+
+      return changed || rcptChanged;
+    } catch (e) {
+      console.warn('Firestore sync note:', e);
+      return false;
     }
   }
 
@@ -538,6 +604,11 @@ class DatabaseService {
     };
     this.dispatches.unshift(newDispatch);
     this.save('dispatches', this.dispatches);
+    if (typeof window !== 'undefined') {
+      try {
+        setDoc(doc(firestore, 'dispatches', newDispatch.id), newDispatch, { merge: true }).catch(() => {});
+      } catch {}
+    }
     return newDispatch;
   }
 
@@ -546,6 +617,11 @@ class DatabaseService {
     if (index === -1) return undefined;
     this.dispatches[index] = { ...this.dispatches[index], ...updates };
     this.save('dispatches', this.dispatches);
+    if (typeof window !== 'undefined') {
+      try {
+        setDoc(doc(firestore, 'dispatches', this.dispatches[index].id), this.dispatches[index], { merge: true }).catch(() => {});
+      } catch {}
+    }
     return this.dispatches[index];
   }
 
@@ -791,6 +867,11 @@ class DatabaseService {
 
     this.receipts.unshift(newReceipt);
     this.save('receipts', this.receipts);
+    if (typeof window !== 'undefined') {
+      try {
+        setDoc(doc(firestore, 'receipts', newReceipt.id), newReceipt, { merge: true }).catch(() => {});
+      } catch {}
+    }
 
     // Update dispatch financial totals in real-time
     if (receiptData.dispatchId) {

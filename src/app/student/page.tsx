@@ -76,10 +76,13 @@ export default function StudentFieldCollectionPage() {
 
   const [dispatches, setDispatches] = useState<Dispatch[]>(getStudentDispatches());
 
+  // Cloud Sync on Mount & Member Change
   useEffect(() => {
-    if (member) {
-      setDispatches(getStudentDispatches());
-    }
+    db.syncWithFirestore().then(() => {
+      if (member) {
+        setDispatches(getStudentDispatches());
+      }
+    });
   }, [member?.id]);
 
   const activeDispatch = dispatches.find(
@@ -88,30 +91,6 @@ export default function StudentFieldCollectionPage() {
   const pastDispatches = dispatches.filter(
     (d) => d.status === 'Completed' || d.status === 'Settled'
   );
-
-  const handleQuickStartDispatch = () => {
-    if (!member) return;
-    db.createDispatch({
-      studentId: member.id,
-      studentName: member.name,
-      leaderId: member.id,
-      leaderName: member.name,
-      participatingMemberIds: [member.id],
-      participatingMemberNames: [member.name],
-      campusId: member.campusId || 'campus_kak',
-      campusName: member.campusName || 'Kakkidippuram Main Campus',
-      routePlace: 'Kakkidippuram Field Route 2026',
-      districtCode: 'KL-MLP',
-      collectionType: 'Individual',
-      deploymentType: 'Door-to-Door / Local',
-      calendarsGiven: 50,
-      allowance: 200,
-      dispatchedBy: 'Campus Admin',
-      status: 'In Field',
-    });
-    refreshData();
-    setShowRecordModal(true);
-  };
 
   // Tabs: Today's vs History vs Historical Collection vs Team & Settlement
   const [activeTab, setActiveTab] = useState<'today' | 'history' | 'historical' | 'settlement'>('today');
@@ -148,6 +127,11 @@ export default function StudentFieldCollectionPage() {
   const [expenseDescription, setExpenseDescription] = useState('');
 
   const refreshData = () => {
+    db.syncWithFirestore().then(() => {
+      if (member) {
+        setDispatches(getStudentDispatches());
+      }
+    });
     if (member) {
       setDispatches(getStudentDispatches());
     }
@@ -832,14 +816,6 @@ export default function StudentFieldCollectionPage() {
                 </div>
 
                 <div className="space-y-2 pt-2">
-                  <button
-                    onClick={handleQuickStartDispatch}
-                    className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
-                  >
-                    <PlusCircle className="w-4 h-4" />
-                    <span>Start Field Collection (Record New Receipt)</span>
-                  </button>
-
                   <button
                     onClick={() => setActiveTab('history')}
                     className="w-full py-2.5 px-4 rounded-xl border border-emerald-300 bg-emerald-50/50 text-emerald-800 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-emerald-100 transition-colors"
