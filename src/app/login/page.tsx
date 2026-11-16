@@ -569,7 +569,7 @@ export default function LoginPage() {
 
               {/* Foundation Support Footer Note */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-                <span>Official Sender: <strong>+91 8547931509</strong></span>
+                <span>Official Sender: <strong>+91 97454 81583</strong></span>
                 <span>Developer Phone: <strong>+91 8547931509</strong></span>
               </div>
             </div>

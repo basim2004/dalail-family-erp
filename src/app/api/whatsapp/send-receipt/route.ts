@@ -65,6 +65,8 @@ export async function POST(req: NextRequest) {
       recipientPhone: result.recipientPhone,
       receiptUrl,
       previewText: result.previewText,
+      bannerUrl: result.bannerUrl,
+      directWhatsAppUrl: result.directWhatsAppUrl,
       details: result.details,
     });
   } catch (error: any) {

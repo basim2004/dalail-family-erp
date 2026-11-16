@@ -156,7 +156,7 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
               onClick={handleSendOfficialWhatsApp}
               disabled={isSendingWhatsApp}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-xs disabled:opacity-50"
-              title="Send official receipt via +91 8547931509"
+              title="Send official receipt via +91 97454 81583"
             >
               <Share2 className="w-3.5 h-3.5" />
               <span>{isSendingWhatsApp ? 'Sending...' : 'Official WhatsApp'}</span>
@@ -183,189 +183,107 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
       {/* Main Container for Print / Export */}
       <div ref={receiptRef} className="w-full">
         {viewMode === 'original' ? (
-          /* ===================== ORIGINAL DALAIL RECEIPT DESIGN ===================== */
+          /* ===================== OFFICIAL DALAIL RECEIPT (IMAGE 1 TEMPLATE) ===================== */
           <div
             id="official-receipt-print"
-            className="w-full bg-[#FFFDF9] rounded-2xl p-6 sm:p-8 border-4 border-[#164A9B] shadow-2xl relative overflow-hidden select-none text-slate-800"
-            style={{ minHeight: '440px' }}
+            className="relative w-full aspect-[1024/619] rounded-2xl overflow-hidden shadow-2xl border-2 border-[#164A9B]/30 bg-[#E8F3FA] select-none"
           >
-            {/* Elegant Double Border Inner Frame */}
-            <div className="absolute inset-1.5 border border-[#E99A24] pointer-events-none rounded-xl" />
+            {/* Background Template: Exact Official Foundation Receipt Image 1 */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/assets/official_receipt_template.jpg"
+              alt="Official Foundation Receipt"
+              className="absolute inset-0 w-full h-full object-fill pointer-events-none select-none"
+            />
 
-            {/* Subtle Watermark Seal */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none">
-              <Image
-                src="/assets/office-seal.png"
-                alt="Watermark Seal"
-                width={260}
-                height={260}
-                className="w-72 h-72 object-contain"
-              />
+            {/* 1. Receipt Number Pill Box Overlay (covering placeholder) */}
+            <div
+              className="absolute flex items-center justify-center bg-[#FCECEC] rounded-full border border-red-200/60 shadow-2xs"
+              style={{
+                left: '8.0%',
+                top: '39.8%',
+                width: '11.5%',
+                height: '7.0%',
+              }}
+            >
+              <span className="font-mono font-black text-[#C81414] tracking-tight text-[11px] sm:text-base md:text-xl leading-none">
+                {shortNo || receipt.receiptNo}
+              </span>
             </div>
 
-            {/* Top Official Header */}
-            <div className="relative z-10 flex items-start justify-between border-b-2 border-[#164A9B] pb-4">
-              <div className="flex items-center gap-3.5">
-                <div className="w-16 h-16 rounded-full bg-white p-1 shadow-md border border-slate-200 shrink-0 flex items-center justify-center">
-                  <Image
-                    src="/assets/official-logo.jpg"
-                    alt="Dalail Official Logo"
-                    width={56}
-                    height={56}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div>
-                  <span dir="rtl" className="font-arabic text-sm font-bold text-[#164A9B] block">
-                    مؤسسة دلائل الخيرات الإسلامية
-                  </span>
-                  <h2 className="text-base sm:text-lg font-black text-[#0C2F66] tracking-tight leading-tight uppercase font-playfair">
-                    DALAILUL KHAIRATH ISLAMIC FOUNDATION <span className="text-xs text-[#E99A24] font-sans font-bold">(REGD.)</span>
-                  </h2>
-                  <p className="text-[11px] text-slate-600 font-medium mt-0.5">
-                    KAKKIDIPPURAM, P.O. ALANKODE - 679585, MALAPPURAM DT., KERALA
-                  </p>
-                  <p className="text-[10px] text-slate-500 font-mono">
-                    Mobile: +91 9533215864 • +91 7034149149 • Web: dalail.org
-                  </p>
-                </div>
-              </div>
-
-              {/* Status Badge */}
-              <div className="text-right">
-                <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-200 uppercase tracking-wider">
-                  ✓ Official Receipt
-                </span>
-              </div>
+            {/* 2. Date */}
+            <div
+              className="absolute flex items-baseline justify-start"
+              style={{
+                left: '77.0%',
+                top: '41.8%',
+                width: '19.0%',
+                height: '5.5%',
+              }}
+            >
+              <span className="font-mono font-bold text-[#0C2F66] text-[10px] sm:text-xs md:text-sm tracking-wide">
+                {formattedDate}
+              </span>
             </div>
 
-            {/* Receipt Meta Row: No. & Date */}
-            <div className="relative z-10 mt-4 flex items-center justify-between border-b border-dashed border-slate-300 pb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Receipt No:
-                </span>
-                <span className="font-mono text-sm sm:text-base font-black text-[#164A9B] bg-blue-50 px-2.5 py-0.5 rounded-lg border border-blue-200">
-                  {receipt.receiptNo}
-                </span>
-                <span className="font-mono text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                  No. [{shortNo}]
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Date:
-                </span>
-                <span className="font-mono text-xs sm:text-sm font-bold text-slate-900">
-                  {formattedDate}
-                </span>
-              </div>
+            {/* 3. Received From */}
+            <div
+              className="absolute flex items-baseline justify-start"
+              style={{
+                left: '22.5%',
+                top: '52.5%',
+                width: '74.0%',
+                height: '6.0%',
+              }}
+            >
+              <span className="font-bold text-[#0C2F66] uppercase tracking-wide truncate text-[11px] sm:text-sm md:text-base font-sans">
+                {receipt.donorName}
+              </span>
             </div>
 
-            {/* Main Receipt Body Fields */}
-            <div className="relative z-10 mt-4 space-y-3.5 text-xs sm:text-sm">
-              {/* Received from */}
-              <div className="flex items-baseline gap-2 border-b border-dotted border-slate-300 pb-1.5">
-                <span className="text-slate-500 font-semibold whitespace-nowrap">
-                  Received with thanks from:
-                </span>
-                <span className="font-bold text-slate-900 uppercase font-mono flex-1 text-sm sm:text-base">
-                  {receipt.donorName}
-                </span>
-              </div>
-
-              {/* Address / Contact */}
-              <div className="flex items-baseline gap-2 border-b border-dotted border-slate-300 pb-1.5">
-                <span className="text-slate-500 font-semibold whitespace-nowrap">
-                  Address / Phone:
-                </span>
-                <span className="font-medium text-slate-800 flex-1">
-                  {receipt.donorAddress ? `${receipt.donorAddress} • ` : ''}{receipt.donorPhone}
-                </span>
-              </div>
-
-              {/* Sum of Rupees in words */}
-              <div className="flex items-baseline gap-2 border-b border-dotted border-slate-300 pb-1.5">
-                <span className="text-slate-500 font-semibold whitespace-nowrap">
-                  The sum of Rupees:
-                </span>
-                <span className="font-bold text-slate-900 italic capitalize flex-1 text-xs sm:text-sm">
-                  Rupees {numberToWords(receipt.amount)} Only
-                </span>
-              </div>
-
-              {/* Towards / Payment Mode Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-slate-500 font-semibold whitespace-nowrap">
-                    Towards / Purpose:
-                  </span>
-                  <span className="font-bold text-[#164A9B] uppercase">
-                    {receipt.category} Contribution
-                  </span>
-                </div>
-
-                <div className="flex items-baseline gap-2 sm:justify-end">
-                  <span className="text-slate-500 font-semibold whitespace-nowrap">
-                    Payment Mode:
-                  </span>
-                  <span className="font-semibold text-slate-800 inline-flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    {receipt.paymentMode} ({receipt.paymentStatus})
-                  </span>
-                </div>
-              </div>
+            {/* 4. Rupees (Words & Numbers) */}
+            <div
+              className="absolute flex items-baseline justify-start"
+              style={{
+                left: '13.5%',
+                top: '62.5%',
+                width: '82.5%',
+                height: '6.0%',
+              }}
+            >
+              <span className="font-bold text-[#0C2F66] italic tracking-wide truncate text-[10px] sm:text-xs md:text-sm capitalize font-serif">
+                {numberToWords(receipt.amount)} Rupees Only ({formatCurrency(receipt.amount)})
+              </span>
             </div>
 
-            {/* Bottom Row: Amount Box + Collector + Signature & Stamp */}
-            <div className="relative z-10 mt-6 pt-4 border-t-2 border-slate-800 flex flex-wrap items-end justify-between gap-4">
-              {/* Big Amount Box */}
-              <div className="bg-[#164A9B] text-white px-5 py-2.5 rounded-xl shadow-md border-2 border-[#E99A24] flex items-center gap-2">
-                <span className="text-xs font-semibold text-[#F7D9A0] uppercase tracking-wider">
-                  Amount:
-                </span>
-                <span className="text-xl sm:text-2xl font-black font-mono tracking-tight text-white">
-                  {formatCurrency(receipt.amount)}
-                </span>
-              </div>
+            {/* 5. Amount Box (Inside Pill Next to Blue Rupee Coin) */}
+            <div
+              className="absolute flex items-center justify-center"
+              style={{
+                left: '10.0%',
+                top: '79.5%',
+                width: '19.5%',
+                height: '10.5%',
+              }}
+            >
+              <span className="font-mono font-black text-[#0C2F66] tracking-tight text-sm sm:text-lg md:text-2xl">
+                {receipt.amount.toLocaleString('en-IN')}.00
+              </span>
+            </div>
 
-              {/* Collector Info */}
-              <div className="text-left">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Field Collector
-                </span>
-                <span className="text-xs font-bold text-slate-900 uppercase block">
-                  {receipt.studentName}
-                </span>
-                <span className="text-[10px] text-slate-500 block">
-                  {receipt.campusName || 'Kakkidippuram Campus'}
-                </span>
-              </div>
-
-              {/* Seal & Signature */}
-              <div className="flex items-center gap-3">
-                <Image
-                  src="/assets/office-seal.png"
-                  alt="Official Seal"
-                  width={56}
-                  height={56}
-                  className="w-14 h-14 object-contain opacity-95"
-                />
-
-                <div className="text-center">
-                  <Image
-                    src="/assets/office-signature.png"
-                    alt="Authorized Signature"
-                    width={80}
-                    height={36}
-                    className="w-20 h-9 object-contain mx-auto"
-                  />
-                  <span className="text-[9px] font-bold uppercase text-slate-600 block border-t border-slate-300 pt-0.5">
-                    Authorized Signatory
-                  </span>
-                </div>
-              </div>
+            {/* 6. Receiver */}
+            <div
+              className="absolute flex items-center justify-center text-center"
+              style={{
+                left: '76.5%',
+                top: '77.5%',
+                width: '19.5%',
+                height: '6.5%',
+              }}
+            >
+              <span className="font-bold text-[#0C2F66] text-[9px] sm:text-xs md:text-xs tracking-wider uppercase truncate block font-mono">
+                {receipt.studentName || 'Authorized Officer'}
+              </span>
             </div>
           </div>
         ) : (
@@ -569,11 +487,11 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
                 </div>
                 <div>
                   <h3 className="text-sm font-black flex items-center gap-1.5">
-                    <span>Official WhatsApp Dispatched</span>
+                    <span>Official WhatsApp Receipt</span>
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   </h3>
                   <p className="text-[11px] text-blue-200 font-mono">
-                    Sender: +91 8547931509
+                    Sender: +91 97454 81583
                   </p>
                 </div>
               </div>
@@ -585,81 +503,104 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
               </button>
             </div>
 
-            {/* Modal Body: WhatsApp Chat Bubble Preview (Madin Academy Style) */}
-            <div className="p-5 space-y-4 bg-slate-100/70">
+            {/* Modal Body: WhatsApp Chat Bubble Preview with Official Promotional Banner */}
+            <div className="p-5 space-y-4 bg-slate-100/70 max-h-[75vh] overflow-y-auto">
               <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
                 <span>Donor WhatsApp Message Preview:</span>
-                <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-mono text-[10px]">
-                  ✓ Dispatched
+                <span className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold ${
+                  whatsAppResult.status === 'sent' || whatsAppResult.status === 'delivered'
+                    ? 'text-emerald-700 bg-emerald-50'
+                    : 'text-blue-700 bg-blue-50'
+                }`}>
+                  ● {whatsAppResult.status === 'pending_configuration' ? 'Official Sender Ready' : whatsAppResult.status}
                 </span>
               </div>
 
-              {/* Chat Bubble Container */}
-              <div className="rounded-2xl bg-white p-4 shadow-sm border border-slate-200 space-y-3">
-                {/* Header Banner */}
-                <div className="rounded-xl overflow-hidden bg-[#0C2F66] text-white p-3 border border-blue-900/40">
-                  <div className="text-[10px] uppercase font-bold text-[#F7D9A0] tracking-wide">
-                    Dalailul Khairath Islamic Foundation
-                  </div>
-                  <div className="text-xs font-black mt-0.5">
-                    Official Donation Receipt Confirmation
-                  </div>
+              {/* Chat Bubble Container (Matches Official WhatsApp Presentation) */}
+              <div className="rounded-2xl bg-white p-3.5 shadow-sm border border-slate-200 space-y-3">
+                {/* 1. Official Promotional Banner (Image 2 - Stay Connected with Dalail Family ERP) */}
+                <div className="rounded-xl overflow-hidden shadow-xs border border-slate-200/80">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/assets/whatsapp_receipt_banner.jpg"
+                    alt="DALAIL FAMILY ERP Official Showcase"
+                    className="w-full h-auto object-cover select-none"
+                  />
                 </div>
 
-                {/* Message Text */}
-                <div className="text-xs text-slate-700 space-y-2 leading-relaxed font-sans">
-                  <p>
-                    Dear <strong>{receipt.donorName}</strong>,
+                {/* 2. Personalized Message Text */}
+                <div className="text-xs text-slate-800 space-y-2 leading-relaxed font-sans px-1">
+                  <p className="font-semibold text-slate-900">
+                    Dear {receipt.donorName},
                   </p>
                   <p>
                     We have successfully received your contribution of{' '}
-                    <strong className="text-slate-900 font-mono font-bold">
+                    <strong className="text-slate-950 font-mono font-bold">
                       {formatCurrency(receipt.amount)}
                     </strong>{' '}
-                    towards <strong>{receipt.category || 'Islamic Education & Student Care'}</strong>.
+                    towards Dalailul Khairath Islamic Foundation.
                   </p>
-                  <p className="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200/80 font-mono">
-                    📄 <strong>Receipt No:</strong> {receipt.receiptNo} (No. {shortNo})
+                  <p>
+                    Your receipt is available below for your reference.
                   </p>
-                  <p className="text-[11px] text-slate-500">
-                    Thank you for your generous support.
+                  <p className="text-slate-600">
+                    Thank you for your valuable support.
                   </p>
                 </div>
 
-                {/* Interactive Link Button */}
+                {/* 3. Clickable "View Receipt" URL Button */}
                 <div className="pt-1">
                   <a
                     href={`/verify/receipt/${receipt.receiptNo}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center gap-1.5 border border-emerald-200 transition-colors"
+                    className="w-full py-2.5 px-3 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors uppercase tracking-wider"
                   >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>View & Verify Receipt Online</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-950" />
+                    <span>View Receipt</span>
                   </a>
                 </div>
               </div>
 
-              {/* Technical Audit Box */}
+              {/* Direct Open in WhatsApp Action Button */}
+              <div>
+                <a
+                  href={whatsAppResult.directWhatsAppUrl || `https://wa.me/${receipt.donorPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                    `Dear ${receipt.donorName},\n\nWe have successfully received your contribution of ₹${receipt.amount} towards Dalailul Khairath Islamic Foundation.\n\nYour receipt is available below for your reference.\n\nThank you for your valuable support.\n\n📄 Receipt No: ${receipt.receiptNo}\n🔗 View Receipt:\nhttps://dalail-family-erp.vercel.app/verify/receipt/${receipt.receiptNo}`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors"
+                >
+                  <Smartphone className="w-4 h-4" />
+                  <span>Open in WhatsApp (Send from +91 97454 81583)</span>
+                </a>
+              </div>
+
+              {/* Technical Audit & Verification Box */}
               <div className="p-3 rounded-xl bg-white border border-slate-200 text-[11px] space-y-1 font-mono text-slate-600">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Recipient:</span>
+                  <span className="text-slate-400">Recipient Mobile:</span>
                   <span className="font-bold text-slate-800">{receipt.donorPhone}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Official Sender:</span>
-                  <span className="font-bold text-emerald-700">+91 8547931509</span>
+                  <span className="text-slate-400">Authorized Sender:</span>
+                  <span className="font-bold text-emerald-700">+91 97454 81583</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Message ID:</span>
-                  <span className="truncate max-w-[180px] font-bold text-slate-800">
-                    {whatsAppResult.messageId}
-                  </span>
+                  <span className="text-slate-400">Receipt Ref:</span>
+                  <span className="font-bold text-slate-800">{receipt.receiptNo}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Delivery Status:</span>
+                  <span className="text-slate-400">Template / Image:</span>
+                  <span className="font-bold text-blue-700">Official Banner Header</span>
+                </div>
+                <div className="flex justify-between items-center pt-1 border-t border-slate-100">
+                  <span className="text-slate-400">Cloud API Status:</span>
                   <span className="font-bold text-emerald-700 uppercase text-[10px]">
-                    {whatsAppResult.status || 'Sent'} (Logged in Firestore)
+                    {whatsAppResult.status === 'pending_configuration'
+                      ? 'Queue Ready (Token Pending)'
+                      : whatsAppResult.status}
                   </span>
                 </div>
               </div>

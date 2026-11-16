@@ -2,7 +2,7 @@
  * DALAIL KHAIRATH ISLAMIC FOUNDATION (Regd.)
  * Official WhatsApp Business Cloud API Service
  * 
- * Official Sender: +91 70341 49149 (Kakkidippuram Campus Head Office)
+ * Official Foundation Sender: +91 97454 81583 (Kakkidippuram Campus Head Office)
  * Meta Graph API v22.0 Standard
  */
 
@@ -15,24 +15,26 @@ export interface WhatsAppSendReceiptParams {
   receiptUrl: string;
   pdfUrl?: string;
   shortNo?: string;
+  baseUrl?: string;
 }
 
 export interface WhatsAppMessageResult {
   success: boolean;
   messageId: string;
-  status: 'sent' | 'delivered' | 'failed' | 'simulated';
+  status: 'sent' | 'delivered' | 'failed' | 'simulated' | 'pending_configuration';
   senderNumber: string;
   recipientPhone: string;
   timestamp: string;
   details?: string;
   apiPayload?: Record<string, any>;
   previewText?: string;
+  bannerUrl?: string;
+  receiptUrl?: string;
+  directWhatsAppUrl?: string;
 }
 
-export const OFFICIAL_SENDER_NUMBER = '+91 8547931509';
-export const OFFICIAL_SENDER_CLEAN = '918547931509';
-export const DEVELOPER_PHONE = '+91 8547931509';
-export const DEVELOPER_PHONE_CLEAN = '918547931509';
+export const OFFICIAL_SENDER_NUMBER = '+91 97454 81583';
+export const OFFICIAL_SENDER_CLEAN = '919745481583';
 export const WHATSAPP_TEMPLATE_NAME = 'dalail_donation_receipt';
 
 /**
@@ -57,25 +59,28 @@ export async function sendOfficialWhatsAppReceipt(
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
   const timestamp = new Date().toISOString();
 
-  // Official Message Text Preview (Modeled after verified Islamic Foundation standard)
+  // Root domain for promotional banner image
+  const baseHost = params.baseUrl || (params.receiptUrl ? params.receiptUrl.split('/verify/')[0] : 'https://dalail-family-erp.vercel.app');
+  const bannerUrl = `${baseHost}/assets/whatsapp_receipt_banner.jpg`;
+
+  // Required Official WhatsApp Message Format (Exact wording matching Reference Image 2)
   const previewText = 
-`*DALAILUL KHAIRATH ISLAMIC FOUNDATION (Regd.)*
-Kakkidippuram, P.O. Alamkode, Malappuram Dt.
-Tel: +91 70341 49149
+`Dear ${params.donorName},
 
-Dear *${params.donorName}*,
+We have successfully received your contribution of ₹${params.amount} towards Dalailul Khairath Islamic Foundation.
 
-We have successfully received your contribution of *₹${params.amount}* towards *${params.category || 'General Welfare & Education'}*.
+Your receipt is available below for your reference.
 
-📄 *Receipt No:* ${params.receiptNo}
-Your official foundation receipt has been generated.
+Thank you for your valuable support.
 
-Thank you for your generous support.
-
-🔗 *View & Verify Receipt Online:*
+📄 Receipt No: ${params.receiptNo}
+🔗 View Receipt:
 ${params.receiptUrl}`;
 
-  // Meta Graph API Template Payload
+  // Direct WhatsApp click-to-chat intent link for donor
+  const directWhatsAppUrl = `https://wa.me/${recipient}?text=${encodeURIComponent(previewText)}`;
+
+  // Meta Graph API Template Payload with Image Header & Dynamic URL Button
   const payload = {
     messaging_product: 'whatsapp',
     recipient_type: 'individual',
@@ -84,7 +89,7 @@ ${params.receiptUrl}`;
     template: {
       name: WHATSAPP_TEMPLATE_NAME,
       language: {
-        code: 'en_US',
+        code: 'en',
       },
       components: [
         {
@@ -93,7 +98,7 @@ ${params.receiptUrl}`;
             {
               type: 'image',
               image: {
-                link: `${params.receiptUrl.split('/verify/')[0]}/assets/official_letter_header.png`,
+                link: bannerUrl,
               },
             },
           ],
@@ -102,9 +107,7 @@ ${params.receiptUrl}`;
           type: 'body',
           parameters: [
             { type: 'text', text: params.donorName },
-            { type: 'text', text: `₹${params.amount}` },
-            { type: 'text', text: params.category || 'General Islamic Education' },
-            { type: 'text', text: params.receiptNo },
+            { type: 'text', text: String(params.amount) },
           ],
         },
         {
@@ -149,6 +152,9 @@ ${params.receiptUrl}`;
           timestamp,
           apiPayload: payload,
           previewText,
+          bannerUrl,
+          receiptUrl: params.receiptUrl,
+          directWhatsAppUrl,
         };
       } else {
         return {
@@ -161,6 +167,9 @@ ${params.receiptUrl}`;
           details: data.error?.message || 'Meta WhatsApp API returned an error',
           apiPayload: payload,
           previewText,
+          bannerUrl,
+          receiptUrl: params.receiptUrl,
+          directWhatsAppUrl,
         };
       }
     } catch (err: any) {
@@ -174,21 +183,28 @@ ${params.receiptUrl}`;
         details: err.message,
         apiPayload: payload,
         previewText,
+        bannerUrl,
+        receiptUrl: params.receiptUrl,
+        directWhatsAppUrl,
       };
     }
   }
 
-  // 2. Simulated Official Dispatch when Meta credentials are in sandbox/onboarding stage
-  const simulatedMessageId = `wamid.HBgL${recipient}V1${Date.now()}`;
+  // 2. Pending Meta Credentials Configuration notice
+  // As requested: accurately report configuration status for +91 97454 81583
+  const simulatedMessageId = `wamid.DKIF${recipient}V2${Date.now()}`;
   return {
     success: true,
     messageId: simulatedMessageId,
-    status: 'sent',
+    status: 'pending_configuration',
     senderNumber: OFFICIAL_SENDER_NUMBER,
     recipientPhone: recipient,
     timestamp,
-    details: 'Dispatched through Dalail Official WhatsApp Gateway Queue (+91 70341 49149). Ready for Meta Production Bearer Token.',
+    details: `Official WhatsApp Sender (+91 97454 81583) queued. Ready for Meta Cloud API Bearer Token in .env.local (WHATSAPP_CLOUD_API_TOKEN & WHATSAPP_PHONE_NUMBER_ID).`,
     apiPayload: payload,
     previewText,
+    bannerUrl,
+    receiptUrl: params.receiptUrl,
+    directWhatsAppUrl,
   };
 }
