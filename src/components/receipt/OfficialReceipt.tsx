@@ -310,18 +310,35 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
               </span>
             </div>
 
-            {/* 6. Receiver */}
+            {/* 6. Receiver: Official Founder Signature & Designation */}
             <div
-              className="absolute flex items-center justify-center text-center"
+              className="absolute flex flex-col items-center justify-end text-center pointer-events-none select-none"
               style={{
-                left: '76.5%',
-                top: '77.5%',
-                width: '19.5%',
-                height: '6.5%',
+                left: '78.5%',
+                top: '64.0%',
+                width: '16.0%',
+                height: '20.2%',
               }}
             >
-              <span className="font-bold text-[#0C2F66] text-[9px] sm:text-xs md:text-xs tracking-wider uppercase truncate block font-mono">
-                {receipt.studentName || 'Authorized Officer'}
+              {/* Official Founder Signature (Usthad Abdul Salam Sa'adi) */}
+              <div className="w-full flex items-center justify-center flex-1 max-h-[58%] pb-0.5">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/assets/office-signature.png"
+                  alt="Official Founder Signature - Usthad Abdul Salam Sa'adi"
+                  crossOrigin="anonymous"
+                  className="max-h-full max-w-full object-contain filter contrast-125"
+                />
+              </div>
+
+              {/* Founder Name */}
+              <span className="font-bold text-[#0C2F66] text-[8px] sm:text-[10px] md:text-xs tracking-tight uppercase block leading-tight font-sans truncate w-full">
+                Usthad Abdul Salam Sa&apos;adi
+              </span>
+
+              {/* Founder Designation */}
+              <span className="font-semibold text-[#164A9B] text-[6.5px] sm:text-[8px] md:text-[9.5px] tracking-wider uppercase block leading-tight font-sans truncate w-full">
+                Founder &amp; General Secretary
               </span>
             </div>
           </div>
@@ -492,13 +509,16 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
                 <div className="text-right">
                   <Image
                     src="/assets/office-signature.png"
-                    alt="Authorized Signature"
+                    alt="Official Founder Signature - Usthad Abdul Salam Sa'adi"
                     width={80}
                     height={38}
-                    className="w-20 h-9 object-contain ml-auto"
+                    className="w-20 h-9 object-contain ml-auto filter contrast-125"
                   />
-                  <span className="text-[9px] font-bold uppercase text-slate-500 block border-t border-slate-300 pt-0.5">
-                    Authorized Signatory
+                  <span className="text-[10px] font-bold uppercase text-slate-900 block border-t border-slate-300 pt-0.5">
+                    Usthad Abdul Salam Sa&apos;adi
+                  </span>
+                  <span className="text-[8px] font-semibold text-slate-500 block uppercase">
+                    Founder &amp; General Secretary • Receiver
                   </span>
                 </div>
               </div>
