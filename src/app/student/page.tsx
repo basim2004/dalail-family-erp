@@ -134,9 +134,7 @@ export default function StudentFieldCollectionPage() {
   const [paymentWebUrl, setPaymentWebUrl] = useState<string | null>(null);
   const [isGeneratingQr, setIsGeneratingQr] = useState<boolean>(false);
   const [qrCopied, setQrCopied] = useState<boolean>(false);
-  const [collectorUtrInput, setCollectorUtrInput] = useState<string>('');
-  const [collectorVerifying, setCollectorVerifying] = useState<boolean>(false);
-  const [collectorUtrError, setCollectorUtrError] = useState<string | null>(null);
+
 
 
 
@@ -267,8 +265,6 @@ export default function StudentFieldCollectionPage() {
         setDonationRef(data.session?.donationRef || 'DF-0001');
         setPaymentQrDataUrl(data.qrDataUrl);
         setPaymentWebUrl(data.paymentUrl);
-        setCollectorUtrInput('');
-        setCollectorUtrError(null);
       }
     } catch (err) {
       console.error('Failed to create dynamic payment link:', err);
@@ -331,47 +327,6 @@ export default function StudentFieldCollectionPage() {
       clearInterval(interval);
     };
   }, [showUpiModal, paymentToken, activeDispatch, member]);
-
-  // Handle Genuine UTR Verification & Settle Collection
-  const handleCollectorVerifyUtr = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!paymentToken) return;
-    const cleanUtr = collectorUtrInput.trim().toUpperCase();
-
-    if (!cleanUtr || cleanUtr.length < 6) {
-      setCollectorUtrError('Please enter a valid 12-digit UPI Transaction Reference (UTR) number.');
-      return;
-    }
-
-    setCollectorVerifying(true);
-    setCollectorUtrError(null);
-
-    try {
-      const res = await fetch('/api/payment/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          token: paymentToken,
-          utr: cleanUtr,
-          verifiedBy: 'COLLECTOR_FIELD_VERIFICATION',
-        }),
-      });
-      const data = await res.json();
-      if (data.success && data.receipt) {
-        setShowUpiModal(false);
-        setShowRecordModal(false);
-        await db.syncWithFirestore();
-        refreshData();
-        setViewingReceipt(data.receipt);
-      } else {
-        setCollectorUtrError(data.error || 'Verification failed. Please check the UTR number.');
-      }
-    } catch (err: any) {
-      setCollectorUtrError('Network error while verifying UTR. Please retry.');
-    } finally {
-      setCollectorVerifying(false);
-    }
-  };
 
   // Handle Collection Submission with duplicate prevention
   const handleRecordSubmit = async (e: React.FormEvent) => {
@@ -1962,60 +1917,23 @@ export default function StudentFieldCollectionPage() {
               )}
             </div>
 
-            {/* Real-time status indicator */}
-            <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-800 bg-amber-50 py-2 px-3 rounded-xl border border-amber-200">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-              <span>Waiting for donor to scan QR or complete payment...</span>
+            {/* Real-time automated status indicator */}
+            <div className="flex items-center justify-center gap-2 text-xs font-bold text-emerald-800 bg-emerald-50 py-2.5 px-3 rounded-xl border border-emerald-200">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+              <span>Waiting for donor payment confirmation...</span>
             </div>
 
-            {/* Genuine Bank UTR Verification for Field Collector */}
-            <div className="pt-2 border-t border-slate-100 text-left space-y-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                Bank UTR Reconciliation (Optional Quick Entry)
-              </span>
-              <form onSubmit={handleCollectorVerifyUtr} className="space-y-2">
-                <input
-                  type="text"
-                  maxLength={22}
-                  value={collectorUtrInput}
-                  onChange={(e) => setCollectorUtrInput(e.target.value.replace(/\s+/g, ''))}
-                  placeholder="Enter 12-digit UTR (e.g. 412389102934)"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#164A9B]"
-                />
+            <p className="text-[11px] text-slate-500 leading-snug text-center">
+              When the donor completes payment via Google Pay, PhonePe or Paytm, the receipt will be verified and issued automatically.
+            </p>
 
-                {collectorUtrError && (
-                  <p className="text-[11px] text-rose-600 font-bold bg-rose-50 p-1.5 rounded-lg border border-rose-200">
-                    {collectorUtrError}
-                  </p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={collectorVerifying}
-                  className="w-full py-2.5 px-3 bg-[#00875A] hover:bg-[#00704A] text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
-                >
-                  {collectorVerifying ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Verifying Transaction...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Verify UTR & Issue Official Receipt</span>
-                    </>
-                  )}
-                </button>
-              </form>
-
-              <button
-                type="button"
-                onClick={() => setShowUpiModal(false)}
-                className="w-full py-2 px-4 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-xl"
-              >
-                Close / Cancel
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowUpiModal(false)}
+              className="w-full py-2.5 px-4 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl border border-slate-200 transition-colors"
+            >
+              Close / Cancel
+            </button>
           </div>
         </div>
       )}

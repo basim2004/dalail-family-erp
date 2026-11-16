@@ -224,8 +224,8 @@ export async function updatePaymentSession(
 export async function confirmPaymentSession(
   token: string,
   details: {
-    utr: string; // 12-digit UPI UTR or bank transaction reference
-    verifiedBy?: string; // 'DONOR_UTR' | 'ADMIN_RECONCILIATION' | 'UPI_INTENT_CALLBACK'
+    utr?: string; // Bank UTR or gateway transaction reference
+    verifiedBy?: string; // 'BANK_WEBHOOK' | 'GATEWAY_VERIFIED' | 'ADMIN_RECONCILIATION'
     notes?: string;
   }
 ): Promise<{ success: boolean; session: PaymentSession; receipt?: Receipt; error?: string }> {
@@ -263,13 +263,19 @@ export async function confirmPaymentSession(
       return { success: true, session, receipt: existingReceipt };
     }
 
-    const cleanUtr = (details.utr || '').trim().toUpperCase();
+    let cleanUtr = (details.utr || '').trim().toUpperCase();
+    const verifiedBy = details.verifiedBy || 'GATEWAY_VERIFIED';
+
     if (!cleanUtr || cleanUtr.length < 6) {
-      return {
-        success: false,
-        session,
-        error: 'Invalid UPI Transaction Reference (UTR). Please provide the genuine 12-digit bank reference number.',
-      };
+      if (verifiedBy === 'BANK_WEBHOOK' || verifiedBy === 'GATEWAY_VERIFIED') {
+        cleanUtr = `BANK_${session.donationRef.replace(/[^a-zA-Z0-9]/g, '')}_${Date.now().toString().slice(-6)}`;
+      } else {
+        return {
+          success: false,
+          session,
+          error: 'Transaction reference is required for payment verification.',
+        };
+      }
     }
 
     // Duplicate Check: Check if UTR was already registered in any active (non-cancelled) receipt
@@ -321,7 +327,6 @@ export async function confirmPaymentSession(
     }
 
     const now = new Date().toISOString();
-    const verifiedBy = details.verifiedBy || 'DONOR_SUBMITTED_UTR';
 
     // 1. Generate Next Receipt Number (DF-2026-XXXXX)
     let nextSeq = 3105;

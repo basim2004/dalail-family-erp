@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPaymentSession, updatePaymentSession } from '@/lib/services/paymentSessionService';
+import { getPaymentSession, updatePaymentSession, confirmPaymentSession } from '@/lib/services/paymentSessionService';
+import { checkGatewayTransactionStatus } from '@/lib/services/paymentGatewayService';
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,9 +11,28 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Token is required' }, { status: 400 });
     }
 
-    const session = await getPaymentSession(token);
+    let session = await getPaymentSession(token);
     if (!session) {
       return NextResponse.json({ success: false, error: 'Payment session not found or expired' }, { status: 404 });
+    }
+
+    // If session is PENDING, automatically check payment status with authorized gateway/bank provider
+    if (session.status === 'PENDING') {
+      try {
+        const gatewayResult = await checkGatewayTransactionStatus(session);
+        if (gatewayResult.isPaid && gatewayResult.transactionId) {
+          const confirmResult = await confirmPaymentSession(token, {
+            utr: gatewayResult.transactionId,
+            verifiedBy: 'GATEWAY_VERIFIED',
+            notes: `Auto-verified via ${gatewayResult.provider || 'Gateway'}`,
+          });
+          if (confirmResult.success && confirmResult.session) {
+            session = confirmResult.session;
+          }
+        }
+      } catch (err: any) {
+        console.warn('Gateway status check error during session poll:', err.message);
+      }
     }
 
     return NextResponse.json({ success: true, session });
