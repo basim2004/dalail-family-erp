@@ -29,12 +29,16 @@ let localDonationCounter = 1;
 
 /**
  * Builds standard UPI Intent URI strictly conforming to NPCI UPI specification:
- * upi://pay?pa=dalailul@sbi&pn=DALAILUL%20KHAIRATH%20ISLAMIC%20FOUNDATION&am=500&cu=INR&tn=DF-0001
+ * upi://pay?pa=dalailul@sbi&pn=DALAILUL%20KHAIRATH%20ISLAMIC%20FOUNDATION&am=500.00&cu=INR&tn=Donation%20DF-0001&tr=DF0001
  */
 export function buildUpiIntentUri(amount: number, donationRef: string): string {
   const encPayee = encodeURIComponent(FOUNDATION_PAYEE_NAME);
-  const encRef = encodeURIComponent(donationRef);
-  return `upi://pay?pa=${FOUNDATION_UPI_ID}&pn=${encPayee}&am=${amount}&cu=${FOUNDATION_CURRENCY}&tn=${encRef}`;
+  const cleanRef = donationRef.replace(/[^a-zA-Z0-9]/g, '');
+  const encNote = encodeURIComponent(`Donation ${donationRef}`);
+  const amtFormatted = Number(amount).toFixed(2);
+  
+  // Standard NPCI UPI URI with both tn and tr
+  return `upi://pay?pa=${FOUNDATION_UPI_ID}&pn=${encPayee}&am=${amtFormatted}&cu=${FOUNDATION_CURRENCY}&tn=${encNote}&tr=${cleanRef}`;
 }
 
 /**

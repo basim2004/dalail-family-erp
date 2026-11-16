@@ -19,6 +19,8 @@ import {
   Copy,
   Clock,
   Sparkles,
+  AlertTriangle,
+  Info,
 } from 'lucide-react';
 import { PaymentSession } from '@/lib/types';
 import { FOUNDATION_UPI_ID, FOUNDATION_PAYEE_NAME, buildUpiIntentUri } from '@/lib/services/paymentSessionService';
@@ -48,6 +50,9 @@ export default function DonorPaymentPage() {
   const [utrNumber, setUtrNumber] = useState<string>('');
   const [verifyingUtr, setVerifyingUtr] = useState<boolean>(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
+  const [showBankDiagnostic, setShowBankDiagnostic] = useState(false);
+  const [reportingFailure, setReportingFailure] = useState(false);
+  const [diagnosticReported, setDiagnosticReported] = useState(false);
   const [copiedUpi, setCopiedUpi] = useState<boolean>(false);
 
   const [completedPayment, setCompletedPayment] = useState<{
@@ -132,35 +137,75 @@ export default function DonorPaymentPage() {
     setShowPaymentModal(true);
   };
 
-  // Launch Authentic UPI Intent for selected application
+  // Launch Authentic UPI Intent for selected application with diagnostic logging
   const handleLaunchUpiApp = (appName: string, customScheme?: string) => {
     setSelectedApp(appName);
     setVerificationError(null);
 
     const donationRef = session?.donationRef || 'DF-0001';
+    const cleanRef = donationRef.replace(/[^a-zA-Z0-9]/g, '');
+    const amtStr = Number(amount).toFixed(2);
     const genericUpiUri = buildUpiIntentUri(amount, donationRef);
 
-    // Dynamic app-specific scheme with automatic generic fallback
+    // Standard NPCI-compliant intent with tr & tn
     let appUri = genericUpiUri;
     if (customScheme === 'gpay') {
-      appUri = `gpay://upi/pay?pa=${FOUNDATION_UPI_ID}&pn=${encodeURIComponent(
-        FOUNDATION_PAYEE_NAME
-      )}&am=${amount}&cu=INR&tn=${encodeURIComponent(donationRef)}`;
+      // Standard universal intent is officially validated by Google Pay
+      appUri = genericUpiUri;
     } else if (customScheme === 'phonepe') {
       appUri = `phonepe://pay?pa=${FOUNDATION_UPI_ID}&pn=${encodeURIComponent(
         FOUNDATION_PAYEE_NAME
-      )}&am=${amount}&cu=INR&tn=${encodeURIComponent(donationRef)}`;
+      )}&am=${amtStr}&cu=INR&tn=${encodeURIComponent(`Donation ${donationRef}`)}&tr=${cleanRef}`;
     } else if (customScheme === 'paytm') {
       appUri = `paytmmp://pay?pa=${FOUNDATION_UPI_ID}&pn=${encodeURIComponent(
         FOUNDATION_PAYEE_NAME
-      )}&am=${amount}&cu=INR&tn=${encodeURIComponent(donationRef)}`;
+      )}&am=${amtStr}&cu=INR&tn=${encodeURIComponent(`Donation ${donationRef}`)}&tr=${cleanRef}`;
     }
 
-    // Try opening specific app; if not installed or desktop, fallback to standard UPI intent
+    // 1. Record Diagnostic Event to Backend Audit Log
+    fetch('/api/payment/diagnostic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        donationRef,
+        token,
+        requestedAmount: amount,
+        selectedUpiApp: appName,
+        intentUri: appUri,
+        status: 'APP_OPENED',
+      }),
+    }).catch(() => {});
+
+    // 2. Open UPI Intent URI
     try {
       window.location.href = appUri;
     } catch (e) {
       window.location.href = genericUpiUri;
+    }
+  };
+
+  // Report and log bank failure without generating fake receipts
+  const handleReportBankFailure = async (errorMsg: string) => {
+    setReportingFailure(true);
+    const donationRef = session?.donationRef || 'DF-0001';
+
+    try {
+      await fetch('/api/payment/diagnostic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          donationRef,
+          token,
+          requestedAmount: amount,
+          selectedUpiApp: selectedApp || 'Google Pay',
+          status: 'FAILED',
+          errorMessage: errorMsg,
+          errorCode: 'U16_RECEIVER_BANK_RESTRICTION',
+        }),
+      });
+      setDiagnosticReported(true);
+    } catch {} finally {
+      setReportingFailure(false);
     }
   };
 
@@ -190,6 +235,20 @@ export default function DonorPaymentPage() {
       const data = await res.json();
 
       if (data.success && data.receipt) {
+        // Log Verified diagnostic event
+        fetch('/api/payment/diagnostic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            donationRef: session?.donationRef || 'DF-0001',
+            token,
+            paymentReference: cleanUtr,
+            requestedAmount: amount,
+            selectedUpiApp: selectedApp || 'UPI App',
+            status: 'VERIFIED',
+          }),
+        }).catch(() => {});
+
         setCompletedPayment({
           receiptNo: data.receipt.receiptNo,
           paidAmount: amount,
@@ -198,7 +257,23 @@ export default function DonorPaymentPage() {
         });
         setShowPaymentModal(false);
       } else {
-        setVerificationError(data.error || 'Payment verification failed. Please check the UTR.');
+        const errorMsg = data.error || 'Payment verification failed. Please check the UTR.';
+        setVerificationError(errorMsg);
+
+        // Log Failed diagnostic event
+        fetch('/api/payment/diagnostic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            donationRef: session?.donationRef || 'DF-0001',
+            token,
+            paymentReference: cleanUtr,
+            requestedAmount: amount,
+            selectedUpiApp: selectedApp || 'UPI App',
+            status: 'FAILED',
+            errorMessage: errorMsg,
+          }),
+        }).catch(() => {});
       }
     } catch (err: any) {
       setVerificationError('Network error while verifying payment. Please retry.');
@@ -771,6 +846,55 @@ export default function DonorPaymentPage() {
                     )}
                   </button>
                 </form>
+
+                {/* Bank Error Diagnostic Helper */}
+                <div className="pt-2 border-t border-slate-200/70">
+                  <button
+                    type="button"
+                    onClick={() => setShowBankDiagnostic(!showBankDiagnostic)}
+                    className="w-full text-center text-[11px] font-bold text-amber-700 hover:text-amber-800 flex items-center justify-center gap-1.5 py-1"
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Seeing &ldquo;Receiver&apos;s bank does not allow payments&rdquo;?</span>
+                  </button>
+
+                  {showBankDiagnostic && (
+                    <div className="mt-2 p-3 bg-amber-50 rounded-xl border border-amber-200 text-left space-y-2 text-[11px] text-amber-900 animate-fade-in">
+                      <div className="font-bold flex items-center gap-1.5 text-amber-800">
+                        <Info className="w-3.5 h-3.5" />
+                        <span>State Bank of India (SBI) Diagnostic Notice</span>
+                      </div>
+                      <p className="leading-relaxed">
+                        This bank error message is issued directly by <strong>State Bank of India</strong>. It indicates that incoming transfers to this Foundation Trust account require merchant category authorization or have an inward transaction threshold.
+                      </p>
+                      <div className="p-2 bg-white rounded-lg border border-amber-200 font-mono text-[10px] space-y-0.5">
+                        <div className="font-bold text-slate-800">Direct Foundation Bank Details:</div>
+                        <div>Account: <strong>67051441563</strong> (SBI)</div>
+                        <div>IFSC: <strong>SBIN0070643</strong> (Changaramkulam)</div>
+                        <div>Payee: DALAILUL KHAIRATH ISLAMIC FOUNDATION</div>
+                      </div>
+                      <p className="text-[10px] text-amber-700">
+                        You can transfer directly via NEFT/IMPS or PhonePe/Paytm and enter the 12-digit UTR above to generate your receipt immediately.
+                      </p>
+
+                      {!diagnosticReported ? (
+                        <button
+                          type="button"
+                          onClick={() => handleReportBankFailure("Receiver's bank does not allow payments to this bank account")}
+                          disabled={reportingFailure}
+                          className="w-full py-1.5 px-3 bg-amber-200/70 hover:bg-amber-200 text-amber-900 font-bold rounded-lg text-[10px] flex items-center justify-center gap-1 transition-colors disabled:opacity-50"
+                        >
+                          {reportingFailure ? 'Logging Diagnostic...' : 'Record Failure in Central Audit Log'}
+                        </button>
+                      ) : (
+                        <div className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          <span>Logged to Foundation Central Admin Audit (Safe to retry)</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
