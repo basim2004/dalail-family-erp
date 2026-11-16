@@ -276,3 +276,36 @@ export interface PublicMediaSettings {
   instagramFollowingCount: string;
   instagramPosts: InstagramPostItem[];
 }
+
+// ===================== DYNAMIC QR & PAYMENT GATEWAY TYPES =====================
+
+export type PaymentSessionStatus = 'PENDING' | 'PAID' | 'FAILED' | 'EXPIRED';
+
+export interface PaymentSession {
+  id: string;
+  token: string;
+  dispatchId?: string;
+  collectorId: string;
+  collectorName: string;
+  campusId: string;
+  campusName: string;
+  donorName: string;
+  donorPhone: string;
+  donorAddress?: string;
+  prayerRequest?: string;
+  amount: number;
+  category: DonationCategory;
+  calendarGiven?: boolean;
+  status: PaymentSessionStatus;
+  paymentGateway?: string;
+  gatewayOrderId?: string;
+  gatewayPaymentId?: string;
+  utr?: string;
+  receiptId?: string;
+  receiptNo?: string;
+  createdAt: string;
+  updatedAt: string;
+  paidAt?: string;
+  expiresAt: string;
+}
+

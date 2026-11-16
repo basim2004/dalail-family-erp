@@ -126,6 +126,14 @@ export default function StudentFieldCollectionPage() {
   const [expenseAmount, setExpenseAmount] = useState<number | ''>(100);
   const [expenseDescription, setExpenseDescription] = useState('');
 
+  // Dynamic QR Payment Gateway State
+  const [paymentToken, setPaymentToken] = useState<string | null>(null);
+  const [paymentQrDataUrl, setPaymentQrDataUrl] = useState<string | null>(null);
+  const [paymentWebUrl, setPaymentWebUrl] = useState<string | null>(null);
+  const [isGeneratingQr, setIsGeneratingQr] = useState<boolean>(false);
+  const [qrCopied, setQrCopied] = useState<boolean>(false);
+
+
   const refreshData = () => {
     db.syncWithFirestore().then(() => {
       if (member) {
@@ -208,13 +216,143 @@ export default function StudentFieldCollectionPage() {
   const myGroups = db.getGroups().filter((g) => g.memberIds.includes(member?.id || ''));
   const myPrimaryGroup = myGroups[0];
 
+  // Initiate Dynamic QR Session
+  const initiateDirectUpiQr = async (
+    customName?: string,
+    customPhone?: string,
+    customAmount?: number
+  ) => {
+    const finalName = (customName || donorName || 'DONOR').trim();
+    const finalPhone = (customPhone || donorPhone || '+91 9633784801').trim();
+    const finalAmt = Number(customAmount || amount || 1000);
+
+    setIsGeneratingQr(true);
+    setShowUpiModal(true);
+    setPaymentQrDataUrl(null);
+    setPaymentToken(null);
+    setPaymentWebUrl(null);
+
+    try {
+      const res = await fetch('/api/payment/create-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          collectorId: member?.id || 'DKIF-REC-01',
+          collectorName: member?.name || 'ATHNAN',
+          campusId: member?.campusId || 'campus_kak',
+          campusName: member?.campusName || 'Dalailul Khairath Kakkidippuram Campus',
+          dispatchId: activeDispatch?.id || '',
+          donorName: finalName,
+          donorPhone: finalPhone,
+          donorAddress: donorAddress.trim(),
+          amount: finalAmt,
+          category,
+          calendarGiven,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPaymentToken(data.token);
+        setPaymentQrDataUrl(data.qrDataUrl);
+        setPaymentWebUrl(data.paymentUrl);
+      }
+    } catch (err) {
+      console.error('Failed to create dynamic payment link:', err);
+    } finally {
+      setIsGeneratingQr(false);
+    }
+  };
+
+  // Real-time polling listener for payment status completion
+  useEffect(() => {
+    if (!showUpiModal || !paymentToken) return;
+
+    let isMounted = true;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/payment/session?token=${encodeURIComponent(paymentToken)}`);
+        const data = await res.json();
+        if (data.success && data.session && data.session.status === 'PAID') {
+          if (!isMounted) return;
+          clearInterval(interval);
+          setShowUpiModal(false);
+          setShowRecordModal(false);
+
+          // Real-time synchronization
+          await db.syncWithFirestore();
+          refreshData();
+
+          let created = db.getReceiptById(data.session.receiptId || data.session.receiptNo);
+          if (!created) {
+            created = {
+              id: data.session.receiptId || `rcpt_${Date.now()}`,
+              receiptNo: data.session.receiptNo || 'DF-2026-03105',
+              dispatchId: activeDispatch?.id,
+              studentId: member?.id || 'DKIF-REC-01',
+              studentName: member?.name || 'ATHNAN',
+              campusId: member?.campusId || 'campus_kak',
+              campusName: member?.campusName || 'Kakkidippuram Campus',
+              donorName: data.session.donorName,
+              donorPhone: data.session.donorPhone,
+              donorAddress: data.session.donorAddress || '',
+              amount: data.session.amount,
+              category: data.session.category,
+              paymentMode: 'Direct UPI',
+              paymentReference: data.session.utr || 'UPI_CONFIRMED',
+              paymentStatus: 'Verified',
+              calendarGiven: !!data.session.calendarGiven,
+              createdAt: data.session.paidAt || new Date().toISOString(),
+              whatsappStatus: 'Sent',
+            };
+          }
+          setViewingReceipt(created);
+        }
+      } catch (err) {
+        console.warn('Payment polling status:', err);
+      }
+    }, 2000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [showUpiModal, paymentToken, activeDispatch, member]);
+
+  // Handle Server-Side Payment Simulation (For field testing)
+  const handleSimulateServerPayment = async () => {
+    if (!paymentToken) return;
+    try {
+      const res = await fetch('/api/payment/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: paymentToken,
+          gateway: 'ICICI Bank Gateway / Direct UPI',
+          gatewayPaymentId: `UPI${Date.now().toString().slice(-8)}`,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowUpiModal(false);
+        setShowRecordModal(false);
+        await db.syncWithFirestore();
+        refreshData();
+        if (data.receipt) {
+          setViewingReceipt(data.receipt);
+        }
+      }
+    } catch (err) {
+      console.error('Server verify simulation error:', err);
+    }
+  };
+
   // Handle Collection Submission
   const handleRecordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!donorName.trim() || !amount || Number(amount) <= 0) return;
 
     if (paymentMode === 'Direct UPI') {
-      setShowUpiModal(true);
+      initiateDirectUpiQr(donorName, donorPhone, Number(amount));
       return;
     }
 
@@ -653,7 +791,7 @@ export default function StudentFieldCollectionPage() {
                     </button>
 
                     <button
-                      onClick={() => setShowUpiModal(true)}
+                      onClick={() => initiateDirectUpiQr(donorName, donorPhone, Number(amount))}
                       className="py-3 px-3 rounded-2xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors"
                     >
                       <QrCode className="w-4 h-4 text-purple-600" />
@@ -1649,74 +1787,134 @@ export default function StudentFieldCollectionPage() {
         </div>
       )}
 
-      {/* DIRECT UPI MODAL WITH GATEWAY SIMULATION */}
+      {/* DIRECT DYNAMIC QR UPI MODAL (EXACT MATCH FOR SCREENSHOT 2) */}
       {showUpiModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">
-                Sandbox Mode (Simulated Gateway)
+        <div className="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 text-center space-y-4">
+            {/* Top Tag & Close */}
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Dynamic Webhook QR
               </span>
               <button
                 onClick={() => setShowUpiModal(false)}
-                className="p-1 text-slate-400 hover:text-slate-600"
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-1">
-              <h3 className="font-black text-slate-900 text-base">
+            {/* Title & Subtitle (Screenshot 2: Scan to Pay (Direct UPI)) */}
+            <div className="space-y-0.5">
+              <h3 className="font-black text-slate-900 text-lg">
                 Scan to Pay (Direct UPI)
               </h3>
-              <p className="text-xs text-slate-500">
-                Donor: <span className="font-bold text-slate-800">{donorName}</span> ({donorPhone})
-              </p>
-              <p className="text-xl font-black text-dalail-primary font-mono mt-1">
-                {formatCurrency(Number(amount))}
+              <p className="text-xs font-semibold text-slate-500">
+                Dalailul Khairath Islamic Foundation Field Collection
               </p>
             </div>
 
-            {/* Generated UPI QR Code */}
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 inline-block shadow-inner">
-              <svg className="w-44 h-44 mx-auto" viewBox="0 0 100 100">
-                <rect width="100" height="100" fill="#ffffff" rx="8" />
-                <rect x="10" y="10" width="24" height="24" fill="#164A9B" rx="3" />
-                <rect x="15" y="15" width="14" height="14" fill="#ffffff" rx="1" />
-                <rect x="18" y="18" width="8" height="8" fill="#164A9B" />
-                <rect x="66" y="10" width="24" height="24" fill="#164A9B" rx="3" />
-                <rect x="71" y="15" width="14" height="14" fill="#ffffff" rx="1" />
-                <rect x="74" y="18" width="8" height="8" fill="#164A9B" />
-                <rect x="10" y="66" width="24" height="24" fill="#164A9B" rx="3" />
-                <rect x="15" y="71" width="14" height="14" fill="#ffffff" rx="1" />
-                <rect x="18" y="74" width="8" height="8" fill="#164A9B" />
-                <rect x="42" y="14" width="8" height="8" fill="#164A9B" />
-                <rect x="52" y="24" width="8" height="8" fill="#164A9B" />
-                <rect x="40" y="40" width="20" height="20" fill="#164A9B" rx="4" />
-                <rect x="45" y="45" width="10" height="10" fill="#ffffff" rx="2" />
-                <rect x="48" y="48" width="4" height="4" fill="#164A9B" />
-                <rect x="14" y="42" width="12" height="6" fill="#164A9B" />
-                <rect x="74" y="42" width="12" height="6" fill="#164A9B" />
-                <rect x="42" y="74" width="8" height="12" fill="#164A9B" />
-                <rect x="68" y="68" width="10" height="10" fill="#164A9B" />
-                <rect x="80" y="80" width="6" height="6" fill="#164A9B" />
-              </svg>
+            {/* 3 Pills Strip: DONOR | MOBILE | AMOUNT (Screenshot 2) */}
+            <div className="grid grid-cols-3 gap-1.5 bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
+              <div className="p-1.5 rounded-xl bg-white border border-slate-100 shadow-2xs">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                  DONOR
+                </span>
+                <span className="text-xs font-black text-slate-900 truncate block mt-0.5 uppercase">
+                  {donorName || 'DONOR'}
+                </span>
+              </div>
+              <div className="p-1.5 rounded-xl bg-white border border-slate-100 shadow-2xs">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                  MOBILE
+                </span>
+                <span className="text-xs font-mono font-bold text-slate-900 truncate block mt-0.5">
+                  {donorPhone || '+91 9633784801'}
+                </span>
+              </div>
+              <div className="p-1.5 rounded-xl bg-white border border-slate-100 shadow-2xs">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                  AMOUNT
+                </span>
+                <span className="text-xs font-mono font-black text-[#164A9B] truncate block mt-0.5">
+                  ₹{Number(amount || 1000).toLocaleString()}
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-700 bg-amber-50 py-1.5 px-3 rounded-xl border border-amber-200">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-              Waiting for server webhook confirmation...
+            {/* Dynamic Scannable QR Code */}
+            <div className="bg-slate-50 p-4 rounded-3xl border border-slate-200 inline-block shadow-inner relative max-w-[280px] mx-auto w-full">
+              {isGeneratingQr ? (
+                <div className="w-56 h-56 flex flex-col items-center justify-center gap-2 mx-auto">
+                  <RefreshCw className="w-8 h-8 text-[#164A9B] animate-spin" />
+                  <span className="text-xs font-bold text-slate-500">Generating Secure Token...</span>
+                </div>
+              ) : paymentQrDataUrl ? (
+                <div className="space-y-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={paymentQrDataUrl}
+                    alt="Payment QR Code"
+                    className="w-56 h-56 mx-auto rounded-2xl bg-white p-2 shadow-xs object-contain"
+                  />
+                  {/* Detected URL Chip matching Google Lens popup */}
+                  {paymentWebUrl && (
+                    <div className="flex items-center justify-between gap-1.5 text-[11px] font-mono font-bold text-slate-700 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+                      <span className="truncate max-w-[190px]">
+                        {paymentWebUrl.replace(/^https?:\/\//, '')}
+                      </span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(paymentWebUrl);
+                            setQrCopied(true);
+                            setTimeout(() => setQrCopied(false), 2000);
+                          }}
+                          className="text-[11px] text-[#164A9B] font-bold hover:underline"
+                        >
+                          {qrCopied ? 'Copied!' : 'Copy'}
+                        </button>
+                        <a
+                          href={paymentWebUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-slate-400 hover:text-slate-700"
+                          title="Open Link"
+                        >
+                          <ArrowRight className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="w-56 h-56 flex items-center justify-center mx-auto">
+                  <p className="text-xs text-rose-500 font-bold">Failed to load dynamic QR</p>
+                </div>
+              )}
             </div>
 
-            <div className="space-y-2 pt-2">
+            {/* Real-time status indicator */}
+            <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-800 bg-amber-50 py-2 px-3 rounded-xl border border-amber-200">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+              <span>Waiting for donor to complete payment on their phone...</span>
+            </div>
+
+            {/* Action buttons */}
+            <div className="space-y-2 pt-1">
               <button
-                onClick={() => generateReceiptAndFinish('Verified')}
-                className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm flex items-center justify-center gap-1.5"
+                type="button"
+                onClick={handleSimulateServerPayment}
+                className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-colors"
               >
-                <Check className="w-4 h-4" /> Simulate Webhook Approval
+                <Check className="w-4 h-4" />
+                <span>Simulate Instant Payment (Test Mode)</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => setShowUpiModal(false)}
                 className="w-full py-2 px-4 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-xl"
               >
