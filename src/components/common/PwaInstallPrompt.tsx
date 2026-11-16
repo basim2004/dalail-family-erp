@@ -28,12 +28,13 @@ export function PwaInstallPrompt() {
 
     checkStandalone();
 
-    // 2. Register Service Worker for PWA
+    // 2. Register Service Worker for PWA & Force Update Check
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
-        .then(() => {
-          // SW registered successfully
+        .then((reg) => {
+          // Immediately check for update so phones don't stay stuck on old cache
+          reg.update();
         })
         .catch((err) => {
           console.log('SW registration error:', err);

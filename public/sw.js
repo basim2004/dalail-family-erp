@@ -1,5 +1,5 @@
 // DALAIL FAMILY ERP - Progressive Web App Service Worker
-const CACHE_NAME = 'dalail-family-erp-v2';
+const CACHE_NAME = 'dalail-family-erp-v5-sig';
 const PRECACHE_ASSETS = [
   '/',
   '/manifest.json',
@@ -7,7 +7,10 @@ const PRECACHE_ASSETS = [
   '/icons/icon-512x512.png',
   '/icons/icon-maskable.png',
   '/icons/app-icon.png',
-  '/assets/official-logo.jpg'
+  '/assets/official-logo.jpg',
+  '/assets/office-signature.png',
+  '/assets/official_receipt_template.jpg',
+  '/assets/whatsapp_receipt_banner.jpg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -39,6 +42,19 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   // Let network requests pass through with network-first or cache-fallback
   if (event.request.method !== 'GET') return;
+
+  // For HTML documents and dynamic API routes, always use Network First
+  const isDoc = event.request.mode === 'navigate';
+  if (isDoc) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
 
   event.respondWith(
     fetch(event.request).catch(() => {
