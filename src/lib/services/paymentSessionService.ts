@@ -20,6 +20,7 @@ export const FOUNDATION_CURRENCY = 'INR';
 
 // In-memory fallback cache to ensure real-time responsiveness
 const sessionMemoryCache = new Map<string, PaymentSession>();
+const activeConfirmations = new Set<string>();
 let localDonationCounter = 1;
 
 /**
@@ -220,150 +221,211 @@ export async function confirmPaymentSession(
     notes?: string;
   }
 ): Promise<{ success: boolean; session: PaymentSession; receipt?: Receipt; error?: string }> {
-  const session = await getPaymentSession(token);
-  if (!session) {
-    return { success: false, session: null as any, error: 'Payment session not found or expired.' };
+  if (activeConfirmations.has(token)) {
+    // If a confirmation is already running concurrently for this token, wait briefly and return current state
+    await new Promise((r) => setTimeout(r, 800));
+    const current = await getPaymentSession(token);
+    if (current && current.status === 'PAID') {
+      let rcpt: Receipt | undefined = undefined;
+      if (current.receiptId) {
+        const snap = await getDoc(doc(firestore, 'receipts', current.receiptId));
+        if (snap.exists()) rcpt = snap.data() as Receipt;
+      }
+      return { success: true, session: current, receipt: rcpt };
+    }
   }
 
-  if (session.status === 'PAID') {
-    return { success: true, session };
-  }
+  activeConfirmations.add(token);
 
-  const cleanUtr = (details.utr || '').trim().toUpperCase();
-  if (!cleanUtr || cleanUtr.length < 6) {
-    return {
-      success: false,
-      session,
-      error: 'Invalid UPI Transaction Reference (UTR). Please provide the genuine 12-digit bank reference number.',
-    };
-  }
-
-  // Duplicate Check: Check if UTR was already registered in any existing receipt
   try {
-    const qReceipt = query(collection(firestore, 'receipts'), where('paymentReference', '==', cleanUtr));
-    const rSnap = await getDocs(qReceipt);
-    if (!rSnap.empty) {
-      const existing = rSnap.docs[0].data();
+    const session = await getPaymentSession(token);
+    if (!session) {
+      return { success: false, session: null as any, error: 'Payment session not found or expired.' };
+    }
+
+    // Idempotency: If already paid, look up and return the existing receipt without duplicate generation
+    if (session.status === 'PAID') {
+      let existingReceipt: Receipt | undefined = undefined;
+      if (session.receiptId) {
+        try {
+          const snap = await getDoc(doc(firestore, 'receipts', session.receiptId));
+          if (snap.exists()) existingReceipt = snap.data() as Receipt;
+        } catch {}
+      }
+      return { success: true, session, receipt: existingReceipt };
+    }
+
+    const cleanUtr = (details.utr || '').trim().toUpperCase();
+    if (!cleanUtr || cleanUtr.length < 6) {
       return {
         success: false,
         session,
-        error: `Duplicate payment detected: UTR ${cleanUtr} has already been registered for receipt ${existing.receiptNo}.`,
+        error: 'Invalid UPI Transaction Reference (UTR). Please provide the genuine 12-digit bank reference number.',
       };
     }
-  } catch (dupErr) {
-    console.warn('Duplicate check warning:', dupErr);
-  }
 
-  const now = new Date().toISOString();
-  const verifiedBy = details.verifiedBy || 'DONOR_SUBMITTED_UTR';
-
-  // 1. Generate Next Receipt Number (DF-2026-XXXXX)
-  let nextSeq = 3105;
-  try {
-    const rcptDocs = await getDocs(collection(firestore, 'receipts'));
-    rcptDocs.forEach((d) => {
-      const data = d.data();
-      const match = data.receiptNo?.match(/DF-2026-(\d+)/);
-      if (match) {
-        const val = parseInt(match[1], 10);
-        if (!isNaN(val) && val >= nextSeq) {
-          nextSeq = val + 1;
-        }
-      }
-    });
-  } catch (err) {
-    nextSeq = 3105 + Math.floor(Math.random() * 50);
-  }
-
-  const receiptNo = `DF-2026-${String(nextSeq).padStart(5, '0')}`;
-  const receiptId = `rcpt_${Date.now()}_${token.slice(-6)}`;
-
-  // 2. Build the Official Receipt Object
-  const newReceipt: Receipt = {
-    id: receiptId,
-    receiptNo,
-    dispatchId: session.dispatchId,
-    studentId: session.collectorId,
-    studentName: session.collectorName,
-    campusId: session.campusId,
-    campusName: session.campusName,
-    donorName: session.donorName,
-    donorPhone: session.donorPhone,
-    donorAddress: session.donorAddress || '',
-    amount: session.amount,
-    category: session.category,
-    paymentMode: 'Direct UPI',
-    paymentReference: cleanUtr,
-    paymentStatus: 'Verified',
-    calendarGiven: !!session.calendarGiven,
-    createdAt: now,
-    whatsappStatus: session.donorPhone ? 'Pending' : undefined,
-  };
-
-  // 3. Save Receipt to Cloud Firestore
-  try {
-    const rcptRef = doc(firestore, 'receipts', receiptId);
-    await setDoc(rcptRef, newReceipt, { merge: true });
-  } catch (err: any) {
-    console.warn('Firestore receipt creation notice:', err.message);
-  }
-
-  // 4. Update the Payment Session to PAID with full audit
-  const paidSession: PaymentSession = {
-    ...session,
-    status: 'PAID',
-    utr: cleanUtr,
-    verifiedBy,
-    verifiedAt: now,
-    receiptId,
-    receiptNo,
-    paidAt: now,
-    updatedAt: now,
-  };
-
-  sessionMemoryCache.set(paidSession.token, paidSession);
-  sessionMemoryCache.set(paidSession.id, paidSession);
-
-  try {
-    const sessionRef = doc(firestore, 'payment_sessions', paidSession.id);
-    await setDoc(sessionRef, paidSession, { merge: true });
-  } catch (err: any) {
-    console.warn('Firestore payment session status update notice:', err.message);
-  }
-
-  // 5. Automated Official WhatsApp Receipt Delivery to Donor
-  if (paidSession.donorPhone) {
+    // Duplicate Check: Check if UTR was already registered in any active (non-cancelled) receipt
     try {
-      const shortNo = receiptNo.match(/DF-\d+-0*(\d+)/)?.[1] || receiptNo;
-      const host = process.env.VERCEL_URL || 'dalail-family-erp.vercel.app';
-      const receiptUrl = `https://${host}/verify/receipt/${receiptNo}`;
-
-      await sendOfficialWhatsAppReceipt({
-        donorName: paidSession.donorName || 'Respected Supporter',
-        donorPhone: paidSession.donorPhone,
-        amount: paidSession.amount,
-        receiptNo,
-        category: paidSession.category,
-        receiptUrl,
-        shortNo,
-      });
-
-      newReceipt.whatsappStatus = 'Sent';
-      newReceipt.whatsappSentAt = now;
-      try {
-        await updateDoc(doc(firestore, 'receipts', receiptId), {
-          whatsappStatus: 'Sent',
-          whatsappSentAt: now,
-        });
-      } catch {}
-    } catch (waErr: any) {
-      console.warn('Automatic WhatsApp dispatch error:', waErr.message);
+      const qReceipt = query(
+        collection(firestore, 'receipts'),
+        where('paymentReference', '==', cleanUtr)
+      );
+      const rSnap = await getDocs(qReceipt);
+      const activeMatch = rSnap.docs.find((d) => !d.data().cancelled);
+      if (activeMatch) {
+        const existing = activeMatch.data() as Receipt;
+        // If it's for this exact donation session, return it
+        if (existing.id === session.receiptId || existing.receiptNo === session.receiptNo) {
+          return { success: true, session: { ...session, status: 'PAID' }, receipt: existing };
+        }
+        return {
+          success: false,
+          session,
+          error: `Duplicate payment detected: UTR ${cleanUtr} has already been registered for receipt ${existing.receiptNo}.`,
+        };
+      }
+    } catch (dupErr) {
+      console.warn('Duplicate check warning:', dupErr);
     }
-  }
 
-  return {
-    success: true,
-    session: paidSession,
-    receipt: newReceipt,
-  };
+    // Check if a receipt was already created for this exact donationRef to prevent duplicates
+    if (session.donationRef) {
+      try {
+        const qRef = query(
+          collection(firestore, 'receipts'),
+          where('donationRef', '==', session.donationRef)
+        );
+        const refSnap = await getDocs(qRef);
+        const activeRef = refSnap.docs.find((d) => !d.data().cancelled);
+        if (activeRef) {
+          const existing = activeRef.data() as Receipt;
+          const paidSession: PaymentSession = {
+            ...session,
+            status: 'PAID',
+            utr: cleanUtr,
+            receiptId: existing.id,
+            receiptNo: existing.receiptNo,
+          };
+          sessionMemoryCache.set(session.token, paidSession);
+          return { success: true, session: paidSession, receipt: existing };
+        }
+      } catch {}
+    }
+
+    const now = new Date().toISOString();
+    const verifiedBy = details.verifiedBy || 'DONOR_SUBMITTED_UTR';
+
+    // 1. Generate Next Receipt Number (DF-2026-XXXXX)
+    let nextSeq = 3105;
+    try {
+      const rcptDocs = await getDocs(collection(firestore, 'receipts'));
+      rcptDocs.forEach((d) => {
+        const data = d.data();
+        const match = data.receiptNo?.match(/DF-2026-(\d+)/);
+        if (match) {
+          const val = parseInt(match[1], 10);
+          if (!isNaN(val) && val >= nextSeq) {
+            nextSeq = val + 1;
+          }
+        }
+      });
+    } catch (err) {
+      nextSeq = 3105 + Math.floor(Math.random() * 50);
+    }
+
+    const receiptNo = `DF-2026-${String(nextSeq).padStart(5, '0')}`;
+    const receiptId = `rcpt_${Date.now()}_${token.slice(-6)}`;
+
+    // 2. Build the Official Receipt Object
+    const newReceipt: Receipt = {
+      id: receiptId,
+      receiptNo,
+      donationRef: session.donationRef,
+      dispatchId: session.dispatchId,
+      studentId: session.collectorId,
+      studentName: session.collectorName,
+      campusId: session.campusId,
+      campusName: session.campusName,
+      donorName: session.donorName,
+      donorPhone: session.donorPhone,
+      donorAddress: session.donorAddress || '',
+      amount: session.amount,
+      category: session.category,
+      paymentMode: 'Direct UPI',
+      paymentReference: cleanUtr,
+      paymentStatus: 'Verified',
+      calendarGiven: !!session.calendarGiven,
+      createdAt: now,
+      whatsappStatus: session.donorPhone ? 'Pending' : undefined,
+    };
+
+    // 3. Save Receipt to Cloud Firestore
+    try {
+      const rcptRef = doc(firestore, 'receipts', receiptId);
+      await setDoc(rcptRef, newReceipt, { merge: true });
+    } catch (err: any) {
+      console.warn('Firestore receipt creation notice:', err.message);
+    }
+
+    // 4. Update the Payment Session to PAID with full audit
+    const paidSession: PaymentSession = {
+      ...session,
+      status: 'PAID',
+      utr: cleanUtr,
+      verifiedBy,
+      verifiedAt: now,
+      receiptId,
+      receiptNo,
+      paidAt: now,
+      updatedAt: now,
+    };
+
+    sessionMemoryCache.set(paidSession.token, paidSession);
+    sessionMemoryCache.set(paidSession.id, paidSession);
+
+    try {
+      const sessionRef = doc(firestore, 'payment_sessions', paidSession.id);
+      await setDoc(sessionRef, paidSession, { merge: true });
+    } catch (err: any) {
+      console.warn('Firestore payment session status update notice:', err.message);
+    }
+
+    // 5. Automated Official WhatsApp Receipt Delivery to Donor
+    if (paidSession.donorPhone) {
+      try {
+        const shortNo = receiptNo.match(/DF-\d+-0*(\d+)/)?.[1] || receiptNo;
+        const host = process.env.VERCEL_URL || 'dalail-family-erp.vercel.app';
+        const receiptUrl = `https://${host}/verify/receipt/${receiptNo}`;
+
+        await sendOfficialWhatsAppReceipt({
+          donorName: paidSession.donorName || 'Respected Supporter',
+          donorPhone: paidSession.donorPhone,
+          amount: paidSession.amount,
+          receiptNo,
+          category: paidSession.category,
+          receiptUrl,
+          shortNo,
+        });
+
+        newReceipt.whatsappStatus = 'Sent';
+        newReceipt.whatsappSentAt = now;
+        try {
+          await updateDoc(doc(firestore, 'receipts', receiptId), {
+            whatsappStatus: 'Sent',
+            whatsappSentAt: now,
+          });
+        } catch {}
+      } catch (waErr: any) {
+        console.warn('Automatic WhatsApp dispatch error:', waErr.message);
+      }
+    }
+
+    return {
+      success: true,
+      session: paidSession,
+      receipt: newReceipt,
+    };
+  } finally {
+    activeConfirmations.delete(token);
+  }
 }

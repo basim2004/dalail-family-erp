@@ -174,7 +174,11 @@ export interface Receipt {
   paymentStatus: 'Verified' | 'Pending';
   calendarGiven: boolean;
   createdAt: string;
+  donationRef?: string; // Donation reference (e.g. "DF-0001")
   cancelled?: boolean;
+  cancelledAt?: string;
+  cancelledBy?: string;
+  cancelReason?: string;
   whatsappStatus?: 'Pending' | 'Submitted' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | 'pending_configuration';
   whatsappMessageId?: string;
   whatsappSentAt?: string;

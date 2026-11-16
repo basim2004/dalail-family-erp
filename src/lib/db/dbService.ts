@@ -1,5 +1,5 @@
 import { firestore } from './firebase';
-import { doc, setDoc, getDocs, collection } from 'firebase/firestore';
+import { doc, setDoc, getDocs, collection, deleteDoc } from 'firebase/firestore';
 import {
   User,
   Campus,
@@ -42,6 +42,7 @@ class DatabaseService {
   private settlementSettings: SettlementSettings = initialSettlementSettings;
   private payments: SettlementPaymentRecord[] = [];
   private publicMediaSettings: PublicMediaSettings = initialPublicMediaSettings;
+  private deletedReceiptIds: Set<string> = new Set();
   private initialized = false;
 
   constructor() {
@@ -144,11 +145,25 @@ class DatabaseService {
         this.dispatches = [...initialDispatches];
         this.save('dispatches', this.dispatches);
       }
-      this.receipts = load('receipts', initialReceipts);
-      if (!this.receipts || this.receipts.length < 89) {
-        this.receipts = [...initialReceipts];
-        this.save('receipts', this.receipts);
+
+      // Load deleted/voided receipt ID tracker to prevent resurrection upon refresh
+      const savedDeleted = localStorage.getItem('dalail_v12_deleted_receipts');
+      if (savedDeleted) {
+        try {
+          const arr: string[] = JSON.parse(savedDeleted);
+          this.deletedReceiptIds = new Set(arr);
+        } catch {}
       }
+
+      this.receipts = load('receipts', initialReceipts);
+      // Clean up any deleted receipts from local storage immediately
+      if (this.deletedReceiptIds.size > 0) {
+        this.receipts = this.receipts.filter(
+          (r) => !this.deletedReceiptIds.has(r.id) && (!r.receiptNo || !this.deletedReceiptIds.has(r.receiptNo))
+        );
+      }
+      this.save('receipts', this.receipts);
+
       this.expenses = load('expenses', initialExpenses);
       this.settlementSettings = load('settlement_settings', initialSettlementSettings);
       this.payments = load('payments', initialPayments);
@@ -173,6 +188,19 @@ class DatabaseService {
       this.payments = [...initialPayments];
       this.publicMediaSettings = { ...initialPublicMediaSettings };
       this.initialized = true;
+    }
+  }
+
+  private saveDeletedReceiptIds() {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(
+          'dalail_v12_deleted_receipts',
+          JSON.stringify(Array.from(this.deletedReceiptIds))
+        );
+      } catch (e) {
+        console.error('Failed to save deleted receipts list:', e);
+      }
     }
   }
 
@@ -224,7 +252,18 @@ class DatabaseService {
       if (!rcptSnap.empty) {
         rcptSnap.forEach((d) => {
           const remote = d.data() as Receipt;
-          const idx = this.receipts.findIndex((x) => x.id === remote.id || x.receiptNo === remote.receiptNo);
+
+          // Never resurrect permanently deleted receipts
+          if (
+            this.deletedReceiptIds.has(remote.id) ||
+            (remote.receiptNo && this.deletedReceiptIds.has(remote.receiptNo))
+          ) {
+            return;
+          }
+
+          const idx = this.receipts.findIndex(
+            (x) => x.id === remote.id || (remote.receiptNo && x.receiptNo === remote.receiptNo)
+          );
           if (idx >= 0) {
             if (JSON.stringify(this.receipts[idx]) !== JSON.stringify(remote)) {
               this.receipts[idx] = { ...this.receipts[idx], ...remote };
@@ -235,6 +274,21 @@ class DatabaseService {
             rcptChanged = true;
           }
         });
+
+        // Strict Deduplication Pass: Never allow two receipts with the same receiptNo or ID
+        const seenKeys = new Set<string>();
+        const deduped: Receipt[] = [];
+        for (const r of this.receipts) {
+          const key = r.receiptNo || r.id;
+          if (!seenKeys.has(key)) {
+            seenKeys.add(key);
+            deduped.push(r);
+          } else {
+            rcptChanged = true;
+          }
+        }
+        this.receipts = deduped;
+
         if (rcptChanged) {
           this.save('receipts', this.receipts);
         }
@@ -815,9 +869,12 @@ class DatabaseService {
   }
 
   // --- Receipts (Module 03) ---
-  getReceipts(dispatchId?: string, campusId?: string): Receipt[] {
+  getReceipts(dispatchId?: string, campusId?: string, includeCancelled = false): Receipt[] {
     const list = this.receipts && this.receipts.length > 0 ? this.receipts : initialReceipts;
     return list.filter((r) => {
+      // Exclude voided/cancelled receipts by default so they never contaminate active totals
+      if (!includeCancelled && r.cancelled) return false;
+
       if (dispatchId) {
         if (r.dispatchId !== dispatchId) {
           const disp = this.dispatches.find((d) => d.id === dispatchId || d.dispatchId === dispatchId);
@@ -843,6 +900,21 @@ class DatabaseService {
   }
 
   createReceipt(receiptData: Omit<Receipt, 'id' | 'receiptNo' | 'createdAt'>): Receipt {
+    // Idempotency check: If an active receipt with this exact paymentReference or donationRef already exists, return it
+    if (receiptData.paymentReference && receiptData.paymentReference.trim().length >= 6) {
+      const existing = this.receipts.find(
+        (r) => !r.cancelled && r.paymentReference === receiptData.paymentReference
+      );
+      if (existing) return existing;
+    }
+
+    if (receiptData.donationRef) {
+      const existingRef = this.receipts.find(
+        (r) => !r.cancelled && r.donationRef === receiptData.donationRef
+      );
+      if (existingRef) return existingRef;
+    }
+
     // Generate sequential receipt number: DF-2026-03102 etc.
     let maxSeq = 3100;
     this.receipts.forEach((r) => {
@@ -879,7 +951,6 @@ class DatabaseService {
         (d) => d.id === receiptData.dispatchId || d.dispatchId === receiptData.dispatchId
       );
       if (dispatch) {
-        const isCash = receiptData.paymentMode === 'Cash' || receiptData.paymentMode === 'Cash in Hand';
         const fin = this.getDispatchFinancials(dispatch.id);
         dispatch.totalCollection = fin.totalCollected;
         dispatch.cashCollection = fin.collectedCash;
@@ -895,13 +966,74 @@ class DatabaseService {
     return newReceipt;
   }
 
-  deleteReceipt(id: string): boolean {
+  async deleteReceipt(
+    id: string,
+    options?: { voidOnly?: boolean; cancelledBy?: string; cancelReason?: string }
+  ): Promise<boolean> {
     const rcpt = this.receipts.find((r) => r.id === id || r.receiptNo === id);
     if (!rcpt) return false;
 
-    this.receipts = this.receipts.filter((r) => r.id !== rcpt.id && r.receiptNo !== rcpt.receiptNo);
-    this.save('receipts', this.receipts);
+    const voidOnly = options?.voidOnly ?? false;
 
+    if (voidOnly) {
+      // Mark as Voided/Cancelled in financial records
+      rcpt.cancelled = true;
+      rcpt.cancelledAt = new Date().toISOString();
+      rcpt.cancelledBy = options?.cancelledBy || 'ADMIN';
+      rcpt.cancelReason = options?.cancelReason || 'Administrative Void';
+      this.save('receipts', this.receipts);
+
+      if (typeof window !== 'undefined') {
+        try {
+          await setDoc(
+            doc(firestore, 'receipts', rcpt.id),
+            {
+              cancelled: true,
+              cancelledAt: rcpt.cancelledAt,
+              cancelledBy: rcpt.cancelledBy,
+              cancelReason: rcpt.cancelReason,
+            },
+            { merge: true }
+          );
+        } catch (err) {
+          console.warn('Firestore void notice:', err);
+        }
+      }
+    } else {
+      // Permanent removal for test / duplicate records
+      this.receipts = this.receipts.filter((r) => r.id !== rcpt.id && r.receiptNo !== rcpt.receiptNo);
+      this.deletedReceiptIds.add(rcpt.id);
+      if (rcpt.receiptNo) this.deletedReceiptIds.add(rcpt.receiptNo);
+      this.saveDeletedReceiptIds();
+      this.save('receipts', this.receipts);
+
+      if (typeof window !== 'undefined') {
+        try {
+          await deleteDoc(doc(firestore, 'receipts', rcpt.id));
+        } catch (err) {
+          console.warn('Firestore deleteDoc notice:', err);
+        }
+      }
+    }
+
+    // Call server-side API to ensure complete cloud synchronization
+    if (typeof window !== 'undefined') {
+      try {
+        fetch('/api/receipt/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            receiptId: rcpt.id,
+            receiptNo: rcpt.receiptNo,
+            voidOnly,
+            performedBy: options?.cancelledBy || 'ADMIN',
+            reason: options?.cancelReason || (voidOnly ? 'Voided receipt' : 'Deleted test/duplicate record'),
+          }),
+        }).catch(() => {});
+      } catch {}
+    }
+
+    // Immediately recalculate and save dispatch totals
     if (rcpt.dispatchId) {
       const dispatch = this.dispatches.find(
         (d) => d.id === rcpt.dispatchId || d.dispatchId === rcpt.dispatchId

@@ -111,6 +111,7 @@ export default function StudentFieldCollectionPage() {
   const [lastCreatedReceipt, setLastCreatedReceipt] = useState<Receipt | null>(null);
   const [viewingReceipt, setViewingReceipt] = useState<Receipt | null>(null);
   const [deletingReceipt, setDeletingReceipt] = useState<Receipt | null>(null);
+  const [isSubmittingCollection, setIsSubmittingCollection] = useState(false);
 
   // Record Collection Form State
   const [donorPhone, setDonorPhone] = useState('+91 ');
@@ -158,13 +159,18 @@ export default function StudentFieldCollectionPage() {
     refreshData();
   };
 
-  const handleConfirmDeleteReceipt = () => {
+  const handleConfirmDeleteReceipt = async () => {
     if (!deletingReceipt) return;
-    db.deleteReceipt(deletingReceipt.id);
+    const target = deletingReceipt;
     setDeletingReceipt(null);
-    if (viewingReceipt?.id === deletingReceipt.id) {
+    if (viewingReceipt?.id === target.id) {
       setViewingReceipt(null);
     }
+    await db.deleteReceipt(target.id, {
+      voidOnly: target.paymentMode === 'Direct UPI',
+      cancelledBy: member?.name || 'STUDENT_COLLECTOR',
+      cancelReason: 'Deleted from Today\'s Collection List',
+    });
     refreshData();
   };
 
@@ -367,17 +373,23 @@ export default function StudentFieldCollectionPage() {
     }
   };
 
-  // Handle Collection Submission
-  const handleRecordSubmit = (e: React.FormEvent) => {
+  // Handle Collection Submission with duplicate prevention
+  const handleRecordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingCollection) return;
     if (!donorName.trim() || !amount || Number(amount) <= 0) return;
 
-    if (paymentMode === 'Direct UPI') {
-      initiateDirectUpiQr(donorName, donorPhone, Number(amount));
-      return;
-    }
+    setIsSubmittingCollection(true);
+    try {
+      if (paymentMode === 'Direct UPI') {
+        await initiateDirectUpiQr(donorName, donorPhone, Number(amount));
+        return;
+      }
 
-    generateReceiptAndFinish('Verified');
+      generateReceiptAndFinish('Verified');
+    } finally {
+      setTimeout(() => setIsSubmittingCollection(false), 1200);
+    }
   };
 
   const generateReceiptAndFinish = (paymentStatus: 'Verified' | 'Pending') => {
@@ -1797,10 +1809,17 @@ export default function StudentFieldCollectionPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 text-xs font-bold text-white bg-dalail-primary hover:bg-dalail-dark rounded-xl shadow-md flex items-center gap-1.5"
+                  disabled={isSubmittingCollection}
+                  className="px-5 py-2.5 text-xs font-bold text-white bg-dalail-primary hover:bg-dalail-dark rounded-xl shadow-md flex items-center gap-1.5 disabled:opacity-50 transition-opacity"
                 >
-                  <span>Generate Official Receipt</span>
-                  <ArrowRight className="w-4 h-4" />
+                  {isSubmittingCollection ? (
+                    <span>Generating Receipt...</span>
+                  ) : (
+                    <>
+                      <span>Generate Official Receipt</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
               </div>
             </form>
