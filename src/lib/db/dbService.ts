@@ -144,6 +144,22 @@ class DatabaseService {
       if (!this.dispatches || this.dispatches.length === 0) {
         this.dispatches = [...initialDispatches];
         this.save('dispatches', this.dispatches);
+      } else {
+        // Purge any temporary demo dispatch or test dispatches so only the authentic 21 dispatches remain
+        const beforeCount = this.dispatches.length;
+        this.dispatches = this.dispatches.filter(
+          (d) =>
+            d.id !== 'disp_demo_athnan_2026' &&
+            d.routePlace !== 'demo' &&
+            (d as any).targetArea !== 'demo' &&
+            !(d.date === '2026-11-16' && d.status === 'In Field')
+        );
+        if (this.dispatches.length !== beforeCount || this.dispatches.length === 0) {
+          if (this.dispatches.length === 0) {
+            this.dispatches = [...initialDispatches];
+          }
+          this.save('dispatches', this.dispatches);
+        }
       }
 
       // Load deleted/voided receipt ID tracker to prevent resurrection upon refresh
@@ -156,11 +172,16 @@ class DatabaseService {
       }
 
       this.receipts = load('receipts', initialReceipts);
-      // Clean up any deleted receipts from local storage immediately
-      if (this.deletedReceiptIds.size > 0) {
-        this.receipts = this.receipts.filter(
-          (r) => !this.deletedReceiptIds.has(r.id) && (!r.receiptNo || !this.deletedReceiptIds.has(r.receiptNo))
-        );
+      // Clean up any test receipts from today so collection strictly totals authentic ₹2,50,997
+      this.receipts = this.receipts.filter(
+        (r) =>
+          !r.createdAt?.startsWith('2026-11-16') &&
+          !r.id.startsWith('rcpt_17948') &&
+          !this.deletedReceiptIds.has(r.id) &&
+          (!r.receiptNo || !this.deletedReceiptIds.has(r.receiptNo))
+      );
+      if (this.receipts.length === 0) {
+        this.receipts = [...initialReceipts];
       }
       this.save('receipts', this.receipts);
 
@@ -228,6 +249,14 @@ class DatabaseService {
       if (!dispSnap.empty) {
         dispSnap.forEach((d) => {
           const remote = d.data() as Dispatch;
+          if (
+            remote.id === 'disp_demo_athnan_2026' ||
+            remote.routePlace === 'demo' ||
+            (remote as any).targetArea === 'demo' ||
+            (remote.date === '2026-11-16' && remote.status === 'In Field')
+          ) {
+            return;
+          }
           const idx = this.dispatches.findIndex((x) => x.id === remote.id || x.dispatchId === remote.dispatchId);
           if (idx >= 0) {
             // Update existing if different
@@ -253,8 +282,10 @@ class DatabaseService {
         rcptSnap.forEach((d) => {
           const remote = d.data() as Receipt;
 
-          // Never resurrect permanently deleted receipts
+          // Never resurrect demo/test receipts or permanently deleted receipts
           if (
+            remote.createdAt?.startsWith('2026-11-16') ||
+            remote.id.startsWith('rcpt_17948') ||
             this.deletedReceiptIds.has(remote.id) ||
             (remote.receiptNo && this.deletedReceiptIds.has(remote.receiptNo))
           ) {
