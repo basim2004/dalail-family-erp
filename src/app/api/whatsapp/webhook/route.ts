@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { firestore } from '@/lib/db/firebase';
-import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 
 const VERIFY_TOKEN = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || 'dalail_whatsapp_webhook_2026';
 
@@ -22,7 +22,8 @@ export async function GET(req: NextRequest) {
 
 /**
  * Meta Webhook Status Updates (POST)
- * Logs status: sent -> delivered -> read
+ * Logs status: sent -> delivered -> read -> failed
+ * And updates the receipt's live delivery status in Firestore
  */
 export async function POST(req: NextRequest) {
   try {
@@ -32,20 +33,62 @@ export async function POST(req: NextRequest) {
       const statuses = data.entry[0].changes[0].value.statuses;
       for (const s of statuses) {
         const messageId = s.id;
-        const newStatus = s.status; // 'sent' | 'delivered' | 'read'
-        const timestamp = new Date(Number(s.timestamp) * 1000).toISOString();
+        const rawStatus = (s.status || '').toLowerCase(); // 'sent' | 'delivered' | 'read' | 'failed'
+        const timestamp = s.timestamp ? new Date(Number(s.timestamp) * 1000).toISOString() : new Date().toISOString();
 
         try {
-          await updateDoc(doc(firestore, 'whatsapp_logs', messageId), {
-            status: newStatus,
+          const logRef = doc(firestore, 'whatsapp_logs', messageId);
+          const logSnap = await getDoc(logRef);
+
+          await updateDoc(logRef, {
+            status: rawStatus,
             lastUpdated: timestamp,
             deliveryHistory: arrayUnion({
-              status: newStatus,
+              status: rawStatus,
               timestamp,
             }),
           });
-        } catch {
-          // Ignore if logging offline
+
+          // Sync back to receipt document if present
+          if (logSnap.exists()) {
+            const logData = logSnap.data();
+            const receiptId = logData.receiptId;
+            const isCampusAdmin = logData.recipientType === 'campus_admin';
+
+            if (receiptId) {
+              const rcptRef = doc(firestore, 'receipts', receiptId);
+              const mappedStatus =
+                rawStatus === 'delivered'
+                  ? 'Delivered'
+                  : rawStatus === 'read'
+                  ? 'Read'
+                  : rawStatus === 'sent'
+                  ? 'Sent'
+                  : rawStatus === 'failed'
+                  ? 'Failed'
+                  : undefined;
+
+              if (mappedStatus) {
+                if (isCampusAdmin) {
+                  await updateDoc(rcptRef, {
+                    adminWhatsappStatus: mappedStatus,
+                    ...(mappedStatus === 'Delivered' || mappedStatus === 'Read'
+                      ? { adminWhatsappDeliveredAt: timestamp }
+                      : {}),
+                  });
+                } else {
+                  await updateDoc(rcptRef, {
+                    whatsappStatus: mappedStatus,
+                    ...(mappedStatus === 'Delivered' || mappedStatus === 'Read'
+                      ? { whatsappDeliveredAt: timestamp }
+                      : {}),
+                  });
+                }
+              }
+            }
+          }
+        } catch (itemErr: any) {
+          console.warn('Webhook logging notice for message', messageId, itemErr.message);
         }
       }
     }

@@ -10,7 +10,11 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { PaymentSession, PaymentSessionStatus, Receipt, DonationCategory } from '@/lib/types';
-import { sendOfficialWhatsAppReceipt, OFFICIAL_SENDER_NUMBER } from './whatsappCloudService';
+import {
+  sendOfficialWhatsAppReceipt,
+  sendCampusAdminCollectionNotification,
+  OFFICIAL_SENDER_NUMBER,
+} from './whatsappCloudService';
 import crypto from 'crypto';
 
 // Verified Official Foundation UPI Details (from official Foundation Google Pay QR)
@@ -390,14 +394,14 @@ export async function confirmPaymentSession(
       console.warn('Firestore payment session status update notice:', err.message);
     }
 
-    // 5. Automated Official WhatsApp Receipt Delivery to Donor
+    // 5. Automated Official WhatsApp Receipt Delivery to Donor & Campus Admin
     if (paidSession.donorPhone) {
       try {
         const shortNo = receiptNo.match(/DF-\d+-0*(\d+)/)?.[1] || receiptNo;
         const host = process.env.VERCEL_URL || 'dalail-family-erp.vercel.app';
         const receiptUrl = `https://${host}/verify/receipt/${receiptNo}`;
 
-        await sendOfficialWhatsAppReceipt({
+        const waResult = await sendOfficialWhatsAppReceipt({
           donorName: paidSession.donorName || 'Respected Supporter',
           donorPhone: paidSession.donorPhone,
           amount: paidSession.amount,
@@ -407,12 +411,55 @@ export async function confirmPaymentSession(
           shortNo,
         });
 
-        newReceipt.whatsappStatus = 'Sent';
+        // Campus Admin Notification
+        const adminPhone = process.env.ADMIN_WHATSAPP_NUMBER || '+919745481583';
+        const adminResult = await sendCampusAdminCollectionNotification({
+          adminPhone,
+          donorName: paidSession.donorName || 'Respected Supporter',
+          donorPhone: paidSession.donorPhone,
+          amount: paidSession.amount,
+          receiptNo,
+          collectorName: paidSession.collectorName,
+          collectorId: paidSession.collectorId,
+          campusName: paidSession.campusName,
+          paymentMode: 'Direct UPI',
+          receiptUrl,
+        });
+
+        newReceipt.whatsappStatus =
+          waResult.status === 'sent'
+            ? 'Sent'
+            : waResult.status === 'delivered'
+            ? 'Delivered'
+            : waResult.status === 'pending_configuration'
+            ? 'pending_configuration'
+            : 'Failed';
+        newReceipt.whatsappMessageId = waResult.messageId;
         newReceipt.whatsappSentAt = now;
+        newReceipt.whatsappError = waResult.details;
+
+        newReceipt.adminWhatsappStatus =
+          adminResult.status === 'sent'
+            ? 'Sent'
+            : adminResult.status === 'delivered'
+            ? 'Delivered'
+            : adminResult.status === 'pending_configuration'
+            ? 'pending_configuration'
+            : 'Failed';
+        newReceipt.adminWhatsappMessageId = adminResult.messageId;
+        newReceipt.adminWhatsappSentAt = now;
+        newReceipt.adminWhatsappError = adminResult.details;
+
         try {
           await updateDoc(doc(firestore, 'receipts', receiptId), {
-            whatsappStatus: 'Sent',
+            whatsappStatus: newReceipt.whatsappStatus,
+            whatsappMessageId: newReceipt.whatsappMessageId,
             whatsappSentAt: now,
+            whatsappError: newReceipt.whatsappError || null,
+            adminWhatsappStatus: newReceipt.adminWhatsappStatus,
+            adminWhatsappMessageId: newReceipt.adminWhatsappMessageId,
+            adminWhatsappSentAt: now,
+            adminWhatsappError: newReceipt.adminWhatsappError || null,
           });
         } catch {}
       } catch (waErr: any) {

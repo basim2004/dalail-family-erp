@@ -1058,17 +1058,51 @@ class DatabaseService {
     idOrNo: string,
     status: NonNullable<Receipt['whatsappStatus']>,
     messageId?: string,
-    error?: string
+    error?: string,
+    adminStatus?: Receipt['adminWhatsappStatus'],
+    adminMessageId?: string,
+    adminError?: string
   ): Receipt | undefined {
     const rcpt = this.getReceiptById(idOrNo);
     if (!rcpt) return undefined;
 
+    const now = new Date().toISOString();
     rcpt.whatsappStatus = status;
     if (messageId) rcpt.whatsappMessageId = messageId;
-    rcpt.whatsappSentAt = new Date().toISOString();
+    if (status === 'Sent' || status === 'Submitted') rcpt.whatsappSentAt = now;
+    if (status === 'Delivered') rcpt.whatsappDeliveredAt = now;
     if (error) rcpt.whatsappError = error;
 
+    if (adminStatus) {
+      rcpt.adminWhatsappStatus = adminStatus;
+      if (adminMessageId) rcpt.adminWhatsappMessageId = adminMessageId;
+      if (adminStatus === 'Sent' || adminStatus === 'Submitted') rcpt.adminWhatsappSentAt = now;
+      if (adminStatus === 'Delivered') rcpt.adminWhatsappDeliveredAt = now;
+      if (adminError) rcpt.adminWhatsappError = adminError;
+    }
+
     this.save('receipts', this.receipts);
+
+    try {
+      const rcptRef = doc(firestore, 'receipts', rcpt.id);
+      setDoc(
+        rcptRef,
+        {
+          whatsappStatus: rcpt.whatsappStatus,
+          whatsappMessageId: rcpt.whatsappMessageId || null,
+          whatsappSentAt: rcpt.whatsappSentAt || null,
+          whatsappDeliveredAt: rcpt.whatsappDeliveredAt || null,
+          whatsappError: rcpt.whatsappError || null,
+          adminWhatsappStatus: rcpt.adminWhatsappStatus || null,
+          adminWhatsappMessageId: rcpt.adminWhatsappMessageId || null,
+          adminWhatsappSentAt: rcpt.adminWhatsappSentAt || null,
+          adminWhatsappDeliveredAt: rcpt.adminWhatsappDeliveredAt || null,
+          adminWhatsappError: rcpt.adminWhatsappError || null,
+        },
+        { merge: true }
+      ).catch(() => {});
+    } catch {}
+
     return rcpt;
   }
 

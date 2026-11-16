@@ -426,22 +426,35 @@ export default function StudentFieldCollectionPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          receiptId: newReceipt.id,
           receiptNo: newReceipt.receiptNo,
           shortNo,
           donorName: newReceipt.donorName,
           donorPhone: newReceipt.donorPhone,
           amount: newReceipt.amount,
           category: newReceipt.category,
+          collectorName: newReceipt.studentName,
+          collectorId: newReceipt.studentId,
+          campusName: newReceipt.campusName,
+          paymentMode: newReceipt.paymentMode,
         }),
       })
         .then((res) => res.json())
         .then((data) => {
-          if (data && data.status) {
+          const donorStatus = data.donor?.status || data.status;
+          const donorMsgId = data.donor?.messageId || data.messageId;
+          const adminStatus = data.campusAdmin?.status;
+          const adminMsgId = data.campusAdmin?.messageId;
+
+          if (donorStatus) {
             const updated = db.updateReceiptWhatsAppStatus(
               newReceipt.id,
-              data.status,
-              data.messageId,
-              data.details || data.error
+              donorStatus,
+              donorMsgId,
+              data.donor?.details || data.details || data.error,
+              adminStatus,
+              adminMsgId,
+              data.campusAdmin?.details
             );
             if (updated) {
               setViewingReceipt({ ...updated });
@@ -923,11 +936,11 @@ export default function StudentFieldCollectionPage() {
                                         ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                         : r.whatsappStatus === 'Failed'
                                         ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                                        : 'bg-blue-50 text-blue-700 border border-blue-200'
+                                        : 'bg-amber-50 text-amber-700 border border-amber-200'
                                     }`}
                                     title="Automated WhatsApp delivery status (+91 97454 81583)"
                                   >
-                                    WA: {r.whatsappStatus}
+                                    WA: {r.whatsappStatus === 'pending_configuration' ? 'Pending Setup' : r.whatsappStatus}
                                   </span>
                                 )}
                               </div>

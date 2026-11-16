@@ -182,7 +182,13 @@ export interface Receipt {
   whatsappStatus?: 'Pending' | 'Submitted' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | 'pending_configuration';
   whatsappMessageId?: string;
   whatsappSentAt?: string;
+  whatsappDeliveredAt?: string;
   whatsappError?: string;
+  adminWhatsappStatus?: 'Pending' | 'Submitted' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | 'pending_configuration';
+  adminWhatsappMessageId?: string;
+  adminWhatsappSentAt?: string;
+  adminWhatsappDeliveredAt?: string;
+  adminWhatsappError?: string;
 }
 
 export type ExpenseCategory =

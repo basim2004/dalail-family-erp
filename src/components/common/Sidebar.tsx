@@ -19,6 +19,7 @@ import {
   LayoutDashboard,
   Wallet,
   History,
+  MessageSquare,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -32,6 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ type = 'main_admin' }) => {
     { label: 'Overview', href: '/admin', icon: LayoutDashboard },
     { label: 'Collection Groups', href: '/admin/groups', icon: Layers },
     { label: 'Field Dispatches', href: '/admin/dispatches', icon: Calendar },
+    { label: 'WhatsApp Receipts & Delivery', href: '/admin/whatsapp', icon: MessageSquare },
     { label: 'Historical Collection Import', href: '/admin/historical-import', icon: History },
     { label: 'Expense Management', href: '/admin/expenses', icon: CreditCard },
     { label: '2K26 Volunteer Settlement', href: '/admin/settlement', icon: Calculator },

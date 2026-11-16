@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import { Receipt } from '@/lib/types';
-import { numberToWords } from '@/lib/utils/numberToWords';
+import { amountToWords, numberToWords } from '@/lib/utils/numberToWords';
 import { formatCurrency } from '@/lib/utils/formatters';
 import {
   Download,
@@ -82,12 +82,18 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          receiptId: receipt.id,
           receiptNo: receipt.receiptNo,
           shortNo,
           donorName: receipt.donorName,
           donorPhone: receipt.donorPhone,
           amount: receipt.amount,
           category: receipt.category,
+          collectorName: receipt.studentName,
+          collectorId: receipt.studentId,
+          campusName: receipt.campusName,
+          paymentMode: receipt.paymentMode,
+          isRetry: false,
         }),
       });
       const data = await res.json();
@@ -113,12 +119,18 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          receiptId: receipt.id,
           receiptNo: receipt.receiptNo,
           shortNo,
           donorName: receipt.donorName,
           donorPhone: receipt.donorPhone,
           amount: receipt.amount,
           category: receipt.category,
+          collectorName: receipt.studentName,
+          collectorId: receipt.studentId,
+          campusName: receipt.campusName,
+          paymentMode: receipt.paymentMode,
+          isRetry: true,
         }),
       });
       const data = await res.json();
@@ -280,18 +292,18 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
               </span>
             </div>
 
-            {/* 4. Rupees (Words & Numbers) */}
+            {/* 4. Rupees (Words) */}
             <div
               className="absolute flex items-baseline justify-start"
               style={{
                 left: '13.5%',
                 top: '62.5%',
-                width: '82.5%',
+                width: '63.0%',
                 height: '6.0%',
               }}
             >
-              <span className="font-bold text-[#0C2F66] italic tracking-wide truncate text-[10px] sm:text-xs md:text-sm capitalize font-serif">
-                {numberToWords(receipt.amount)} Rupees Only ({formatCurrency(receipt.amount)})
+              <span className="font-bold text-[#0C2F66] italic tracking-wide truncate text-[10px] sm:text-xs md:text-sm font-serif">
+                {amountToWords(receipt.amount)}
               </span>
             </div>
 
@@ -310,51 +322,23 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
               </span>
             </div>
 
-            {/* 6. Receiver: Official Founder Signature & Designation */}
+            {/* 6. Receiver: Official Authorized Signature ONLY (No printed name or designation) */}
             <div
-              className="absolute flex flex-col items-center justify-end text-center pointer-events-none select-none"
+              className="absolute flex items-center justify-center pointer-events-none select-none"
               style={{
-                left: '78.5%',
+                left: '77.0%',
                 top: '64.0%',
-                width: '16.0%',
-                height: '20.2%',
+                width: '18.0%',
+                height: '22.0%',
               }}
             >
-              {/* Official Founder Signature (Usthad Abdul Salam Sa'adi) */}
-              <div className="w-full flex items-center justify-center flex-1 max-h-[58%] pb-0.5">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/assets/office-signature.png"
-                  alt="Official Founder Signature - Usthad Abdul Salam Sa'adi"
-                  crossOrigin="anonymous"
-                  className="max-h-full max-w-full object-contain filter contrast-125"
-                />
-              </div>
-
-              {/* Founder Name */}
-              <span className="font-bold text-[#0C2F66] text-[8px] sm:text-[10px] md:text-xs tracking-tight uppercase block leading-tight font-sans truncate w-full">
-                Usthad Abdul Salam Sa&apos;adi
-              </span>
-
-              {/* Founder Designation */}
-              <span className="font-semibold text-[#164A9B] text-[6.5px] sm:text-[8px] md:text-[9.5px] tracking-wider uppercase block leading-tight font-sans truncate w-full">
-                Founder &amp; General Secretary
-              </span>
-            </div>
-
-            {/* 7. Receiver / Student Volunteer Name (Under the baseline) */}
-            <div
-              className="absolute flex items-center justify-end text-right pointer-events-none select-none"
-              style={{
-                left: '73.0%',
-                top: '87.5%',
-                width: '21.5%',
-                height: '5.5%',
-              }}
-            >
-              <span className="font-bold text-[#0C2F66] text-[7.5px] sm:text-[9.5px] md:text-[11px] tracking-wider uppercase truncate block font-mono">
-                {receipt.studentName || 'Official Receiver'}
-              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/assets/office-signature.png"
+                alt="Authorized Official Signature"
+                crossOrigin="anonymous"
+                className="max-h-full max-w-full object-contain filter contrast-125"
+              />
             </div>
           </div>
         ) : (
@@ -407,7 +391,7 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
                 {formatCurrency(receipt.amount)}
               </div>
               <div className="text-[11px] text-slate-500 capitalize mt-1">
-                Rupees {numberToWords(receipt.amount)} Only
+                {amountToWords(receipt.amount)}
               </div>
             </div>
 
@@ -524,17 +508,11 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
                 <div className="text-right">
                   <Image
                     src="/assets/office-signature.png"
-                    alt="Official Founder Signature - Usthad Abdul Salam Sa'adi"
+                    alt="Authorized Official Signature"
                     width={80}
                     height={38}
                     className="w-20 h-9 object-contain ml-auto filter contrast-125"
                   />
-                  <span className="text-[10px] font-bold uppercase text-slate-900 block border-t border-slate-300 pt-0.5">
-                    Usthad Abdul Salam Sa&apos;adi
-                  </span>
-                  <span className="text-[8px] font-semibold text-slate-500 block uppercase">
-                    Founder &amp; General Secretary • Receiver
-                  </span>
                 </div>
               </div>
 
