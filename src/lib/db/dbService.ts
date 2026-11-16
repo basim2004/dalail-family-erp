@@ -841,6 +841,24 @@ class DatabaseService {
     return true;
   }
 
+  updateReceiptWhatsAppStatus(
+    idOrNo: string,
+    status: NonNullable<Receipt['whatsappStatus']>,
+    messageId?: string,
+    error?: string
+  ): Receipt | undefined {
+    const rcpt = this.getReceiptById(idOrNo);
+    if (!rcpt) return undefined;
+
+    rcpt.whatsappStatus = status;
+    if (messageId) rcpt.whatsappMessageId = messageId;
+    rcpt.whatsappSentAt = new Date().toISOString();
+    if (error) rcpt.whatsappError = error;
+
+    this.save('receipts', this.receipts);
+    return rcpt;
+  }
+
   // --- Expenses (Module 07) ---
   getExpenses(dispatchId?: string, campusId?: string): Expense[] {
     return this.expenses.filter((e) => {

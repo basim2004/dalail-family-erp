@@ -175,6 +175,10 @@ export interface Receipt {
   calendarGiven: boolean;
   createdAt: string;
   cancelled?: boolean;
+  whatsappStatus?: 'Pending' | 'Submitted' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | 'pending_configuration';
+  whatsappMessageId?: string;
+  whatsappSentAt?: string;
+  whatsappError?: string;
 }
 
 export type ExpenseCategory =

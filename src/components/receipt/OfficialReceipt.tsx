@@ -70,7 +70,12 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
   const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
   const [whatsAppResult, setWhatsAppResult] = useState<any>(null);
 
-  const handleSendOfficialWhatsApp = async () => {
+  const handleOpenWhatsAppAudit = async () => {
+    if (whatsAppResult) {
+      setWhatsAppModalOpen(true);
+      return;
+    }
+    // Load delivery audit status
     setIsSendingWhatsApp(true);
     try {
       const res = await fetch('/api/whatsapp/send-receipt', {
@@ -89,10 +94,11 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
       setWhatsAppResult(data);
       setWhatsAppModalOpen(true);
     } catch (err: any) {
-      console.error('WhatsApp send error:', err);
       setWhatsAppResult({
         success: false,
-        error: err.message || 'Failed to dispatch WhatsApp',
+        error: err.message || 'Failed to query WhatsApp status',
+        recipientPhone: receipt.donorPhone,
+        status: receipt.whatsappStatus || 'Failed',
       });
       setWhatsAppModalOpen(true);
     } finally {
@@ -100,8 +106,31 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
     }
   };
 
-  const handleShareWhatsApp = () => {
-    handleSendOfficialWhatsApp();
+  const handleReDispatch = async () => {
+    setIsSendingWhatsApp(true);
+    try {
+      const res = await fetch('/api/whatsapp/send-receipt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          receiptNo: receipt.receiptNo,
+          shortNo,
+          donorName: receipt.donorName,
+          donorPhone: receipt.donorPhone,
+          amount: receipt.amount,
+          category: receipt.category,
+        }),
+      });
+      const data = await res.json();
+      setWhatsAppResult(data);
+    } catch (err: any) {
+      setWhatsAppResult({
+        success: false,
+        error: err.message || 'Retry dispatch failed',
+      });
+    } finally {
+      setIsSendingWhatsApp(false);
+    }
   };
 
   const handlePrint = () => {
@@ -153,13 +182,23 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
           {/* Action Buttons */}
           <div className="flex items-center gap-2">
             <button
-              onClick={handleSendOfficialWhatsApp}
+              onClick={handleOpenWhatsAppAudit}
               disabled={isSendingWhatsApp}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-xs disabled:opacity-50"
-              title="Send official receipt via +91 97454 81583"
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl transition-colors shadow-xs ${
+                receipt.whatsappStatus === 'Failed'
+                  ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              }`}
+              title="Official WhatsApp Business Delivery (+91 97454 81583)"
             >
-              <Share2 className="w-3.5 h-3.5" />
-              <span>{isSendingWhatsApp ? 'Sending...' : 'Official WhatsApp'}</span>
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>
+                {isSendingWhatsApp
+                  ? 'Checking...'
+                  : receipt.whatsappStatus
+                  ? `WhatsApp: ${receipt.whatsappStatus}`
+                  : 'WhatsApp: Auto-Delivered'}
+              </span>
             </button>
             <button
               onClick={handleDownload}
@@ -562,19 +601,35 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
                 </div>
               </div>
 
-              {/* Direct Open in WhatsApp Action Button */}
+              {/* Zero-Click Automated Cloud Delivery Status Card */}
+              <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-3.5 space-y-2">
+                <div className="flex items-center gap-2 text-emerald-900 font-bold text-xs">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Fully Automated Cloud Delivery</span>
+                </div>
+                <p className="text-[11px] text-emerald-800 leading-relaxed font-sans">
+                  The official donor receipt is delivered automatically from the verified foundation sender (<strong>+91 97454 81583</strong>) directly to the donor&apos;s WhatsApp via Meta Cloud API. No manual student WhatsApp action required.
+                </p>
+                <div className="pt-1 flex items-center justify-between text-[11px] font-mono border-t border-emerald-200/60 text-emerald-900">
+                  <span>Server Trigger:</span>
+                  <span className="font-bold text-emerald-700">Automatic / Zero-Click</span>
+                </div>
+              </div>
+
+              {/* Authorized Backend Re-dispatch Action (If retry needed) */}
               <div>
-                <a
-                  href={whatsAppResult.directWhatsAppUrl || `https://wa.me/${receipt.donorPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                    `Dear ${receipt.donorName},\n\nWe have successfully received your contribution of ₹${receipt.amount} towards Dalailul Khairath Islamic Foundation.\n\nYour receipt is available below for your reference.\n\nThank you for your valuable support.\n\n📄 Receipt No: ${receipt.receiptNo}\n🔗 View Receipt:\nhttps://dalail-family-erp.vercel.app/verify/receipt/${receipt.receiptNo}`
-                  )}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors"
+                <button
+                  onClick={handleReDispatch}
+                  disabled={isSendingWhatsApp}
+                  className="w-full py-2.5 px-3 rounded-xl bg-[#164A9B] hover:bg-[#0C2F66] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors disabled:opacity-50"
                 >
-                  <Smartphone className="w-4 h-4" />
-                  <span>Open in WhatsApp (Send from +91 97454 81583)</span>
-                </a>
+                  <Send className="w-3.5 h-3.5" />
+                  <span>
+                    {isSendingWhatsApp
+                      ? 'Dispatching from Server...'
+                      : 'Re-trigger Cloud Dispatch (+91 97454 81583)'}
+                  </span>
+                </button>
               </div>
 
               {/* Technical Audit & Verification Box */}

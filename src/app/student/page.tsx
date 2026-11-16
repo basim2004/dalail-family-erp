@@ -226,6 +226,7 @@ export default function StudentFieldCollectionPage() {
       paymentMode,
       paymentStatus,
       calendarGiven: calendarGiven && activeDispatch.calendarsSold < activeDispatch.calendarsGiven,
+      whatsappStatus: donorPhone.trim() ? 'Pending' : undefined,
     });
 
     setLastCreatedReceipt(newReceipt);
@@ -233,6 +234,43 @@ export default function StudentFieldCollectionPage() {
     setShowRecordModal(false);
     setShowUpiModal(false);
     setShowSuccessModal(false);
+
+    // CRITICAL: Fully Automated WhatsApp Dispatch via Meta Business Cloud API (Official Number: +91 97454 81583)
+    // No manual clicking, personal student WhatsApp, or wa.me link required.
+    if (newReceipt.donorPhone) {
+      const shortNo = newReceipt.receiptNo?.match(/DF-\d+-0*(\d+)/)?.[1] || newReceipt.receiptNo;
+      fetch('/api/whatsapp/send-receipt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          receiptNo: newReceipt.receiptNo,
+          shortNo,
+          donorName: newReceipt.donorName,
+          donorPhone: newReceipt.donorPhone,
+          amount: newReceipt.amount,
+          category: newReceipt.category,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.status) {
+            const updated = db.updateReceiptWhatsAppStatus(
+              newReceipt.id,
+              data.status,
+              data.messageId,
+              data.details || data.error
+            );
+            if (updated) {
+              setViewingReceipt({ ...updated });
+              refreshData();
+            }
+          }
+        })
+        .catch((err) => {
+          console.error('Automated WhatsApp dispatch failed:', err);
+          db.updateReceiptWhatsAppStatus(newReceipt.id, 'Failed', undefined, err.message);
+        });
+    }
 
     setDonorName('');
     setDonorAddress('');
@@ -675,6 +713,20 @@ export default function StudentFieldCollectionPage() {
                                 {r.calendarGiven && (
                                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold border border-amber-200">
                                     +1 Calendar
+                                  </span>
+                                )}
+                                {r.whatsappStatus && (
+                                  <span
+                                    className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                                      r.whatsappStatus === 'Sent' || r.whatsappStatus === 'Delivered' || r.whatsappStatus === 'Read'
+                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                        : r.whatsappStatus === 'Failed'
+                                        ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                        : 'bg-blue-50 text-blue-700 border border-blue-200'
+                                    }`}
+                                    title="Automated WhatsApp delivery status (+91 97454 81583)"
+                                  >
+                                    WA: {r.whatsappStatus}
                                   </span>
                                 )}
                               </div>
