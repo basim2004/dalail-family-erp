@@ -277,13 +277,14 @@ export interface PublicMediaSettings {
   instagramPosts: InstagramPostItem[];
 }
 
-// ===================== DYNAMIC QR & PAYMENT GATEWAY TYPES =====================
+// ===================== DYNAMIC QR & DIRECT UPI PAYMENT TYPES =====================
 
-export type PaymentSessionStatus = 'PENDING' | 'PAID' | 'FAILED' | 'EXPIRED';
+export type PaymentSessionStatus = 'CREATED' | 'PENDING' | 'PAID' | 'FAILED' | 'EXPIRED' | 'REFUNDED';
 
 export interface PaymentSession {
   id: string;
   token: string;
+  donationRef: string; // e.g. "DF-0001" or "DF-2026-03102"
   dispatchId?: string;
   collectorId: string;
   collectorName: string;
@@ -297,10 +298,12 @@ export interface PaymentSession {
   category: DonationCategory;
   calendarGiven?: boolean;
   status: PaymentSessionStatus;
-  paymentGateway?: string;
-  gatewayOrderId?: string;
-  gatewayPaymentId?: string;
-  utr?: string;
+  upiId: string; // "dalailul@sbi"
+  payeeName: string; // "DALAILUL KHAIRATH ISLAMIC FOUNDATION"
+  upiIntentUrl?: string;
+  utr?: string; // 12-digit UPI reference number
+  verifiedBy?: string; // e.g. "DONOR_UTR" | "ADMIN_RECONCILIATION" | "BANK_STATEMENT"
+  verifiedAt?: string;
   receiptId?: string;
   receiptNo?: string;
   createdAt: string;

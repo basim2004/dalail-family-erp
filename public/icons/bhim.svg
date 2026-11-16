@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <rect width="100" height="100" rx="20" fill="#0c2340"/>
+  <path fill="#00A34D" d="M28 20l24 30-24 30h16l24-30-24-30H28z"/>
+  <path fill="#00C466" d="M52 20l24 30-24 30h16l24-30-24-30H52z"/>
+  <text x="50" y="92" font-family="Arial, sans-serif" font-weight="900" font-size="14" fill="#ffffff" text-anchor="middle">BHIM UPI</text>
+</svg>

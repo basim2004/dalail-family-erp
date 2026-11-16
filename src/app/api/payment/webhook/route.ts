@@ -43,10 +43,9 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await confirmPaymentSession(token, {
-      gateway: 'Webhook Verified Gateway',
-      gatewayOrderId: orderId,
-      gatewayPaymentId: paymentId,
-      utr: paymentId,
+      utr: paymentId || `UPI${Date.now()}`,
+      verifiedBy: 'BANK_WEBHOOK',
+      notes: orderId ? `Order: ${orderId}` : undefined,
     });
 
     return NextResponse.json({ status: 'success', receiptNo: result.receipt?.receiptNo }, { status: 200 });

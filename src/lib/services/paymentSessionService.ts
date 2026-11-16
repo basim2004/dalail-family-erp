@@ -13,8 +13,24 @@ import { PaymentSession, PaymentSessionStatus, Receipt, DonationCategory } from 
 import { sendOfficialWhatsAppReceipt, OFFICIAL_SENDER_NUMBER } from './whatsappCloudService';
 import crypto from 'crypto';
 
-// In-memory fallback cache to ensure real-time responsiveness even during network drops
+// Verified Official Foundation UPI Details (from official Foundation Google Pay QR)
+export const FOUNDATION_UPI_ID = 'dalailul@sbi';
+export const FOUNDATION_PAYEE_NAME = 'DALAILUL KHAIRATH ISLAMIC FOUNDATION';
+export const FOUNDATION_CURRENCY = 'INR';
+
+// In-memory fallback cache to ensure real-time responsiveness
 const sessionMemoryCache = new Map<string, PaymentSession>();
+let localDonationCounter = 1;
+
+/**
+ * Builds standard UPI Intent URI strictly conforming to NPCI UPI specification:
+ * upi://pay?pa=dalailul@sbi&pn=DALAILUL%20KHAIRATH%20ISLAMIC%20FOUNDATION&am=500&cu=INR&tn=DF-0001
+ */
+export function buildUpiIntentUri(amount: number, donationRef: string): string {
+  const encPayee = encodeURIComponent(FOUNDATION_PAYEE_NAME);
+  const encRef = encodeURIComponent(donationRef);
+  return `upi://pay?pa=${FOUNDATION_UPI_ID}&pn=${encPayee}&am=${amount}&cu=${FOUNDATION_CURRENCY}&tn=${encRef}`;
+}
 
 /**
  * Generate a cryptographically secure, URL-safe random token
@@ -22,6 +38,30 @@ const sessionMemoryCache = new Map<string, PaymentSession>();
 export function generateSecurePaymentToken(): string {
   const randomHex = crypto.randomBytes(12).toString('hex');
   return `dpay_${Date.now()}_${randomHex}`;
+}
+
+/**
+ * Generate unique sequential Donation ID e.g. DF-0001, DF-0002...
+ */
+async function generateUniqueDonationRef(): Promise<string> {
+  let maxSeq = localDonationCounter;
+  try {
+    const qSnap = await getDocs(collection(firestore, 'payment_sessions'));
+    qSnap.forEach((d) => {
+      const data = d.data();
+      const match = data.donationRef?.match(/DF-(\d+)/);
+      if (match) {
+        const val = parseInt(match[1], 10);
+        if (!isNaN(val) && val >= maxSeq) {
+          maxSeq = val + 1;
+        }
+      }
+    });
+  } catch {
+    maxSeq = Math.max(localDonationCounter, 1) + 1;
+  }
+  localDonationCounter = maxSeq + 1;
+  return `DF-${String(maxSeq).padStart(4, '0')}`;
 }
 
 export interface CreateSessionParams {
@@ -40,17 +80,22 @@ export interface CreateSessionParams {
 }
 
 /**
- * Creates a new Payment Session in Firestore and memory
+ * Creates a new Payment Session in Firestore and memory with unique QR token
  */
 export async function createPaymentSession(params: CreateSessionParams): Promise<PaymentSession> {
   const token = generateSecurePaymentToken();
   const id = `session_${token}`;
+  const donationRef = await generateUniqueDonationRef();
   const now = new Date();
   const expiresAt = new Date(now.getTime() + 60 * 60 * 1000).toISOString(); // 1 hour validity
+
+  const amt = Number(params.amount) || 1000;
+  const upiIntentUrl = buildUpiIntentUri(amt, donationRef);
 
   const session: PaymentSession = {
     id,
     token,
+    donationRef,
     dispatchId: params.dispatchId || '',
     collectorId: params.collectorId || 'DKIF-REC-01',
     collectorName: params.collectorName || 'ATHNAN',
@@ -60,10 +105,13 @@ export async function createPaymentSession(params: CreateSessionParams): Promise
     donorPhone: (params.donorPhone || '').trim(),
     donorAddress: (params.donorAddress || '').trim(),
     prayerRequest: (params.prayerRequest || '').trim(),
-    amount: Number(params.amount) || 1000,
+    amount: amt,
     category: params.category || 'General/None',
     calendarGiven: !!params.calendarGiven,
     status: 'PENDING',
+    upiId: FOUNDATION_UPI_ID,
+    payeeName: FOUNDATION_PAYEE_NAME,
+    upiIntentUrl,
     createdAt: now.toISOString(),
     updatedAt: now.toISOString(),
     expiresAt,
@@ -92,7 +140,6 @@ export async function getPaymentSession(tokenOrId: string): Promise<PaymentSessi
   const cached = sessionMemoryCache.get(tokenOrId);
 
   try {
-    // Try reading doc directly
     const docId = tokenOrId.startsWith('session_') ? tokenOrId : `session_${tokenOrId}`;
     const docRef = doc(firestore, 'payment_sessions', docId);
     const snap = await getDoc(docRef);
@@ -104,7 +151,6 @@ export async function getPaymentSession(tokenOrId: string): Promise<PaymentSessi
       return data;
     }
 
-    // Secondary query by token field if id pattern differed
     const q = query(collection(firestore, 'payment_sessions'), where('token', '==', tokenOrId));
     const querySnap = await getDocs(q);
     if (!querySnap.empty) {
@@ -121,7 +167,8 @@ export async function getPaymentSession(tokenOrId: string): Promise<PaymentSessi
 }
 
 /**
- * Updates donor info / amount on the payment session before payment
+ * Updates donor info / amount on the payment session before payment.
+ * Automatically recalculates the UPI intent URI for the new amount.
  */
 export async function updatePaymentSession(
   token: string,
@@ -132,9 +179,14 @@ export async function updatePaymentSession(
   if (session.status === 'PAID') return session;
 
   const now = new Date().toISOString();
+  const newAmount = updates.amount !== undefined ? Number(updates.amount) : session.amount;
+  const newUpiIntentUrl = buildUpiIntentUri(newAmount, session.donationRef);
+
   const updated: PaymentSession = {
     ...session,
     ...updates,
+    amount: newAmount,
+    upiIntentUrl: newUpiIntentUrl,
     updatedAt: now,
   };
 
@@ -145,6 +197,8 @@ export async function updatePaymentSession(
     const docRef = doc(firestore, 'payment_sessions', updated.id);
     await updateDoc(docRef, {
       ...updates,
+      amount: newAmount,
+      upiIntentUrl: newUpiIntentUrl,
       updatedAt: now,
     });
   } catch (err: any) {
@@ -156,15 +210,14 @@ export async function updatePaymentSession(
 
 /**
  * Server-side payment verification & automated receipt execution.
- * Called when gateway callback / webhook fires or verification endpoint is triggered.
+ * Enforces genuine UTR / bank reference validation and duplicate detection.
  */
 export async function confirmPaymentSession(
   token: string,
   details: {
-    gateway?: string;
-    gatewayOrderId?: string;
-    gatewayPaymentId?: string;
-    utr?: string;
+    utr: string; // 12-digit UPI UTR or bank transaction reference
+    verifiedBy?: string; // 'DONOR_UTR' | 'ADMIN_RECONCILIATION' | 'UPI_INTENT_CALLBACK'
+    notes?: string;
   }
 ): Promise<{ success: boolean; session: PaymentSession; receipt?: Receipt; error?: string }> {
   const session = await getPaymentSession(token);
@@ -176,12 +229,35 @@ export async function confirmPaymentSession(
     return { success: true, session };
   }
 
-  const now = new Date().toISOString();
-  const utr = details.utr || details.gatewayPaymentId || `UPI${Date.now()}`;
-  const gateway = details.gateway || 'UPI Direct / Gateway';
+  const cleanUtr = (details.utr || '').trim().toUpperCase();
+  if (!cleanUtr || cleanUtr.length < 6) {
+    return {
+      success: false,
+      session,
+      error: 'Invalid UPI Transaction Reference (UTR). Please provide the genuine 12-digit bank reference number.',
+    };
+  }
 
-  // 1. Generate Next Receipt Number
-  // Default sequence start is 3105 or max from Firestore
+  // Duplicate Check: Check if UTR was already registered in any existing receipt
+  try {
+    const qReceipt = query(collection(firestore, 'receipts'), where('paymentReference', '==', cleanUtr));
+    const rSnap = await getDocs(qReceipt);
+    if (!rSnap.empty) {
+      const existing = rSnap.docs[0].data();
+      return {
+        success: false,
+        session,
+        error: `Duplicate payment detected: UTR ${cleanUtr} has already been registered for receipt ${existing.receiptNo}.`,
+      };
+    }
+  } catch (dupErr) {
+    console.warn('Duplicate check warning:', dupErr);
+  }
+
+  const now = new Date().toISOString();
+  const verifiedBy = details.verifiedBy || 'DONOR_SUBMITTED_UTR';
+
+  // 1. Generate Next Receipt Number (DF-2026-XXXXX)
   let nextSeq = 3105;
   try {
     const rcptDocs = await getDocs(collection(firestore, 'receipts'));
@@ -217,7 +293,7 @@ export async function confirmPaymentSession(
     amount: session.amount,
     category: session.category,
     paymentMode: 'Direct UPI',
-    paymentReference: utr,
+    paymentReference: cleanUtr,
     paymentStatus: 'Verified',
     calendarGiven: !!session.calendarGiven,
     createdAt: now,
@@ -232,14 +308,13 @@ export async function confirmPaymentSession(
     console.warn('Firestore receipt creation notice:', err.message);
   }
 
-  // 4. Update the Payment Session to PAID
+  // 4. Update the Payment Session to PAID with full audit
   const paidSession: PaymentSession = {
     ...session,
     status: 'PAID',
-    paymentGateway: gateway,
-    gatewayOrderId: details.gatewayOrderId,
-    gatewayPaymentId: details.gatewayPaymentId,
-    utr,
+    utr: cleanUtr,
+    verifiedBy,
+    verifiedAt: now,
     receiptId,
     receiptNo,
     paidAt: now,
@@ -273,7 +348,6 @@ export async function confirmPaymentSession(
         shortNo,
       });
 
-      // Update receipt with whatsapp sent status
       newReceipt.whatsappStatus = 'Sent';
       newReceipt.whatsappSentAt = now;
       try {

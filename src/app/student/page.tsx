@@ -128,10 +128,15 @@ export default function StudentFieldCollectionPage() {
 
   // Dynamic QR Payment Gateway State
   const [paymentToken, setPaymentToken] = useState<string | null>(null);
+  const [donationRef, setDonationRef] = useState<string | null>(null);
   const [paymentQrDataUrl, setPaymentQrDataUrl] = useState<string | null>(null);
   const [paymentWebUrl, setPaymentWebUrl] = useState<string | null>(null);
   const [isGeneratingQr, setIsGeneratingQr] = useState<boolean>(false);
   const [qrCopied, setQrCopied] = useState<boolean>(false);
+  const [collectorUtrInput, setCollectorUtrInput] = useState<string>('');
+  const [collectorVerifying, setCollectorVerifying] = useState<boolean>(false);
+  const [collectorUtrError, setCollectorUtrError] = useState<string | null>(null);
+
 
 
   const refreshData = () => {
@@ -253,8 +258,11 @@ export default function StudentFieldCollectionPage() {
       const data = await res.json();
       if (data.success) {
         setPaymentToken(data.token);
+        setDonationRef(data.session?.donationRef || 'DF-0001');
         setPaymentQrDataUrl(data.qrDataUrl);
         setPaymentWebUrl(data.paymentUrl);
+        setCollectorUtrInput('');
+        setCollectorUtrError(null);
       }
     } catch (err) {
       console.error('Failed to create dynamic payment link:', err);
@@ -318,31 +326,44 @@ export default function StudentFieldCollectionPage() {
     };
   }, [showUpiModal, paymentToken, activeDispatch, member]);
 
-  // Handle Server-Side Payment Simulation (For field testing)
-  const handleSimulateServerPayment = async () => {
+  // Handle Genuine UTR Verification & Settle Collection
+  const handleCollectorVerifyUtr = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!paymentToken) return;
+    const cleanUtr = collectorUtrInput.trim().toUpperCase();
+
+    if (!cleanUtr || cleanUtr.length < 6) {
+      setCollectorUtrError('Please enter a valid 12-digit UPI Transaction Reference (UTR) number.');
+      return;
+    }
+
+    setCollectorVerifying(true);
+    setCollectorUtrError(null);
+
     try {
       const res = await fetch('/api/payment/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           token: paymentToken,
-          gateway: 'ICICI Bank Gateway / Direct UPI',
-          gatewayPaymentId: `UPI${Date.now().toString().slice(-8)}`,
+          utr: cleanUtr,
+          verifiedBy: 'COLLECTOR_FIELD_VERIFICATION',
         }),
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.receipt) {
         setShowUpiModal(false);
         setShowRecordModal(false);
         await db.syncWithFirestore();
         refreshData();
-        if (data.receipt) {
-          setViewingReceipt(data.receipt);
-        }
+        setViewingReceipt(data.receipt);
+      } else {
+        setCollectorUtrError(data.error || 'Verification failed. Please check the UTR number.');
       }
-    } catch (err) {
-      console.error('Server verify simulation error:', err);
+    } catch (err: any) {
+      setCollectorUtrError('Network error while verifying UTR. Please retry.');
+    } finally {
+      setCollectorVerifying(false);
     }
   };
 
@@ -1815,30 +1836,38 @@ export default function StudentFieldCollectionPage() {
               </p>
             </div>
 
-            {/* 3 Pills Strip: DONOR | MOBILE | AMOUNT (Screenshot 2) */}
-            <div className="grid grid-cols-3 gap-1.5 bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
+            {/* 4 Pills Strip: DONOR | MOBILE | AMOUNT | REF */}
+            <div className="grid grid-cols-4 gap-1.5 bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
               <div className="p-1.5 rounded-xl bg-white border border-slate-100 shadow-2xs">
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block">
                   DONOR
                 </span>
-                <span className="text-xs font-black text-slate-900 truncate block mt-0.5 uppercase">
+                <span className="text-[11px] font-black text-slate-900 truncate block mt-0.5 uppercase">
                   {donorName || 'DONOR'}
                 </span>
               </div>
               <div className="p-1.5 rounded-xl bg-white border border-slate-100 shadow-2xs">
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block">
                   MOBILE
                 </span>
-                <span className="text-xs font-mono font-bold text-slate-900 truncate block mt-0.5">
-                  {donorPhone || '+91 9633784801'}
+                <span className="text-[11px] font-mono font-bold text-slate-900 truncate block mt-0.5">
+                  {donorPhone || '+91 9633...'}
                 </span>
               </div>
               <div className="p-1.5 rounded-xl bg-white border border-slate-100 shadow-2xs">
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block">
                   AMOUNT
                 </span>
-                <span className="text-xs font-mono font-black text-[#164A9B] truncate block mt-0.5">
+                <span className="text-[11px] font-mono font-black text-[#164A9B] truncate block mt-0.5">
                   ₹{Number(amount || 1000).toLocaleString()}
+                </span>
+              </div>
+              <div className="p-1.5 rounded-xl bg-white border border-slate-100 shadow-2xs">
+                <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 block">
+                  REF
+                </span>
+                <span className="text-[11px] font-mono font-black text-emerald-700 truncate block mt-0.5">
+                  {donationRef || 'DF-0001'}
                 </span>
               </div>
             </div>
@@ -1858,6 +1887,11 @@ export default function StudentFieldCollectionPage() {
                     alt="Payment QR Code"
                     className="w-56 h-56 mx-auto rounded-2xl bg-white p-2 shadow-xs object-contain"
                   />
+                  {/* Destination Foundation UPI */}
+                  <div className="text-[10px] text-slate-600 bg-white py-1 px-2 rounded-lg border border-slate-200">
+                    Payee: <strong>dalailul@sbi</strong> (DALAILUL KHAIRATH)
+                  </div>
+
                   {/* Detected URL Chip matching Google Lens popup */}
                   {paymentWebUrl && (
                     <div className="flex items-center justify-between gap-1.5 text-[11px] font-mono font-bold text-slate-700 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
@@ -1899,26 +1933,55 @@ export default function StudentFieldCollectionPage() {
             {/* Real-time status indicator */}
             <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-800 bg-amber-50 py-2 px-3 rounded-xl border border-amber-200">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-              <span>Waiting for donor to complete payment on their phone...</span>
+              <span>Waiting for donor to scan QR or complete payment...</span>
             </div>
 
-            {/* Action buttons */}
-            <div className="space-y-2 pt-1">
-              <button
-                type="button"
-                onClick={handleSimulateServerPayment}
-                className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <Check className="w-4 h-4" />
-                <span>Simulate Instant Payment (Test Mode)</span>
-              </button>
+            {/* Genuine Bank UTR Verification for Field Collector */}
+            <div className="pt-2 border-t border-slate-100 text-left space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                Bank UTR Reconciliation (Optional Quick Entry)
+              </span>
+              <form onSubmit={handleCollectorVerifyUtr} className="space-y-2">
+                <input
+                  type="text"
+                  maxLength={22}
+                  value={collectorUtrInput}
+                  onChange={(e) => setCollectorUtrInput(e.target.value.replace(/\s+/g, ''))}
+                  placeholder="Enter 12-digit UTR (e.g. 412389102934)"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#164A9B]"
+                />
+
+                {collectorUtrError && (
+                  <p className="text-[11px] text-rose-600 font-bold bg-rose-50 p-1.5 rounded-lg border border-rose-200">
+                    {collectorUtrError}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={collectorVerifying}
+                  className="w-full py-2.5 px-3 bg-[#00875A] hover:bg-[#00704A] text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+                >
+                  {collectorVerifying ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Verifying Transaction...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Verify UTR & Issue Official Receipt</span>
+                    </>
+                  )}
+                </button>
+              </form>
 
               <button
                 type="button"
                 onClick={() => setShowUpiModal(false)}
                 className="w-full py-2 px-4 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-xl"
               >
-                Cancel Payment
+                Close / Cancel
               </button>
             </div>
           </div>
