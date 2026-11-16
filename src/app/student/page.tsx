@@ -53,11 +53,15 @@ import {
 
 export default function StudentFieldCollectionPage() {
   const { user, currentMember } = useAuth();
+  const allMembers = db.getMembers();
 
   // Find member record for logged in student (default to Basim Aslam or Athnan)
-  const member = currentMember || db.getMembers().find(
+  const defaultMember = currentMember || allMembers.find(
     (m) => m.name.toLowerCase() === user?.name?.toLowerCase() || m.id === user?.memberId
-  ) || db.getMembers()[1] || db.getMembers()[0];
+  ) || allMembers[1] || allMembers[0];
+
+  const [selectedStudentId, setSelectedStudentId] = useState<string>(defaultMember?.id || '');
+  const member = allMembers.find((m) => m.id === selectedStudentId) || defaultMember;
 
   const isFieldWorkEnabled = member?.fieldWorkEnabled ?? true;
 
@@ -84,6 +88,30 @@ export default function StudentFieldCollectionPage() {
   const pastDispatches = dispatches.filter(
     (d) => d.status === 'Completed' || d.status === 'Settled'
   );
+
+  const handleQuickStartDispatch = () => {
+    if (!member) return;
+    db.createDispatch({
+      studentId: member.id,
+      studentName: member.name,
+      leaderId: member.id,
+      leaderName: member.name,
+      participatingMemberIds: [member.id],
+      participatingMemberNames: [member.name],
+      campusId: member.campusId || 'campus_kak',
+      campusName: member.campusName || 'Kakkidippuram Main Campus',
+      routePlace: 'Kakkidippuram Field Route 2026',
+      districtCode: 'KL-MLP',
+      collectionType: 'Individual',
+      deploymentType: 'Door-to-Door / Local',
+      calendarsGiven: 50,
+      allowance: 200,
+      dispatchedBy: 'Campus Admin',
+      status: 'In Field',
+    });
+    refreshData();
+    setShowRecordModal(true);
+  };
 
   // Tabs: Today's vs History vs Historical Collection vs Team & Settlement
   const [activeTab, setActiveTab] = useState<'today' | 'history' | 'historical' | 'settlement'>('today');
@@ -393,6 +421,24 @@ export default function StudentFieldCollectionPage() {
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-mono font-bold border border-slate-200 shrink-0">
                     ID: {member?.memberId || 'DKIF-REC-01'}
                   </span>
+                </div>
+
+                {/* Quick Switch Student Receiver */}
+                <div className="pt-1.5 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Active Student:
+                  </span>
+                  <select
+                    value={member?.id}
+                    onChange={(e) => setSelectedStudentId(e.target.value)}
+                    className="text-xs font-bold text-[#164A9B] bg-blue-50 hover:bg-blue-100/70 border border-blue-200 rounded-lg px-2.5 py-1 focus:outline-none focus:ring-2 focus:ring-[#164A9B] transition-colors cursor-pointer"
+                  >
+                    {allMembers.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name} ({m.memberId || 'RECEIVER'})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
@@ -786,6 +832,14 @@ export default function StudentFieldCollectionPage() {
                 </div>
 
                 <div className="space-y-2 pt-2">
+                  <button
+                    onClick={handleQuickStartDispatch}
+                    className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+                  >
+                    <PlusCircle className="w-4 h-4" />
+                    <span>Start Field Collection (Record New Receipt)</span>
+                  </button>
+
                   <button
                     onClick={() => setActiveTab('history')}
                     className="w-full py-2.5 px-4 rounded-xl border border-emerald-300 bg-emerald-50/50 text-emerald-800 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-emerald-100 transition-colors"

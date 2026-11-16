@@ -16,6 +16,7 @@ import {
   Headphones,
   GraduationCap,
   Download,
+  RefreshCw,
 } from 'lucide-react';
 
 interface PublicNavbarProps {
@@ -213,6 +214,26 @@ export function PublicNavbar({ activeTab }: PublicNavbarProps) {
                 <UserCheck className="w-4 h-4" />
                 <span>Sign In to Dalail ERP</span>
               </Link>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  setDrawerOpen(false);
+                  if ('caches' in window) {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map((k) => caches.delete(k)));
+                  }
+                  if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for (const r of regs) await r.unregister();
+                  }
+                  window.location.reload();
+                }}
+                className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all border border-slate-200"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-slate-600" />
+                <span>Force Refresh &amp; Clear Cache</span>
+              </button>
               <p className="text-[10px] text-center text-slate-400 font-medium">
                 Dalailul Khairath Islamic Foundation (Regd.)
               </p>

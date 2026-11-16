@@ -1,5 +1,5 @@
 // DALAIL FAMILY ERP - Progressive Web App Service Worker
-const CACHE_NAME = 'dalail-family-erp-v5-sig';
+const CACHE_NAME = 'dalail-family-erp-v6-live';
 const PRECACHE_ASSETS = [
   '/',
   '/manifest.json',
@@ -12,6 +12,12 @@ const PRECACHE_ASSETS = [
   '/assets/official_receipt_template.jpg',
   '/assets/whatsapp_receipt_banner.jpg'
 ];
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

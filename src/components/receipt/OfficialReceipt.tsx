@@ -341,6 +341,21 @@ export const OfficialReceipt: React.FC<OfficialReceiptProps> = ({
                 Founder &amp; General Secretary
               </span>
             </div>
+
+            {/* 7. Receiver / Student Volunteer Name (Under the baseline) */}
+            <div
+              className="absolute flex items-center justify-end text-right pointer-events-none select-none"
+              style={{
+                left: '73.0%',
+                top: '87.5%',
+                width: '21.5%',
+                height: '5.5%',
+              }}
+            >
+              <span className="font-bold text-[#0C2F66] text-[7.5px] sm:text-[9.5px] md:text-[11px] tracking-wider uppercase truncate block font-mono">
+                {receipt.studentName || 'Official Receiver'}
+              </span>
+            </div>
           </div>
         ) : (
           /* ===================== MOCKUP S5 DIGITAL VERIFIED RECEIPT CARD ===================== */
